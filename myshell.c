@@ -34,12 +34,13 @@ int main(int argc, char** argv) {
 
     while (TRUE) {
         type_prompt();
+
+        // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        // tokenize buffer - should eventually be in read_command();
         token = strtok(buffer, " ");
         while (token != NULL) {
-            printf("%sTEST\n", token);
+            printf("%s__TEST\n", token);
             token = strtok(NULL, " ");  // returns
         }
 
