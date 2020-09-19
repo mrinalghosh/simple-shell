@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 void type_prompt(void);
 // void read_command(char* command, char* parameters);
