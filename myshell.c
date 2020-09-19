@@ -5,7 +5,7 @@
 #define MAX_BUFFER 1 << 9
 
 void type_prompt(void) {
-    printf("my_shell$: ")
+    printf("my_shell$: ");
 }
 
 // static bool validate(char* token){
