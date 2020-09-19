@@ -81,8 +81,8 @@ int main(int argc, char** argv) {
 
     // free pointers
     free(buffer);
-    free(command);
-    free(token);
+    // free(command);
+    // free(token);
 
     return 0;
 }
