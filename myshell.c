@@ -16,8 +16,8 @@ void type_prompt(void) {
 // }
 
 int main(int argc, char** argv) {
-    char* buffer = malloc(sizeof(char) * MAX_BUFFER);  //store line
-    char* token = malloc(sizeof(char) * MAX_TOKEN);    //store command token
+    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  //store line
+    char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);    //store command token
 
     pid_t pid;
 
