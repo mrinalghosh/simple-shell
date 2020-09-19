@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
         while (tokens != NULL) {
             printf(" %s\n", tokens);
 
-            tokens = strtok(NULL, s);
+            tokens = strtok(NULL, " ");
         }
 
         // if ((pid = fork()) > 0) {  // might not need to validate - fork arguments?
