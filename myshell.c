@@ -18,8 +18,7 @@ void type_prompt(void) {
 int main(int argc, char** argv) {
     char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  //store line
     char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  //store command token
-    // char* tokens = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this need to be smaller?
-    char* tokens;
+    char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);  // TODO: does this need to be smaller?
 
     pid_t pid;
 
@@ -29,11 +28,11 @@ int main(int argc, char** argv) {
         printf("%s\n", buffer);
 
         // tokenize buffer - should eventually be in read_command(command, parameters);
-        tokens = strtok(buffer, " ");
-        while (tokens != NULL) {
-            printf(" %s\n", tokens);
+        token = strtok(buffer, " ");
+        while (token != NULL) {
+            printf(" %s\n", token);
 
-            tokens = strtok(NULL, " ");
+            token = strtok(NULL, " ");
         }
 
         // if ((pid = fork()) > 0) {  // might not need to validate - fork arguments?
@@ -52,6 +51,7 @@ int main(int argc, char** argv) {
 
     // free pointers
     free(buffer);
+    free(command);
     free(token);
 
     return 0;
