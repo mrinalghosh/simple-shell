@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
     while (TRUE) {
         type_prompt();
         fgets(buffer, MAX_BUFFER, stdin);
+        printf("%s\n", buffer);
         // read_command(command, parameters);
         if ((pid = fork()) > 0) {  // might not need to validate - fork arguments?
             // parent
@@ -33,7 +34,13 @@ int main(int argc, char** argv) {
             // child
             // execvp(command, parameters, 0);  // execvp doesn't need absolute path
             //need to hardcode metachars & > < |
-            printf("%s hello child\n", *buffer);
+
+            // printf("%s hello child\n", buffer);
+            // printf("%s \n", buffer)
         }
     }
+
+    // free pointers
+    free(buffer);
+    free(token);
 }
