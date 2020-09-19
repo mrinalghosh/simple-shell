@@ -46,11 +46,16 @@ int main(int argc, char** argv) {
         if (pid == 0) {
             // child
             printf("Hello from child\n");
+            exit(42);
         } else if (pid > 0) {
             // parent
             printf("Hello from parent..waiting\n");
             pid = waitpid(pid, &wstatus, 0);
-            printf("child exited with status %d", WEXITSTATUS(wstatus));
+            printf("child %d exited with status %d", pid, WEXITSTATUS(wstatus));
+        }
+        else {
+            printf("something went wrong\n");
+            perror("error: ");
         }
 
         // if ((pid = fork()) > 0) {  // might not need to validate - fork arguments?
