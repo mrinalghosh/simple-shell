@@ -11,6 +11,7 @@
 #define TRUE 1
 #define MAX_TOKEN 1 << 5
 #define MAX_BUFFER 1 << 9
+// #define EXIT_SIGNAL '' //detect ctrl-D
 
 void type_prompt(void) {
     printf("my_shell$: ");
@@ -35,41 +36,30 @@ int main(int argc, char** argv) {
         type_prompt();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        // tokenize buffer - should eventually be in read_command(command, parameters);
+        // tokenize buffer - should eventually be in read_command();
         token = strtok(buffer, " ");
         while (token != NULL) {
             printf("%sTEST\n", token);
-            token = strtok(NULL, " "); // returns 
+            token = strtok(NULL, " ");  // returns
         }
 
-        pid = fork();
-        if (pid == 0) {
-            // child
-            printf("Hello from child\n");
-            exit(42);
-        } else if (pid > 0) {
-            // parent
-            printf("Hello from parent..waiting\n");
-            pid = waitpid(pid, &wstatus, 0);
-            printf("child %d exited with status %d", pid, WEXITSTATUS(wstatus));
-        }
-        else {
-            printf("something went wrong\n");
-            perror("error: ");
-        }
-
-        // if ((pid = fork()) > 0) {  // might not need to validate - fork arguments?
-        //     // parent
-        //     // waitpid(-1, &status, 0);
-        //     printf("hello parent\n");
-        // } else {
+        // pid = fork();
+        // if (pid == 0) {
         //     // child
-        //     // execvp(command, parameters, 0);  // execvp doesn't need absolute path
-        //     //need to hardcode metachars & > < |
-
-        //     // printf("%s hello child\n", buffer);
-        //     // printf("%s \n", buffer)
+        //     printf("Hello from child\n");
+        //     exit(42);
+        // } else if (pid > 0) {
+        //     // parent
+        //     printf("Hello from parent..waiting\n");
+        //     pid = waitpid(pid, &wstatus, 0);
+        //     printf("child %d exited with status %d", pid, WEXITSTATUS(wstatus));
+        // } else {
+        //     printf("something went wrong\n");
+        //     perror("error: ");
         // }
+
+        // execvp(command, parameters, 0);  // execvp doesn't need absolute path
+        //need to hardcode metachars & > < |
     }
 
     // free pointers
