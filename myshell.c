@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
             // child
             // execvp(command, parameters, 0);  // execvp doesn't need absolute path
             //need to hardcode metachars & > < |
-            printf("%s hello child\n", buffer);
+            printf("%s hello child\n", *buffer);
         }
     }
 }
