@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
         // tokenize buffer - should eventually be in read_command(command, parameters);
         token = strtok(buffer, " ");
         while (token != NULL) {
-            printf(" %s\n", token);
-            token = strtok(NULL, " ");
+            printf("%sTEST\n", token);
+            token = strtok(NULL, " "); // returns 
         }
 
         pid = fork();
