@@ -43,15 +43,16 @@ int main(int argc, char** argv) {
         // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        // do nothing if empty input (has a newline)
-        if ((tokens[0] = strtok(buffer, " \n\t")) == NULL) continue;
+        if ((tokens[0] = strtok(buffer, " \n\t")) == NULL)
+            continue; // do nothing if empty input
 
-        num_tokens = 1;  // reset within loop
+        num_tokens = 1; // reset
 
-        while ((tokens[num_tokens] = strtok(NULL, " \n\t")) != NULL) num_tokens++;
+        while ((tokens[num_tokens] = strtok(NULL, " \n\t")) != NULL)
+            num_tokens++;
 
         for (int i = 0; i < num_tokens; ++i) {
-            printf("%s --", tokens[i]);
+            printf("%s\n", tokens[i]);  // last token is empty need to discard
         }
 
         // token = strtok(buffer, " ");
