@@ -11,6 +11,7 @@
 #define TRUE 1
 #define MAX_TOKEN 1 << 5
 #define MAX_BUFFER 1 << 9
+#define LIMIT 1 << 8  // maximum number of tokens ~arbitrary
 // #define EXIT_SIGNAL '' //detect ctrl-D
 
 void type_prompt(void) {
@@ -24,10 +25,14 @@ void type_prompt(void) {
 // void error_message(void) {
 // }
 
+// char* read_input()
+
 int main(int argc, char** argv) {
     char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  //store line
-    char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  //store command token
-    char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);    // TODO: does this need to be smaller?
+    // char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  //store command token
+    // char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);    // TODO: does this need to be smaller?
+    char* tokens[LIMIT];
+    int num_tokens;
 
     pid_t pid;
     int wstatus;
@@ -38,11 +43,22 @@ int main(int argc, char** argv) {
         // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        token = strtok(buffer, " ");
-        while (token != NULL) {
-            printf("%s__TEST\n", token);
-            token = strtok(NULL, " ");  // returns
+        // do nothing if empty input (has a newline)
+        if ((tokens[0] = strtok(buffer, " \n\t")) == NULL) continue;
+
+        num_tokens = 1;  // reset within loop
+
+        while ((tokens[num_tokens] = strtok(NULL, " \n\t")) != NULL) num_tokens++;
+
+        for (int i = 0; i < num_tokens; ++i) {
+            printf("%s --", tokens[i]);
         }
+
+        // token = strtok(buffer, " ");
+        // while (token != NULL) {
+        //     printf("%s__TEST\n", token);
+        //     token = strtok(NULL, " ");  // returns
+        // }
 
         // pid = fork();
         // if (pid == 0) {
