@@ -83,8 +83,8 @@ int commandParser(char* tokens[]) {
     size_t i = 0, j = 0, k = 0;
 
     while (tokens[i] != NULL) {  // only looking for first metacharacter - combinations? - pipe might be only one without
-        for (size_t j = 0; j < 4; ++j)
-            if (strcmp(tokens[i], metachars[j]) == 0) metamask[j] = true;
+        for (k = 0; k < 4; ++k)
+            if (strcmp(tokens[i], metachars[k]) == 0) metamask[j] = true;
 
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
             break;
