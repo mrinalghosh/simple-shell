@@ -109,8 +109,8 @@ int commandParser(char* tokens[]) {
 
     //TODO: BREAK UP FOR METACHARS WO SPACES -> DELIMITED
 
-    for (k = 0; k < j; ++k) {
-        printf("--%s--\n", clean_tokens[k]);
+    for (k = 0; k < i; ++k) {
+        printf("--%s--\n", base_tokens[k]);
     }
 
     if (metamask[2]) {        // PIPE
