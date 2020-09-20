@@ -79,8 +79,6 @@ int main(int argc, char** argv) {
         fgets(buffer, MAX_BUFFER, stdin);
         // printf("The first and last character is %d, %d", buffer[0], buffer[MAX_BUFFER - 1]);
 
-        printf("NULL is %d", *NULL);
-
         // if (buffer == NULL) // TODO: not working for ctrl-D
         //     exit(0);
 
