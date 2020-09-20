@@ -60,14 +60,14 @@ int pipeHandler(char* tokens[]) {
 
     // printf("Command count = %d", cmd_count);
     /* Loop over all commands in array - change to NEWARRAY when strtok for | imp */
-    while (tokens[j] != NULL) {
-        k = 0;
-        while (strcmp(tokens[j], "|") != 0) {
-            command[k] = tokens[j];
-            ++k;
-        }
-        ++j;
-    }
+    // while (tokens[j] != NULL) {
+    //     k = 0;
+    //     while (strcmp(tokens[j], "|") != 0) {
+    //         command[k] = tokens[j];
+    //         ++k;
+    //     }
+    //     ++j;
+    // }
 
     return 0;
 }
@@ -81,13 +81,14 @@ int commandParser(char* tokens[]) {
     // char* subtokens[TOKEN_LIMIT];     // doesn't need to be this large
     char* temp;
 
-    size_t subcount = 0;
+    // size_t subcount = 0;
 
     size_t i = 0, j = 0, k = 0;
 
     while (tokens[i] != NULL) {  // only looking for first metacharacter - combinations? - pipe might be only one without
         for (k = 0; k < 4; ++k)
-            if (strcmp(tokens[i], metachars[k]) == 0) metamask[k] = true;
+            if (strcmp(tokens[i], metachars[k]) == 0)
+                metamask[k] = true;
 
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
             break;  // JUST CHECKING FOR FIRST MASK
