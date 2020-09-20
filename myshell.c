@@ -43,20 +43,19 @@ void type_prompt(void) {
 }
 
 int main(int argc, char** argv) {
-    // suppress output
-    bool suppress = (argc > 1) && !strcmp(argv[1], "-n");
+    int num_tokens;
+    pid_t pid;
+    int status;
+
+    bool suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
 
     // char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this even need to be malloc-ed?
     // memset(buffer, *NULL, sizeof(char) * MAX_BUFFER);
 
     char buffer[MAX_BUFFER];
-    memset(buffer, 0, sizeof(char) * MAX_BUFFER);
-
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
-    int num_tokens;
 
-    pid_t pid;
-    int status;
+    memset(buffer, EOF, MAX_BUFFER);
 
     while (true) {
         if (!suppress)
