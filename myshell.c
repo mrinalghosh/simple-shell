@@ -154,6 +154,7 @@ int main(int argc, char** argv) {
                 memmove(buffer + i + 1, buffer, MAX_BUFFER - 1);
                 buffer[i] = ' ';
             }
+            ++i;
         }
 
         printf("buffer after: %s", buffer);
