@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
         int i = 0;
         while (buffer[i] != '\0') {
             if (buffer[i] == '|') {
-                memmove(buffer + i + 2, buffer + i + 1, MAX_BUFFER);
+                memmove(buffer + i + 2, buffer + i + 1, 20);
                 buffer[i] = ' ';
             }
             ++i;
