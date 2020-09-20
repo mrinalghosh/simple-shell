@@ -35,42 +35,44 @@ basic tokenizing
 
 void prompt(void) { printf("my_shell$: "); }  //TODO: replace all printf with write - see strace
 
-int pipe_handler(char* tokens[]) {
-    // handler for tokens delimited by |
-    // while (tokens[1] != NULL)
+int pipeHandler(char* tokens[]) {
+    int fd1[2], fd2[2];
+    pid_t pid;
+
+    int cmd_count; // pipe count + 1
+    char* command[MAX_BUFFER];
+
+
     return 0;
 }
 
-int command_handler(char* tokens[]) {
-    /* check for meta-characters (& > < |) */
-    // char* secondary_tokens[TOKEN_LIMIT];
-
-    // check for pipes - pass to pipe_handler
+int commandParser(char* tokens[]) {
     char* metachars[4] = {">", "<", "|", "&"};
-    bool metamask[4] = {false, false, false, false};  // METACHARACTER mask - ['>', '<', '|', '&']
+    bool metamask[4] = {false, false, false, false};
 
     char* base_tokens[TOKEN_LIMIT];  // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
     char* aux_tokens[TOKEN_LIMIT];   // right side of meta-delimited args
 
-    size_t i = 0;  // temp indices for iteration
+    size_t i = 0;
 
-    //only looking for single spaced metachar
-    while (tokens[i] != NULL) {
-        for (size_t j = 0; j < 4; ++j) {
-            if (strcmp(tokens[i], metachars[j]) == 0) {
-                metamask[j] = true;
-            }
-        }
+    while (tokens[i] != NULL) { // only looking for first metacharacter - combinations? - pipe might be only one without
+        for (size_t j = 0; j < 4; ++j)
+            if (strcmp(tokens[i], metachars[j]) == 0) metamask[j] = true;
 
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
-            break;
+            break;  // can't break out of while within for loop above
 
-        base_tokens[i] = tokens[i];  // add tokens to base (left side of )
-        ++i;                         //increment
+        base_tokens[i] = tokens[i];  // left
+        ++i;
     }
 
-    for (size_t j = 0; j < i; ++j) {
-        printf("%s--", base_tokens[j]);
+    // for (size_t j = 0; j < i; ++j) {
+    //     printf("%s--", base_tokens[j]);
+    // }
+
+    if (metamask[2]) { // PIPE
+        pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
+        return 2;           // TODO: encode return from cmd handler
     }
 
     return 0;
@@ -112,7 +114,7 @@ int main(int argc, char** argv) {
         //     execvp(tokens[0], tokens);
         // }
 
-        retcode = command_handler(tokens);  // error checking via encoded return value?
+        retcode = commandParser(tokens);  // error checking via encoded return value?
     }
 
     return 0;
