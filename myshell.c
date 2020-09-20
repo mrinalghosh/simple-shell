@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     // char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this even need to be malloc-ed?
     // memset(buffer, *NULL, sizeof(char) * MAX_BUFFER);
 
-    char* buffer;
+    char buffer[MAX_BUFFER];
     memset(buffer, '\0', sizeof(char) * MAX_BUFFER);
 
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
@@ -64,7 +64,6 @@ int main(int argc, char** argv) {
 
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
-        printf("%s\n", buffer);
 
         if (buffer == NULL)
             exit(0);
