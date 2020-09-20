@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
 
     memset(buffer, '\0', MAX_BUFFER);
-    printf("The first character is %d", buffer[0]);
+    printf("Buffer is null? %d", buffer==NULL);
 
     while (true) {
         if (!suppress)
