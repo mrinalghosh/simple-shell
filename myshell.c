@@ -150,8 +150,8 @@ int main(int argc, char** argv) {
         // find indices of meta
         int i = 0;
         while (buffer[i] != '\0') {
-            if ((buffer[i] == '|') || (buffer[i] == '&') || (buffer[i] == '<') || (buffer[i] == '>')) {
-                memmove(buffer + i + 1, buffer, MAX_BUFFER - 1);
+            if (buffer[i] == '|') {
+                memmove(buffer + i + 2, buffer+i+1, MAX_BUFFER - 1);
                 buffer[i] = ' ';
             }
             ++i;
