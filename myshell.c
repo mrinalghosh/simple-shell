@@ -148,11 +148,11 @@ int main(int argc, char** argv) {
         // find indices of meta
         int i = 0;
         while (buffer[i] != '\0') {
-            if (buffer[i] == '|' && buffer[i - 1] != ' ') {  // no space before
+            if ((buffer[i - 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&' )) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
                 buffer[i] = ' ';
             }
-            if (buffer[i] == '|' && buffer[i + 1] != ' ') {  // no space after
+            if ((buffer[i + 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&' )) {  // no space after
                 memmove((buffer + i + 2), (buffer + i + 1), sizeof(buffer) - i - 1);
                 buffer[i + 1] = ' ';
             }
