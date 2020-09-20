@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,14 +10,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define TRUE 1
-#define FALSE 0
-#define MAX_TOKEN 1 << 5
-#define MAX_BUFFER 1 << 9
-#define TOKEN_LIMIT 1 << 7  // maximum number of tokens - arbitrary choice of 128
-#define STD_INPUT 0
-#define STD_OUTPUT 1
-#define STD_ERROR 2
+// #define TRUE 1 // using stdbool
+// #define FALSE 0
 
 /*
 TODO:
@@ -49,21 +44,36 @@ int pipe_handler(char* tokens[]) {
 int command_handler(char* tokens[]) {
     /* check for meta-characters (& > < |) */
     // char* secondary_tokens[TOKEN_LIMIT];
+
+    // check for pipes - pass to pipe_handler
+    size_t i = 0, j = 0;  // temp indices for iteration
+    bool bg = false;      // whether tasks backgrounded by ampersand at end of line
+
+    char* base_tokens[TOKEN_LIMIT];  // to hold delimited arguments - this won't work with more than 1 meta-char - might need more?
+
+    // look for metacharacters
+    while (tokens[i] != NULL) {
+        if (strcmp(tokens[i], GREATER)==0 || strcmp(tokens[i], LESSER)==0 || strcmp(tokens[i], AMPERSAND)){
+            
+        }
+         // store in temp primary
+        ++i; //inc
+    }
+
     return 0;
 }
 
 int main(int argc, char** argv) {
-    int num_tokens;
-    pid_t pid;
+    int token_count;
     int status;
-
     int suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
+    pid_t pid;
 
-    char buffer[MAX_BUFFER]; // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
+    char buffer[MAX_BUFFER];    // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
 
-    while (TRUE) {
-        num_tokens = 1;
+    while (true) {
+        token_count = 1;
         if (!suppress)
             prompt();
 
@@ -72,10 +82,10 @@ int main(int argc, char** argv) {
         fgets(buffer, MAX_BUFFER, stdin);
 
         if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters can be input?
-            continue;
+            continue;                                         // reshow prompt
 
-        while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
-            ++num_tokens;
+        while ((tokens[token_count] = strtok(NULL, " \n\t\v")) != NULL)
+            ++token_count;
 
         // HERE ONWARD SHOULD GO INTO command_handler();
         if ((pid = fork()) > 0) {
