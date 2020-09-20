@@ -63,9 +63,10 @@ int main(int argc, char** argv) {
         while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
             ++num_tokens;
 
-        char* ls_args[2];
-        ls_args[0] = ".";
-        ls_args[1] = 0;
+        char* ls_args[3];
+        ls_args[0] = "ls";
+        ls_args[1] = ".";
+        ls_args[2] = 0;
 
         if ((pid = fork()) > 0) {
             // PARENT
