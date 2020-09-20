@@ -85,13 +85,16 @@ int commandParser(char* tokens[]) {
 
     size_t i = 0, j = 0, k = 0;
 
-    while (tokens[i] != NULL) {  // only looking for first metacharacter - combinations? - pipe might be only one without
+    while (tokens[i] != NULL) {
+        // MIGHT NOT NEED THE METACHARS IF PROPERLY TOKENIZED
         for (k = 0; k < 4; ++k)
             if (strcmp(tokens[i], metachars[k]) == 0)
                 metamask[k] = true;
 
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
             break;  // JUST CHECKING FOR FIRST MASK
+
+        
 
         // if((temp = strchr(tokens[i], '|')) == NULL) // temp points to NULL since to occurance of delimiter
         //     clean_tokens[++j]=tokens[i];
@@ -109,9 +112,9 @@ int commandParser(char* tokens[]) {
 
     //TODO: BREAK UP FOR METACHARS WO SPACES -> DELIMITED
 
-    for (k = 0; k < i; ++k) {
-        printf("--%s--\n", base_tokens[k]);
-    }
+    // for (k = 0; k < i; ++k) {
+    //     printf("--%s--\n", base_tokens[k]);
+    // }
 
     if (metamask[2]) {        // PIPE
         pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
@@ -142,7 +145,20 @@ int main(int argc, char** argv) {
 
         fgets(buffer, MAX_BUFFER, stdin);
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters can be input?
+        printf("buffer before: %s", buffer);
+
+        // find indices of meta
+        int i = 0;
+        while (buffer[i] != '\0') {
+            if ((buffer[i] == '|') || (buffer[i] == '&') || (buffer[i] == '<') || (buffer[i] == '>')) {
+                memmove(buffer + i + 1, buffer, MAX_BUFFER - 1);
+                buffer[i] = ' ';
+            }
+        }
+
+        printf("buffer after: %s", buffer);
+
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters possible?
             continue;                                         // reshow prompt
 
         while ((tokens[token_count] = strtok(NULL, " \n\t\v")) != NULL)
