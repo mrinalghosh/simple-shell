@@ -25,12 +25,12 @@ TODO:
 detect ctrl-D = EOF
 basic fork execvp REPL -- read - eval - print - loop
 need to hardcode handling metachars - & > < |
--n flag to suppress prompt
 */
 
 /*
 DONE:
 basic tokenizing
+-n flag to suppress prompt
 */
 
 void type_prompt(void) {
@@ -63,11 +63,6 @@ int main(int argc, char** argv) {
         while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
             ++num_tokens;
 
-        // // test for proper tokenizing
-        // for (int i = 0; i < num_tokens; ++i) {
-        //     printf("%s\n", tokens[i]);
-        // }
-
         char* ls_args[2];
         ls_args[0] = ".";
         ls_args[1] = 0;
@@ -79,8 +74,8 @@ int main(int argc, char** argv) {
             printf("child %d exited with status %d", pid, WEXITSTATUS(status));
         } else {
             // CHILD
-            execve("/bin/ls", ls_args, 0);
-            // execvp("ls", ls_args, 0);
+            // execve("/bin/ls", ls_args, 0);
+            execvp("ls", ls_args, 0);
         }
 
         // DONT USE FFLUSH ON STDIN - MEANT FOR OSTREAMs
