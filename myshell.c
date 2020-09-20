@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     bool suppress = (argc > 1) && !strcmp(argv[1], "-n");
 
     char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line from stdin
-    char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
+    char* tokens[TOKEN_LIMIT];                                // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
 
     pid_t pid;
@@ -63,10 +63,10 @@ int main(int argc, char** argv) {
         while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
             ++num_tokens;
 
-        char* ls_args[3];
-        ls_args[0] = "ls";
-        ls_args[1] = ".";
-        ls_args[2] = 0;
+        // char* ls_args[3];
+        // ls_args[0] = "ls";
+        // ls_args[1] = ".";
+        // ls_args[2] = 0;
 
         if ((pid = fork()) > 0) {
             // PARENT
@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
         } else {
             // CHILD
             // execve("/bin/ls", ls_args, 0);
-            execvp("ls", ls_args);
+            // execvp("ls", ls_args);
+            execvp(tokens[0], tokens);
         }
 
         // DONT USE FFLUSH ON STDIN - MEANT FOR OSTREAMs
