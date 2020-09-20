@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
         } else {
             // CHILD
             // execve("/bin/ls", ls_args, 0);
-            execvp("ls", ls_args, 0);
+            execvp("ls", ls_args);
         }
 
         // DONT USE FFLUSH ON STDIN - MEANT FOR OSTREAMs
