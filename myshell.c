@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     // memset(buffer, *NULL, sizeof(char) * MAX_BUFFER);
 
     char buffer[MAX_BUFFER];
-    memset(buffer, '\0', sizeof(char) * MAX_BUFFER);
+    memset(buffer, NULL, sizeof(char) * MAX_BUFFER);
 
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
