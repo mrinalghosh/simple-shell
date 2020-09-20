@@ -18,13 +18,18 @@ SOURCES:
 https://stackoverflow.com/questions/23456374/why-do-we-use-null-in-strtok
 https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
 https://stackoverflow.com/questions/12935752/how-to-memset-char-array-with-null-terminating-character 
+https://unix.stackexchange.com/questions/72295/what-is-an-invisible-whitespace-character-that-takes-up-space
 */
 
 /*
 TODO:
 detect ctrl-D = EOF
 basic fork execvp REPL -- read - eval - print - loop
-need to hardcode handling metachars - & > < |
+need to hardcode handling metachars:
+    & - background task (don't wait)
+    > - redirection of output
+    < - redirection of input
+    | - pipe redirection - connect stdout of cmd to stdin of another 
 */
 
 /*
@@ -41,7 +46,7 @@ int main(int argc, char** argv) {
     // suppress output
     bool suppress = (argc > 1) && !strcmp(argv[1], "-n");
 
-    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line from stdin
+    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this even need to be malloc-ed?
     char* tokens[TOKEN_LIMIT];                                // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
 
@@ -52,41 +57,30 @@ int main(int argc, char** argv) {
         if (!suppress)
             type_prompt();
 
-        // populate and tokenize buffer - should eventually be in read_command();
+        num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)
-            continue;  // do nothing if empty input
+        if(buffer == NULL)
+            return 0;
 
-        num_tokens = 1;  // reset for new input
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) // which whitespace characters can be input?
+            continue;
 
         while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
             ++num_tokens;
-
-        // char* ls_args[3];
-        // ls_args[0] = "ls";
-        // ls_args[1] = ".";
-        // ls_args[2] = 0;
 
         if ((pid = fork()) > 0) {
             // PARENT
             printf("Hello from parent..waiting\n");
             pid = waitpid(pid, &status, 0);
-            printf("child %d exited with status %d", pid, WEXITSTATUS(status));
+            printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
         } else {
             // CHILD
-            // execve("/bin/ls", ls_args, 0);
-            // execvp("ls", ls_args);
             execvp(tokens[0], tokens);
         }
-
-        // DONT USE FFLUSH ON STDIN - MEANT FOR OSTREAMs
     }
 
-    // free pointers
     free(buffer);
-    // free(command);
-    // free(token);
 
     return 0;
 }
