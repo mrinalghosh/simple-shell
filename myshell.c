@@ -62,7 +62,7 @@ int command_handler(char* tokens[]) {
             break; // does this break out of outer while loop?
         }
         base_tokens[i] = tokens[i];  // add tokens to base (left side of )
-        printf("adding token %s \n", tokens[i])
+        printf("adding token %s \n", tokens[i]);
         ++i;                         //increment
     }
 
