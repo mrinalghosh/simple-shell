@@ -46,7 +46,7 @@ int command_handler(char* tokens[]) {
     // char* secondary_tokens[TOKEN_LIMIT];
 
     // check for pipes - pass to pipe_handler
-    char metachars = {GREATER, LESSER, PIPE, AMPERSAND};
+    char metachars[4] = {GREATER, LESSER, PIPE, AMPERSAND};
     bool metamask[4] = {false, false, false, false};  // METACHARACTER mask - ['>', '<', '|', '&']
 
     char* base_tokens[TOKEN_LIMIT];  // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
