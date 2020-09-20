@@ -59,6 +59,7 @@ int main(int argc, char** argv) {
 
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
+        printf("%s\n", buffer);
 
         if (buffer != NULL)
             exit(0);
