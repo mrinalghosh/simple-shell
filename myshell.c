@@ -46,24 +46,26 @@ int command_handler(char* tokens[]) {
     // char* secondary_tokens[TOKEN_LIMIT];
 
     // check for pipes - pass to pipe_handler
-    bool bg = false;  // whether tasks backgrounded by ampersand at end of line
+    char metachars = {GREATER, LESSER, PIPE, AMPERSAND};
+    bool metamask[4] = {false, false, false, false};  // METACHARACTER mask - ['>', '<', '|', '&']
 
-    char* base_tokens[TOKEN_LIMIT];  // to hold delimited arguments - this won't work with more than 1 meta-char - might need more?
+    char* base_tokens[TOKEN_LIMIT];  // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
     char* aux_tokens[TOKEN_LIMIT];   // right side of meta-delimited args
 
     size_t i = 0;  // temp indices for iteration
 
     //only looking for single spaced metachar
     while (tokens[i] != NULL) {
-        if (strcmp(tokens[i], GREATER) == 0 || strcmp(tokens[i], LESSER) == 0 || strcmp(tokens[i], AMPERSAND) == 0)
-            break;
-
+        for (size_t j = 0; j < 4; ++j) {
+            metamask[j] = (strcmp(tokens[i], metachars[j]) == 0) ? true : false;
+            break; // does this break out of outer while loop?
+        }
         base_tokens[i] = tokens[i];  // add tokens to base (left side of )
         ++i;                         //increment
     }
 
     for (size_t j = 0; j < i; ++j) {
-        printf("%s", base_tokens[j]);
+        printf("%s--", base_tokens[j]);
     }
 
     return 0;
