@@ -56,12 +56,11 @@ int main(int argc, char** argv) {
     char buffer[MAX_BUFFER];
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
 
-    memset(buffer, '\0', MAX_BUFFER);
-    printf("Buffer is null? %d", buffer==NULL);
-
     while (TRUE) {
         if (!suppress)
             type_prompt();
+
+        memset(buffer, '\0', MAX_BUFFER);
 
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
