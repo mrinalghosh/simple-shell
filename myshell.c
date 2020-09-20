@@ -60,10 +60,10 @@ int main(int argc, char** argv) {
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        if(buffer == NULL)
-            return 0;
+        if (buffer == NULL)
+            exit(0);
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) // which whitespace characters can be input?
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters can be input?
             continue;
 
         while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
