@@ -45,7 +45,6 @@ int pipeHandler(char* tokens[]) {
 
     int cmd_count = 1;  // pipe count + 1
     char* command[TOKEN_LIMIT];
-    char* command[TOKEN_LIMIT];
 
     size_t i = 0, j = 0, k = 0;
 
@@ -81,7 +80,7 @@ int commandParser(char* tokens[]) {
     char* clean_tokens[TOKEN_LIMIT];  // right side of meta-delimited args
     char* subtoken;
 
-    size_t i = 0, j = 0;
+    size_t i = 0, j = 0, k = 0;
 
     while (tokens[i] != NULL) {  // only looking for first metacharacter - combinations? - pipe might be only one without
         for (size_t j = 0; j < 4; ++j)
@@ -90,16 +89,13 @@ int commandParser(char* tokens[]) {
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
             break;
 
-
-        if ((subtoken = strstr(tokens[i], metachars[2])) == NULL) // not a metachar in string
+        if ((subtoken = strstr(tokens[i], metachars[2])) == NULL)  // not a metachar in string
             clean_tokens[j] = tokens[i];
-        else
-        {
-            clean_tokens[j] = tokens[i]; //TODO: only print difference between string and subtoken
+        else {
+            clean_tokens[j] = tokens[i];  //TODO: only print difference between string and subtoken
             clean_tokens[++j] = metachars[2];
             clean_tokens[++j] = subtok;
         }
-        
 
         base_tokens[i] = tokens[i];
         ++i;
@@ -108,7 +104,7 @@ int commandParser(char* tokens[]) {
 
     //TODO: BREAK UP FOR METACHARS WO SPACES -> DELIMITED
 
-    for (size_t k = 0; k < j; ++k) {
+    for (k = 0; k < j; ++k) {
         printf("%s--", clean_tokens[k]);
     }
 
