@@ -48,8 +48,8 @@ int command_handler(char* tokens[]) {
     // check for pipes - pass to pipe_handler
     bool bg = false;  // whether tasks backgrounded by ampersand at end of line
 
-    char* base_tokens[TOKEN_LIMIT] = NULL;  // to hold delimited arguments - this won't work with more than 1 meta-char - might need more?
-    char* aux_tokens[TOKEN_LIMIT] = NULL;   // right side of meta-delimited args
+    char* base_tokens[TOKEN_LIMIT];  // to hold delimited arguments - this won't work with more than 1 meta-char - might need more?
+    char* aux_tokens[TOKEN_LIMIT];   // right side of meta-delimited args
 
     size_t i = 0;  // temp indices for iteration
 
