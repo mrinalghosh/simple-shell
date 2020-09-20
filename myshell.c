@@ -76,9 +76,10 @@ int commandParser(char* tokens[]) {
     char* metachars[4] = {">", "<", "|", "&"};
     bool metamask[4] = {false, false, false, false};
 
-    char* base_tokens[TOKEN_LIMIT];     // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
+    char* base_tokens[TOKEN_LIMIT];   // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
     char* clean_tokens[TOKEN_LIMIT];  // right side of meta-delimited args
     char* subtokens[TOKEN_LIMIT];     // doesn't need to be this large
+    char* temp;
 
     size_t subcount = 0;
 
@@ -88,28 +89,29 @@ int commandParser(char* tokens[]) {
         for (k = 0; k < 4; ++k)
             if (strcmp(tokens[i], metachars[k]) == 0) metamask[j] = true;
 
-        // if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
-        //     break; // JUST CHECKING FOR FIRST MASK
+        if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
+            break;  // JUST CHECKING FOR FIRST MASK
 
-        // if ((subtokens = strstr(tokens[i], metachars[2])) == NULL)  // not a metachar in string
-        //     clean_tokens[j] = tokens[i];
-        // else {
-        //     clean_tokens[j] = tokens[i];  //TODO: only print difference between string and subtokens
-        //     clean_tokens[++j] = metachars[2];
-        //     clean_tokens[++j] = subtokens;
-        // }
-
-        // break up tokens wiht meta
-        if (strchr(tokens[i], '|') == NULL)  // no pipe - just add - change to support all meta
+        if ((subtokens = strstr(tokens[i], metachars[2])) == NULL)  // not a metachar in string
             clean_tokens[j] = tokens[i];
         else {
-            while ((subtokens[subcount] = strtok(NULL, "|&<>")) != NULL) {
-                ++subcount;
-            }
+            clean_tokens[j] = tokens[i];  //TODO: only print difference between string and subtokens
+            clean_tokens[++j] = metachars[2];
+            clean_tokens[++j] = subtokens;
         }
+
+        // // break up tokens wiht meta
+        // if (strchr(tokens[i], '|') == NULL)  // no pipe - just add - change to support all meta
+        //     clean_tokens[j] = tokens[i];
+        // else {
+        //     while ((subtokens[subcount] = strtok(NULL, "|&<>")) != NULL) {
+        //         ++subcount;
+        //     }
+        // }
 
         base_tokens[i] = tokens[i];
         ++i;
+
         // ++j;
     }
 
