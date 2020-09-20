@@ -44,16 +44,17 @@ int pipeHandler(char* tokens[]) {
     pid_t pid;
 
     int cmd_count = 1;  // pipe count + 1
-    char* command[MAX_BUFFER];
+    char* command[TOKEN_LIMIT];
+    char* command[TOKEN_LIMIT];
 
-    size_t i = 0, j = 0;
+    size_t i = 0, j = 0, k = 0;
 
     // check for |
     while (tokens[i] != NULL) {
         // TODO: non-spaced check - if works use same check in cmdhandler
         if (strcmp(tokens[i], "|") == 0) {
             ++cmd_count;
-            //TODO: strtok for | - add all to new array (split tokens)
+            //TODO: strtok for | - add all to new array (split tokens) OR strchr
         }
         ++i;
     }
@@ -61,6 +62,12 @@ int pipeHandler(char* tokens[]) {
     // printf("Command count = %d", cmd_count);
     /* Loop over all commands in array - change to NEWARRAY when strtok for | imp */
     while (tokens[j] != NULL) {
+        k = 0;
+        while (strcmp(tokens[j], "|") != 0) {
+            command[k] = tokens[j];
+            ++k;
+        }
+        ++j;
     }
 
     return 0;
@@ -70,25 +77,40 @@ int commandParser(char* tokens[]) {
     char* metachars[4] = {">", "<", "|", "&"};
     bool metamask[4] = {false, false, false, false};
 
-    char* base_tokens[TOKEN_LIMIT];  // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
-    char* aux_tokens[TOKEN_LIMIT];   // right side of meta-delimited args
+    char* base_tokens[TOKEN_LIMIT];   // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
+    char* clean_tokens[TOKEN_LIMIT];  // right side of meta-delimited args
+    char* subtoken;
 
-    size_t i = 0;
+    size_t i = 0, j = 0;
 
     while (tokens[i] != NULL) {  // only looking for first metacharacter - combinations? - pipe might be only one without
         for (size_t j = 0; j < 4; ++j)
             if (strcmp(tokens[i], metachars[j]) == 0) metamask[j] = true;
 
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
-            break; 
+            break;
 
-        base_tokens[i] = tokens[i];  // left
+
+        if ((subtoken = strstr(tokens[i], metachars[2])) == NULL) // not a metachar in string
+            clean_tokens[j] = tokens[i];
+        else
+        {
+            clean_tokens[j] = tokens[i]; //TODO: only print difference between string and subtoken
+            clean_tokens[++j] = metachars[2];
+            clean_tokens[++j] = subtok;
+        }
+        
+
+        base_tokens[i] = tokens[i];
         ++i;
+        ++j;
     }
 
-    // for (size_t j = 0; j < i; ++j) {
-    //     printf("%s--", base_tokens[j]);
-    // }
+    //TODO: BREAK UP FOR METACHARS WO SPACES -> DELIMITED
+
+    for (size_t k = 0; k < j; ++k) {
+        printf("%s--", clean_tokens[k]);
+    }
 
     if (metamask[2]) {        // PIPE
         pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
