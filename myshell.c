@@ -1,6 +1,7 @@
 #include "myshell.h"
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,11 +9,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define TRUE 1
 #define MAX_TOKEN 1 << 5
 #define MAX_BUFFER 1 << 9
 #define TOKEN_LIMIT 1 << 7  // maximum number of tokens - arbitrary choice of 128
-// #define EXIT_SIGNAL '' //detect ctrl-D
 
 /*
 SOURCES:
@@ -21,29 +20,37 @@ https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-
 https://stackoverflow.com/questions/12935752/how-to-memset-char-array-with-null-terminating-character 
 */
 
+/*
+TODO:
+detect ctrl-D = EOF
+basic fork execvp REPL -- read - eval - print - loop
+need to hardcode handling metachars - & > < |
+-n flag to suppress prompt
+*/
+
+/*
+DONE:
+basic tokenizing
+*/
+
 void type_prompt(void) {
     printf("my_shell$: ");
 }
 
-// static bool validate(char* token){
-
-// }
-
-// void error_message(void) {
-// }
-
-// REPL - read - eval - print - loop
-// has to handle metachars like > (pass output) & (doesn't wait for forked process) | (pipe - connect stdin stdout)
-
 int main(int argc, char** argv) {
+    // suppress output
+    bool suppress = (argc > 1) && (strcmp(*argv[1], "-n") == 0) ? true : false;
+    if (suppress)
+        printf("SUPPRESS DETECTED");
+
     char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line
     // char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  // store command token
-    // char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);    // TODO: does this need to be smaller?
+    // char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
 
     pid_t pid;
-    int wstatus;
+    int status;
 
     while (TRUE) {
         type_prompt();
@@ -57,29 +64,27 @@ int main(int argc, char** argv) {
         num_tokens = 1;  // reset for new input
 
         while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
-            num_tokens++;
+            ++num_tokens;
 
-        for (int i = 0; i < num_tokens; ++i) {  //test for proper tokenizing
-            printf("%s\n", tokens[i]);
-        }
-
-        // pid = fork();
-        // if (pid == 0) {
-        //     // child
-        //     printf("Hello from child\n");
-        //     exit(42);
-        // } else if (pid > 0) {
-        //     // parent
-        //     printf("Hello from parent..waiting\n");
-        //     pid = waitpid(pid, &wstatus, 0);
-        //     printf("child %d exited with status %d", pid, WEXITSTATUS(wstatus));
-        // } else {
-        //     printf("something went wrong\n");
-        //     perror("error: ");
+        // // test for proper tokenizing
+        // for (int i = 0; i < num_tokens; ++i) {
+        //     printf("%s\n", tokens[i]);
         // }
 
-        // execvp(command, parameters, 0);  // execvp doesn't need absolute path
-        //need to hardcode metachars & > < |
+        char* ls_args[2];
+        ls_args[0] = ".";
+        ls_args[1] = 0;
+
+        if ((pid = fork()) > 0) {
+            // PARENT
+            printf("Hello from parent..waiting\n");
+            pid = waitpid(pid, &status, 0);
+            printf("child %d exited with status %d", pid, WEXITSTATUS(status));
+        } else {
+            // CHILD
+            execve("/bin/ls", ls_args, 0);
+            // execvp("ls", ls_args, 0);
+        }
 
         // DONT USE FFLUSH ON STDIN - MEANT FOR OSTREAMs
     }
