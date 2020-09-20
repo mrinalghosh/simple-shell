@@ -76,7 +76,7 @@ int commandParser(char* tokens[]) {
     char* metachars[4] = {">", "<", "|", "&"};
     bool metamask[4] = {false, false, false, false};
 
-    char* tokens_cp[TOKEN_LIMIT];     // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
+    char* base_tokens[TOKEN_LIMIT];     // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
     char* clean_tokens[TOKEN_LIMIT];  // right side of meta-delimited args
     char* subtokens[TOKEN_LIMIT];     // doesn't need to be this large
 
