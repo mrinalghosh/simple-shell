@@ -73,63 +73,31 @@ int pipeHandler(char* tokens[]) {
 }
 
 int commandParser(char* tokens[]) {
-    char* metachars[4] = {">", "<", "|", "&"};
-    bool metamask[4] = {false, false, false, false};
+    char* base_tokens[TOKEN_LIMIT];
 
-    char* base_tokens[TOKEN_LIMIT];   // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
-    char* clean_tokens[TOKEN_LIMIT];  // right side of meta-delimited args
-    // char* subtokens[TOKEN_LIMIT];     // doesn't need to be this large
-    char* temp;
+    size_t i = 0;
 
-    // size_t subcount = 0;
-
-    size_t i = 0, j = 0, k = 0;
-
-    while (tokens[i] != NULL) {
-        // MIGHT NOT NEED THE METACHARS IF PROPERLY TOKENIZED
-        for (k = 0; k < 4; ++k)
-            if (strcmp(tokens[i], metachars[k]) == 0)
-                metamask[k] = true;
-
-        if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
-            break;  // JUST CHECKING FOR FIRST MASK
-
-        // if((temp = strchr(tokens[i], '|')) == NULL) // temp points to NULL since to occurance of delimiter
-        //     clean_tokens[++j]=tokens[i];
-        // else{ // temp points to first occ of delimiter
-        //     clean_tokens[++j] =tokens[i]; // fix this
-        //     clean_tokens[++j] = "|";
-        //     clean_tokens[++j] = temp;
-        // }
-
+    while (tokens[i] != NULL) { // get token count and assign to new string
         base_tokens[i] = tokens[i];
         ++i;
-
-        // ++j;
     }
 
-    //TODO: BREAK UP FOR METACHARS WO SPACES -> DELIMITED
-
-    // for (k = 0; k < i; ++k) {
-    //     printf("--%s--\n", base_tokens[k]);
-    // }
-
-    if (metamask[2]) {        // PIPE
-        pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
-        return 2;             // TODO: encode return from cmd handler
-    }
+    // if (metamask[2]) {        // PIPE
+    //     pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
+    //     return 2;             // TODO: encode return from cmd handler
+    // } // TODO: deal with pipe without masking - maybe have a list of operations?
 
     return 0;
 }
 
 int main(int argc, char** argv) {
     int token_count;
-
     int suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
 
-    pid_t pid;
-    int status;
-    int retcode;
+    // pid_t pid;
+    // int status;
+    // int retcode;
+    int i;
 
     char buffer[MAX_BUFFER];    // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
@@ -143,23 +111,22 @@ int main(int argc, char** argv) {
 
         fgets(buffer, MAX_BUFFER, stdin);
 
-        printf("buffer before: %s", buffer);
+        // printf("buffer before: %s", buffer);
 
-        // find indices of meta
-        int i = 0;
+        i = 0;
         while (buffer[i] != '\0') {
-            if ((buffer[i - 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&' )) {  // no space before
+            if ((buffer[i - 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&')) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
                 buffer[i] = ' ';
             }
-            if ((buffer[i + 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&' )) {  // no space after
+            if ((buffer[i + 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&')) {  // no space after
                 memmove((buffer + i + 2), (buffer + i + 1), sizeof(buffer) - i - 1);
                 buffer[i + 1] = ' ';
             }
             ++i;
         }
 
-        printf("buffer after: %s", buffer);
+        // printf("buffer after: %s", buffer);
 
         if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters possible?
             continue;                                         // reshow prompt
