@@ -39,11 +39,9 @@ void type_prompt(void) {
 
 int main(int argc, char** argv) {
     // suppress output
-    bool suppress = (argc > 1) && (strcmp(argv[1], "-n") == 0);
+    bool suppress = (argc > 1) && !strcmp(argv[1], "-n");
 
-    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line
-    // char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  // store command token
-    // char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);
+    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line from stdin
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
 
