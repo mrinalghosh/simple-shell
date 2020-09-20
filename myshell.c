@@ -93,34 +93,13 @@ int commandParser(char* tokens[]) {
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
             break;  // JUST CHECKING FOR FIRST MASK
 
-        // if ((subtokens[0] = strstr(tokens[i], metachars[2])) == NULL)  // not a metachar in string
-        //     clean_tokens[j] = tokens[i];
-        // else {
-        //     clean_tokens[j] = tokens[i];  //TODO: only print difference between string and subtokens
-        //     clean_tokens[++j] = metachars[2];
-        //     clean_tokens[++j] = subtokens;
+        // if((temp = strchr(tokens[i], '|')) == NULL) // temp points to NULL since to occurance of delimiter
+        //     clean_tokens[++j]=tokens[i];
+        // else{ // temp points to first occ of delimiter
+        //     clean_tokens[++j] =tokens[i]; // fix this
+        //     clean_tokens[++j] = "|";
+        //     clean_tokens[++j] = temp;
         // }
-
-        // // break up tokens wiht meta
-        // if (strchr(tokens[i], '|') == NULL)  // no pipe - just add - change to support all meta
-        //     clean_tokens[j] = tokens[i];
-        // else {
-        //     while ((subtokens[subcount] = strtok(NULL, "|&<>")) != NULL) {
-        //         ++subcount;
-        //     }
-        // }
-
-
-
-        if((temp = strchr(tokens[i], '|')) == NULL) // temp points to NULL since to occurance of delimiter
-            clean_tokens[++j]=tokens[i];
-        else{ // temp points to first occ of delimiter
-            clean_tokens[++j] =tokens[i]; // fix this
-            clean_tokens[++j] = "|";
-            clean_tokens[++j] = temp;
-        }
-
-
 
         base_tokens[i] = tokens[i];
         ++i;
