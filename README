@@ -4,9 +4,14 @@ https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-
 https://stackoverflow.com/questions/12935752/how-to-memset-char-array-with-null-terminating-character 
 https://unix.stackexchange.com/questions/72295/what-is-an-invisible-whitespace-character-that-takes-up-space
 
-ctrl-D catching:
+Ctrl-D catching:
 https://www.tutorialspoint.com/unix/unix-signals-traps.htm
 https://stackoverflow.com/questions/26766419/better-understanding-of-signal-catching-ie-sigint-sigquit-in-c
 
-trivial:
+Metacharacters:
+https://www.linux.com/training-tutorials/and-ampersand-and-linux/
+https://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html
+
+Trivial:
 https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
+https://www.tutorialspoint.com/cprogramming/c_break_statement.htm

@@ -46,18 +46,24 @@ int command_handler(char* tokens[]) {
     // char* secondary_tokens[TOKEN_LIMIT];
 
     // check for pipes - pass to pipe_handler
-    size_t i = 0, j = 0;  // temp indices for iteration
-    bool bg = false;      // whether tasks backgrounded by ampersand at end of line
+    bool bg = false;  // whether tasks backgrounded by ampersand at end of line
 
-    char* base_tokens[TOKEN_LIMIT];  // to hold delimited arguments - this won't work with more than 1 meta-char - might need more?
+    char* base_tokens[TOKEN_LIMIT] = NULL;  // to hold delimited arguments - this won't work with more than 1 meta-char - might need more?
+    char* aux_tokens[TOKEN_LIMIT] = NULL;   // right side of meta-delimited args
 
-    // look for metacharacters
+    size_t i = 0;  // temp indices for iteration
+
+    //only looking for single spaced metachar
     while (tokens[i] != NULL) {
-        if (strcmp(tokens[i], GREATER)==0 || strcmp(tokens[i], LESSER)==0 || strcmp(tokens[i], AMPERSAND)){
-            
-        }
-         // store in temp primary
-        ++i; //inc
+        if (strcmp(tokens[i], GREATER) == 0 || strcmp(tokens[i], LESSER) == 0 || strcmp(tokens[i], AMPERSAND) == 0)
+            break;
+
+        base_tokens[i] = tokens[i];  // add tokens to base (left side of )
+        ++i;                         //increment
+    }
+
+    for (size_t j = 0; j < i; ++j) {
+        printf("%s", base_tokens[j]);
     }
 
     return 0;
@@ -68,6 +74,7 @@ int main(int argc, char** argv) {
     int status;
     int suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
     pid_t pid;
+    int retcode;
 
     char buffer[MAX_BUFFER];    // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
@@ -88,15 +95,17 @@ int main(int argc, char** argv) {
             ++token_count;
 
         // HERE ONWARD SHOULD GO INTO command_handler();
-        if ((pid = fork()) > 0) {
-            // PARENT
-            printf("Hello from parent..waiting\n");
-            pid = waitpid(pid, &status, 0);
-            printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
-        } else {
-            // CHILD
-            execvp(tokens[0], tokens);
-        }
+        // if ((pid = fork()) > 0) {
+        //     // PARENT
+        //     printf("Hello from parent..waiting\n");
+        //     pid = waitpid(pid, &status, 0);
+        //     printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+        // } else {
+        //     // CHILD
+        //     execvp(tokens[0], tokens);
+        // }
+
+        retcode = command_handler(tokens);  // error checking via encoded return value?
     }
 
     return 0;
