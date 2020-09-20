@@ -47,7 +47,9 @@ int main(int argc, char** argv) {
     bool suppress = (argc > 1) && !strcmp(argv[1], "-n");
 
     char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this even need to be malloc-ed?
-    char* tokens[TOKEN_LIMIT];                                // TODO: may not need array - might be able to dynamically allocate only size needed?
+    memset(buffer, '\0', sizeof(char) * MAX_BUFFER);
+
+    char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
 
     pid_t pid;
@@ -61,7 +63,7 @@ int main(int argc, char** argv) {
         fgets(buffer, MAX_BUFFER, stdin);
         printf("%s\n", buffer);
 
-        if (buffer != NULL)
+        if (buffer == NULL)
             exit(0);
 
         if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters can be input?
