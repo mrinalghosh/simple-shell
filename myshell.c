@@ -94,7 +94,7 @@ int commandParser(char* tokens[]) {
         else {
             clean_tokens[j] = tokens[i];  //TODO: only print difference between string and subtoken
             clean_tokens[++j] = metachars[2];
-            clean_tokens[++j] = subtok;
+            clean_tokens[++j] = subtoken;
         }
 
         base_tokens[i] = tokens[i];
