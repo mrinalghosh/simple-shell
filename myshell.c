@@ -39,8 +39,20 @@ basic tokenizing
 -n flag to suppress prompt
 */
 
-void type_prompt(void) {
+void prompt(void) {
     printf("my_shell$: ");
+}
+
+int pipe_delimit(char* tokens[]) {
+    // handler for tokens delimited by |
+    // while (tokens[1] != NULL)
+    return 0;
+}
+
+int execute(char* tokens[]) {
+    /* check for meta-characters (& > < |) */
+    // char* secondary_tokens[TOKEN_LIMIT];
+    return 0;
 }
 
 int main(int argc, char** argv) {
@@ -51,22 +63,23 @@ int main(int argc, char** argv) {
     int suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
 
     // char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this even need to be malloc-ed?
-    // memset(buffer, *NULL, sizeof(char) * MAX_BUFFER);
 
     char buffer[MAX_BUFFER];
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
 
     while (TRUE) {
         if (!suppress)
-            type_prompt();
+            prompt();
 
-        memset(buffer, '\0', MAX_BUFFER);
+        memset(buffer, '\0', MAX_BUFFER);  // TODO:not working for ctrl-D
+        printf("The first and last character is %d", buffer[0], buffer[MAX_BUFFER - 1]);
 
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
+        printf("The first and last character is %d", buffer[0], buffer[MAX_BUFFER - 1]);
 
-        if (buffer == NULL)
-            exit(0);
+        // if (buffer == NULL) // TODO: not working for ctrl-D
+        //     exit(0);
 
         if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters can be input?
             continue;
