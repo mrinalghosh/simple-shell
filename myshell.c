@@ -35,13 +35,28 @@ basic tokenizing
 
 void prompt(void) { printf("my_shell$: "); }  //TODO: replace all printf with write - see strace
 
+// char* charLoc(char* str, char* ch) {
+// }
+
 int pipeHandler(char* tokens[]) {
     int fd1[2], fd2[2];
+
     pid_t pid;
 
-    int cmd_count; // pipe count + 1
+    int cmd_count = 1;  // pipe count + 1
     char* command[MAX_BUFFER];
 
+    size_t i = 0;
+
+    // check for |
+    while (tokens[i] != NULL) {
+        // TODO: non-spaced check - if works use same check in cmdhandler
+        if (strcmp(tokens[i], "|") == 0)
+            ++cmd_count;
+        ++i;
+    }
+
+    printf("Command count = %d", cmd_count);
 
     return 0;
 }
@@ -55,7 +70,7 @@ int commandParser(char* tokens[]) {
 
     size_t i = 0;
 
-    while (tokens[i] != NULL) { // only looking for first metacharacter - combinations? - pipe might be only one without
+    while (tokens[i] != NULL) {  // only looking for first metacharacter - combinations? - pipe might be only one without
         for (size_t j = 0; j < 4; ++j)
             if (strcmp(tokens[i], metachars[j]) == 0) metamask[j] = true;
 
@@ -70,9 +85,9 @@ int commandParser(char* tokens[]) {
     //     printf("%s--", base_tokens[j]);
     // }
 
-    if (metamask[2]) { // PIPE
+    if (metamask[2]) {        // PIPE
         pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
-        return 2;           // TODO: encode return from cmd handler
+        return 2;             // TODO: encode return from cmd handler
     }
 
     return 0;
