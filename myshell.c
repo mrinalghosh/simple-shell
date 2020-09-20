@@ -72,11 +72,11 @@ int main(int argc, char** argv) {
             prompt();
 
         memset(buffer, '\0', MAX_BUFFER);  // TODO:not working for ctrl-D
-        printf("The first and last character is %d, %d", buffer[0], buffer[MAX_BUFFER - 1]);
+        // printf("The first and last character is %d, %d", buffer[0], buffer[MAX_BUFFER - 1]);
 
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
-        printf("The first and last character is %d, %d", buffer[0], buffer[MAX_BUFFER - 1]);
+        // printf("The first and last character is %d, %d", buffer[0], buffer[MAX_BUFFER - 1]);
 
         // if (buffer == NULL) // TODO: not working for ctrl-D
         //     exit(0);
