@@ -103,7 +103,7 @@ int commandParser(char* tokens[]) {
         if (strchr(tokens[i], '|') == NULL)  // no pipe - just add - change to support all meta
             clean_tokens[j] = tokens[i];
         else {
-            while (subtokens[subcount] = strtok(NULL, "|&<>") != NULL) {
+            while ((subtokens[subcount] = strtok(NULL, "|&<>")) != NULL) {
                 ++subcount;
             }
         }
