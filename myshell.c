@@ -59,12 +59,11 @@ int command_handler(char* tokens[]) {
         for (size_t j = 0; j < 4; ++j) {
             if (strcmp(tokens[i], metachars[j]) == 0) {
                 metamask[j] = true;
-                goto brk;  // does this break out of outer while loop? NO
             }
         }
-        
-    brk:
-        break;
+
+        if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
+            break;
 
         base_tokens[i] = tokens[i];  // add tokens to base (left side of )
         ++i;                         //increment
