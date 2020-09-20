@@ -7,10 +7,12 @@
 #define STD_INPUT 0
 #define STD_OUTPUT 1
 #define STD_ERROR 2
-#define AMPERSAND "&"
-#define GREATER ">"
-#define LESSER "<"
-#define PIPE "|"
+// #define AMPERSAND "&"
+// #define GREATER ">"
+// #define LESSER "<"
+// #define PIPE "|"
+// #define TRUE 1
+// #define FALSE 0
 
 // TODO: add function prototypes
 void type_prompt(void);

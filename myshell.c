@@ -46,7 +46,7 @@ int command_handler(char* tokens[]) {
     // char* secondary_tokens[TOKEN_LIMIT];
 
     // check for pipes - pass to pipe_handler
-    char* metachars[4] = {GREATER, LESSER, PIPE, AMPERSAND};
+    char* metachars[4] = {">", "<", "|", "&"};
     bool metamask[4] = {false, false, false, false};  // METACHARACTER mask - ['>', '<', '|', '&']
 
     char* base_tokens[TOKEN_LIMIT];  // to hold left side arguments - this won't work with more than 1 meta-char - might need more?
@@ -59,12 +59,15 @@ int command_handler(char* tokens[]) {
         for (size_t j = 0; j < 4; ++j) {
             if (strcmp(tokens[i], metachars[j]) == 0) {
                 metamask[j] = true;
-                break;  // does this break out of outer while loop?
+                goto brk;  // does this break out of outer while loop? NO
             }
         }
+        
+    brk:
+        break;
 
         base_tokens[i] = tokens[i];  // add tokens to base (left side of )
-        ++i;  //increment
+        ++i;                         //increment
     }
 
     for (size_t j = 0; j < i; ++j) {
