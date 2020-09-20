@@ -94,8 +94,6 @@ int commandParser(char* tokens[]) {
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
             break;  // JUST CHECKING FOR FIRST MASK
 
-        
-
         // if((temp = strchr(tokens[i], '|')) == NULL) // temp points to NULL since to occurance of delimiter
         //     clean_tokens[++j]=tokens[i];
         // else{ // temp points to first occ of delimiter
@@ -151,8 +149,8 @@ int main(int argc, char** argv) {
         int i = 0;
         while (buffer[i] != '\0') {
             if (buffer[i] == '|') {
-                memmove(buffer + i + 2, buffer+i+1, MAX_BUFFER - 1);
-                buffer[i] = ' ', buffer[i+1]= '|';
+                memmove(buffer + i + 2, buffer + i + 1, MAX_BUFFER);
+                buffer[i] = ' ';
             }
             ++i;
         }
