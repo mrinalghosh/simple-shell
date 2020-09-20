@@ -56,15 +56,16 @@ int command_handler(char* tokens[]) {
 
     //only looking for single spaced metachar
     while (tokens[i] != NULL) {
-        
         for (size_t j = 0; j < 4; ++j) {
-            metamask[j] = (strcmp(tokens[i], metachars[j]) == 0) ? true : false;
-            printf("DETECTED %s - breaking\n", metachars[j]);
-            break; // does this break out of outer while loop?
+            if (strcmp(tokens[i], metachars[j]) == 0) {
+                metamask[j] = true;
+                printf("DETECTED %s - breaking\n", metachars[j]);
+                break;  // does this break out of outer while loop?
+            }
         }
         base_tokens[i] = tokens[i];  // add tokens to base (left side of )
         printf("adding token %s \n", tokens[i]);
-        ++i;                         //increment
+        ++i;  //increment
     }
 
     // for (size_t j = 0; j < i; ++j) {
