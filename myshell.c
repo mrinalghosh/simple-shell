@@ -112,7 +112,7 @@ int commandParser(char* tokens[]) {
 
 
 
-        if((temp = strchr(tokens[i], "|")) == NULL) // temp points to NULL since to occurance of delimiter
+        if((temp = strchr(tokens[i], '|')) == NULL) // temp points to NULL since to occurance of delimiter
             clean_tokens[++j]=tokens[i];
         else{ // temp points to first occ of delimiter
             clean_tokens[++j] =tokens[i]; // fix this
