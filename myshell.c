@@ -39,9 +39,7 @@ void type_prompt(void) {
 
 int main(int argc, char** argv) {
     // suppress output
-    bool suppress = (argc > 1) && (strcmp(argv[1], "-n") == 0) ? true : false;
-    if (suppress)
-        printf("SUPPRESS DETECTED");
+    bool suppress = (argc > 1) && (strcmp(argv[1], "-n") == 0);
 
     char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line
     // char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  // store command token
@@ -53,7 +51,8 @@ int main(int argc, char** argv) {
     int status;
 
     while (true) {
-        type_prompt();
+        if (!suppress)
+            type_prompt();
 
         // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
