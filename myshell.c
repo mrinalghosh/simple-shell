@@ -148,8 +148,8 @@ int main(int argc, char** argv) {
         // find indices of meta
         int i = 0;
         while (buffer[i] != '\0') {
-            if (buffer[i] == '|') {
-                memmove(buffer + i + 2, buffer + i + 1, 20);
+            if (buffer[i] == '|' && buffer[i - 1] != ' ') { // no space before
+                memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
                 buffer[i] = ' ';
             }
             ++i;
