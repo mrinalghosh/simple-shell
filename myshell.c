@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -77,6 +78,8 @@ int main(int argc, char** argv) {
         num_tokens = 1;  // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
         // printf("The first and last character is %d, %d", buffer[0], buffer[MAX_BUFFER - 1]);
+
+        printf("NULL is %d", *NULL);
 
         // if (buffer == NULL) // TODO: not working for ctrl-D
         //     exit(0);
