@@ -46,17 +46,22 @@ int pipeHandler(char* tokens[]) {
     int cmd_count = 1;  // pipe count + 1
     char* command[MAX_BUFFER];
 
-    size_t i = 0;
+    size_t i = 0, j = 0;
 
     // check for |
     while (tokens[i] != NULL) {
         // TODO: non-spaced check - if works use same check in cmdhandler
-        if (strcmp(tokens[i], "|") == 0)
+        if (strcmp(tokens[i], "|") == 0) {
             ++cmd_count;
+            //TODO: strtok for | - add all to new array (split tokens)
+        }
         ++i;
     }
 
-    printf("Command count = %d", cmd_count);
+    // printf("Command count = %d", cmd_count);
+    /* Loop over all commands in array - change to NEWARRAY when strtok for | imp */
+    while (tokens[j] != NULL) {
+    }
 
     return 0;
 }
@@ -75,7 +80,7 @@ int commandParser(char* tokens[]) {
             if (strcmp(tokens[i], metachars[j]) == 0) metamask[j] = true;
 
         if (metamask[0] || metamask[1] || metamask[2] || metamask[3])
-            break;  // can't break out of while within for loop above
+            break; 
 
         base_tokens[i] = tokens[i];  // left
         ++i;
