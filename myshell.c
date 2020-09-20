@@ -39,7 +39,7 @@ void type_prompt(void) {
 
 int main(int argc, char** argv) {
     // suppress output
-    bool suppress = (argc > 1) && (strcmp(*argv[1], "-n") == 0) ? true : false;
+    bool suppress = (argc > 1) && (strcmp(argv[1], "-n") == 0) ? true : false;
     if (suppress)
         printf("SUPPRESS DETECTED");
 
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     pid_t pid;
     int status;
 
-    while (TRUE) {
+    while (true) {
         type_prompt();
 
         // populate and tokenize buffer - should eventually be in read_command();
