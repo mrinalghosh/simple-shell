@@ -11,8 +11,15 @@
 #define TRUE 1
 #define MAX_TOKEN 1 << 5
 #define MAX_BUFFER 1 << 9
-#define LIMIT 1 << 8  // maximum number of tokens ~arbitrary
+#define TOKEN_LIMIT 1 << 7  // maximum number of tokens - arbitrary choice of 128
 // #define EXIT_SIGNAL '' //detect ctrl-D
+
+/*
+SOURCES:
+https://stackoverflow.com/questions/23456374/why-do-we-use-null-in-strtok
+https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
+https://stackoverflow.com/questions/12935752/how-to-memset-char-array-with-null-terminating-character 
+*/
 
 void type_prompt(void) {
     printf("my_shell$: ");
@@ -25,13 +32,14 @@ void type_prompt(void) {
 // void error_message(void) {
 // }
 
-// char* read_input()
+// REPL - read - eval - print - loop
+// has to handle metachars like > (pass output) & (doesn't wait for forked process) | (pipe - connect stdin stdout)
 
 int main(int argc, char** argv) {
-    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  //store line
-    // char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  //store command token
+    char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // store line
+    // char* command = (char*)malloc(sizeof(char) * MAX_TOKEN);  // store command token
     // char* token = (char*)malloc(sizeof(char) * MAX_TOKEN);    // TODO: does this need to be smaller?
-    char* tokens[LIMIT];
+    char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
     int num_tokens;
 
     pid_t pid;
@@ -43,23 +51,17 @@ int main(int argc, char** argv) {
         // populate and tokenize buffer - should eventually be in read_command();
         fgets(buffer, MAX_BUFFER, stdin);
 
-        if ((tokens[0] = strtok(buffer, " \n\t")) == NULL)
-            continue; // do nothing if empty input
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)
+            continue;  // do nothing if empty input
 
-        num_tokens = 1; // reset
+        num_tokens = 1;  // reset for new input
 
-        while ((tokens[num_tokens] = strtok(NULL, " \n\t")) != NULL)
+        while ((tokens[num_tokens] = strtok(NULL, " \n\t\v")) != NULL)
             num_tokens++;
 
-        for (int i = 0; i < num_tokens; ++i) {
-            printf("%s\n", tokens[i]);  // last token is empty need to discard
+        for (int i = 0; i < num_tokens; ++i) {  //test for proper tokenizing
+            printf("%s\n", tokens[i]);
         }
-
-        // token = strtok(buffer, " ");
-        // while (token != NULL) {
-        //     printf("%s__TEST\n", token);
-        //     token = strtok(NULL, " ");  // returns
-        // }
 
         // pid = fork();
         // if (pid == 0) {
@@ -78,6 +80,8 @@ int main(int argc, char** argv) {
 
         // execvp(command, parameters, 0);  // execvp doesn't need absolute path
         //need to hardcode metachars & > < |
+
+        // DONT USE FFLUSH ON STDIN - MEANT FOR OSTREAMs
     }
 
     // free pointers
