@@ -1,7 +1,6 @@
 #include "myshell.h"
 
 #include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +8,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#define TRUE 1
+#define FALSE 0
 #define MAX_TOKEN 1 << 5
 #define MAX_BUFFER 1 << 9
 #define TOKEN_LIMIT 1 << 7  // maximum number of tokens - arbitrary choice of 128
@@ -47,7 +48,7 @@ int main(int argc, char** argv) {
     pid_t pid;
     int status;
 
-    bool suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
+    int suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
 
     // char* buffer = (char*)malloc(sizeof(char) * MAX_BUFFER);  // TODO: does this even need to be malloc-ed?
     // memset(buffer, *NULL, sizeof(char) * MAX_BUFFER);
@@ -58,7 +59,7 @@ int main(int argc, char** argv) {
     memset(buffer, '\0', MAX_BUFFER);
     printf("Buffer is null? %d", buffer==NULL);
 
-    while (true) {
+    while (TRUE) {
         if (!suppress)
             type_prompt();
 
