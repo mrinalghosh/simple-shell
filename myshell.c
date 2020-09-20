@@ -110,6 +110,18 @@ int commandParser(char* tokens[]) {
         //     }
         // }
 
+
+
+        if((temp = strchr(tokens[i], "|")) == NULL) // temp points to NULL since to occurance of delimiter
+            clean_tokens[++j]=tokens[i];
+        else{ // temp points to first occ of delimiter
+            clean_tokens[++j] =tokens[i]; // fix this
+            clean_tokens[++j] = "|";
+            clean_tokens[++j] = temp;
+        }
+
+
+
         base_tokens[i] = tokens[i];
         ++i;
 
@@ -118,8 +130,8 @@ int commandParser(char* tokens[]) {
 
     //TODO: BREAK UP FOR METACHARS WO SPACES -> DELIMITED
 
-    for (k = 0; k < i; ++k) {
-        printf("--%s--\n", base_tokens[k]);
+    for (k = 0; k < j; ++k) {
+        printf("--%s--\n", clean_tokens[k]);
     }
 
     if (metamask[2]) {        // PIPE
