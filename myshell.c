@@ -74,7 +74,10 @@ void execute(char* args[], char* filename, int options) {
         perror("fork");
     } else if (pid > 0) {
         /* Parent */
-        waitpid(pid, &status, 0);
+        printf("Parental guidance.. waiting\n");
+        pid = waitpid(pid, &status, 0);
+        printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+
         return;
     } else {
         /* Child */
@@ -109,45 +112,11 @@ void execute(char* args[], char* filename, int options) {
                 break;
             }
         }
+
+        exit(0);
     }
     return;
 }
-
-/*
-void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
-    // general purpose I/O handling - tokens include  
-
-    int fd;  // file descriptor
-    pid_t pid;
-    int status;
-    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
-    int rflags = O_RDONLY;
-    mode_t mode = S_IRUSR | S_IWUSR;
-
-    if ((pid = fork()) == -1) {
-        printf("Error - child could not be created\n");
-        return;  // TODO: exit vs return on fork fail?
-    }
-
-    if (pid == 0) {
-        //  Child 
-        if (io_opt == STD_INPUT) {
-            fd = open(output_file, rflags, mode);  // TODO: does the environment variable need to be concatenated?
-            dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
-            close(fd);
-        } else if (io_opt == STD_OUTPUT) {
-            fd = open(input_file, rflags, mode);
-            dup2(fd, STDIN_FILENO);
-            close(fd);
-        }
-
-        // TODO: need to handle case with both I and O
-
-        execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
-    }
-    waitpid(pid, &status, 0);  // wait for any child process in group
-}
-*/
 
 int commandHandler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
