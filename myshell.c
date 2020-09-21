@@ -160,9 +160,7 @@ int commandHandler(char* tokens[]) {
 
     for (k = 0; k < TOKEN_LIMIT; ++k) {
         base[k] = malloc(MAX_TOKEN);
-        base[k] = NULL;
         aux[k] = malloc(MAX_TOKEN);
-        aux[k] = NULL;
     }
 
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
