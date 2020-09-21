@@ -199,7 +199,6 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    ++row;  // if ends in a metacharacter
     printf("rows: %d\n", row);
 
     for (i = 0; i < row; ++i) {
