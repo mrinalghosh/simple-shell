@@ -127,6 +127,7 @@ int commandHandler(char* tokens[]) {
             // CHILD
             execvp(tokens[0], tokens);
         }
+        return 0;
     }
 
     /* break into arrays of strings between metachars - can use to execvp */
