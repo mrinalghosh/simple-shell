@@ -235,7 +235,7 @@ int commandHandler(char* tokens[]) {
 
         if (strcmp(token_array[i][0], "<") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename);
+            execute(token_array[i - 1], filename, 1);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
