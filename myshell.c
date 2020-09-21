@@ -68,10 +68,9 @@ int commandHandler(char* tokens[]) {
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
-            metachars[j].index = i;  // index of metacharacter
-            printf("index is %d\n", metachars[j].index);
+            metachars[j].index = i;         // index of metacharacter
             metachars[j].type = tokens[i];  // pointer to metacharacter
-            ++j;                               // metacharacter count
+            ++j;                            // metacharacter count
         }
         // basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
         ++i;  // number of tokens;
@@ -79,13 +78,16 @@ int commandHandler(char* tokens[]) {
 
     // break into arrays of strings between metachars - can use to execvp
 
-    // if (strcmp((*metachars)[0].type, "|") == 0) {
-    //     memcpy(base, tokens, (*metachars)[0].index);                                 // copy from start to before metac
-    //     memcpy(aux, tokens + ((*metachars)[0].index), i - ((*metachars)[0].index));  // copy start from after metac
-    //     for (k = 0; k < (*metachars)[0].index; ++k)
-    //         printf("BASE: %s\n", base[k]);
-    //     // pipeHandler();
-    // }
+    if (strcmp(metachars[0].type, "|") == 0) {
+        memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
+        memcpy(aux, tokens + metachars[0].index, i - metachars[0].index);  // copy start from after metac
+        for (k = 0; k < metachars[0].index; ++k)
+            printf("BASE: %s\n", base[k]);
+        for (k = 0; k < i - metachars[0].index; ++k)
+            printf("AUX: %s\n", aux[k]);
+
+        // pipeHandler();
+    }
 
     pid_t pid;
     int status;
