@@ -197,7 +197,7 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    // int row_c = row + 1;
+    if (meta_c == 0) ++row; // correct for wrong row count without metacharacters
 
     printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
     printf("row count: %d\n", row);
