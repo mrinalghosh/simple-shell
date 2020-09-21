@@ -197,13 +197,13 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    int row_c = row + 1;
+    // int row_c = row + 1;
 
     printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
-    printf("row count: %d\n", row_c);
+    printf("row count: %d\n", row);
 
     j = 0;
-    for (i = 0; i < row_c; ++i) {
+    for (i = 0; i < row; ++i) {
         while (token_array[i][j] != NULL) {
             printf("%s\t", token_array[i][j]);
             ++j;
