@@ -86,10 +86,12 @@ int commandHandler(char* tokens[]) {
 
     // break into arrays of strings between metachars - can use to execvp
     if (strcmp(metachars[0].type, "|") == 0) {
-        memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
-        memcpy(aux, tokens + (metachars[0].index), i - metachars[0].index - 1);  // copy start from after metac
-        printf("BASE0 %s\n",base[0]); // SEGFAULTS WHEN TRYING TO ACCESS
-        printf("AUX0 %s\n",aux[0]);
+        // memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
+        // memcpy(aux, tokens + (metachars[0].index), i - metachars[0].index - 1);  // copy start from after metac
+        memcpy(base[0], tokens[0], MAX_TOKEN);  // need to repeat this for everything upto index, skip index, repeat after
+        memcpy(aux[0], tokens[0], MAX_TOKEN);
+        printf("BASE0 %s\n", base[0]);  // SEGFAULTS WHEN TRYING TO ACCESS
+        printf("AUX0 %s\n", aux[0]);
     }
 
     // memcpy(base[0], tokens[0], metachars[0].index);
