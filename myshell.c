@@ -222,6 +222,8 @@ int commandHandler(char* tokens[]) {
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
+    execute(token_array[0]);
+
     while (token_array[i][0] != NULL) {
         // ASSUMPTIONS:
         // every special character besides & has args on the right and left - can index ahead or behind
@@ -229,17 +231,16 @@ int commandHandler(char* tokens[]) {
 
         // i is the index of the metac
         if (strcmp(token_array[i][0], "|") == 0) {
-            // printf("Operation %d is %s\n", i, token_array[i][0]);
         }
 
         if (strcmp(token_array[i][0], "<") == 0) {
-            // fd = open(filename, 0);
-            // nread = read(fd, fbuf, MAX_FILE);  // number of characters read
+            strcpy(filename, token_array[i + 1][0]);
+            execute(token_array[i - 1], filename);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2);  // 2=output to file
+            execute(token_array[i - 1], filename, 2);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
             // printf("Operation %d is %s\n", i, token_array[i][0]);
