@@ -127,7 +127,7 @@ int commandHandler(char* tokens[]) {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
-            if (tokens[tok_c] == NULL)  // if last token, don't increment
+            if (tokens[tok_c + 1] == NULL)  // if last non-NULL token, don't increment
                 ++row;
 
         } else {
