@@ -197,19 +197,15 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    if (meta_c == 0) ++row; // correct for wrong row count without metacharacters
+    ++row;
 
-    printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
-    printf("row count: %d\n", row);
-
-    j = 0;
     for (i = 0; i < row; ++i) {
+        j = 0;
         while (token_array[i][j] != NULL) {
             printf("%s\t", token_array[i][j]);
             ++j;
         }
         printf("\n");
-        j = 0;
     }
 
     // pid_t pid;
