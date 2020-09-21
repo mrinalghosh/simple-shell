@@ -63,6 +63,7 @@ int commandHandler(char* tokens[]) {
 
     char* base[TOKEN_LIMIT];  // left to metachars
     char* aux[TOKEN_LIMIT];   // right to metachar
+
     for (k = 0; k < TOKEN_LIMIT; ++k) {
         base[k] = malloc(MAX_TOKEN);
         aux[k] = malloc(MAX_TOKEN);
@@ -83,13 +84,12 @@ int commandHandler(char* tokens[]) {
     // printf("number of tokens: %d, number of metachars: %d", i, j);
     // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
 
-    break into arrays of strings between metachars - can use to execvp
+    // break into arrays of strings between metachars - can use to execvp
     if (strcmp(metachars[0].type, "|") == 0) {
         memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
         memcpy(aux, tokens + (metachars[0].index), i - metachars[0].index - 1);  // copy start from after metac
         printf("BASE0 %s\n",base[0]); // SEGFAULTS WHEN TRYING TO ACCESS
         printf("AUX0 %s\n",aux[0]);
-        // pipeHandler();
     }
 
     // memcpy(base[0], tokens[0], metachars[0].index);
@@ -98,6 +98,7 @@ int commandHandler(char* tokens[]) {
 
     pid_t pid;
     int status;
+
     if (j == 0) {
         /* NO METACHARACTERS */
         if ((pid = fork()) > 0) {
