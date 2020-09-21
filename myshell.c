@@ -57,6 +57,62 @@ void prompt(void) {
     fflush(stdout);
 }
 
+void execute(char* args[], char* filename, int options) {
+    /* ommand execution function
+    options: no file=0, input from file(<)=1, output to file(>)=2 */
+    // TODO: add pipes here if necessary
+
+    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
+    int rflags = O_RDONLY;
+    mode_t mode = S_IRUSR | S_IWUSR;
+
+    int fd, status;
+    pid_t pid;
+    char fbuf[MAX_FILE];
+
+    if ((pid = fork()) == -1) {
+        perror("fork");
+    } else if (pid > 0) {
+        /* Parent */
+        waitpid(pid, &status, 0);
+        return;
+    } else {
+        /* Child */
+        switch (options) {
+            case 0: {  // no file - single commands
+                execvp(args[0], args);
+                break;
+            }
+            case 1: {  // command < file
+
+                fd = open(filename, rflags);
+                nread = read(fd, fbuf, MAX_FILE);
+                dup2(fd, STDIN_FILENO);
+                write(fd, fbuf, MAX_FILE);
+                
+                execvp(args[0], args);
+
+                close(fd);
+                break;
+            }
+            case 2: {  //command > file
+
+                fd = open(filename, wflags);
+                dup2(fd, STDOUT_FILENO);
+
+                execvp(args[0], args);
+
+                close(fd);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+    return;
+}
+
 /*
 void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
     // general purpose I/O handling - tokens include  
@@ -151,7 +207,7 @@ int commandHandler(char* tokens[]) {
     // for (i = 0; i < meta_c; ++i)
     //     printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
 
-    /* ----COMMAND EXECUTION---- */
+    /* ####----COMMAND EXECUTION----#### */
 
     pid_t pid;  // only one fork at a time
     int status;
@@ -175,16 +231,15 @@ int commandHandler(char* tokens[]) {
         if (strcmp(token_array[i][0], "|") == 0) {
             // printf("Operation %d is %s\n", i, token_array[i][0]);
         }
+
         if (strcmp(token_array[i][0], "<") == 0) {
+            // fd = open(filename, 0);
+            // nread = read(fd, fbuf, MAX_FILE);  // number of characters read
         }
+
         if (strcmp(token_array[i][0], ">") == 0) {
-            strcpy(filename, token_array[i - 1][0]);  // copy file name
-            fd = open(filename, 0);                   // create fd - need to add flags later
-            nread = read(fd, fbuf, MAX_FILE);         // number of characters read
-
-            printf("%s", fbuf);
-
-            close(fd);
+            strcpy(filename, token_array[i + 1][0]);
+            execute(token_array[i - 1], filename, 2);  // 2=output to file
         }
         if (strcmp(token_array[i][0], "&") == 0) {
             // printf("Operation %d is %s\n", i, token_array[i][0]);
