@@ -161,32 +161,27 @@ int commandHandler(char* tokens[]) {
         if (strcmp(metachars[i].type, "|") == 0)
             pipe(metachars[i].fd);  // metachar struct contains fd[2]
 
-    if ((pid = fork()) == -1) {
-        perror("fork");
-        exit(0);
-    } else if (pid > 0) {  
-        /* Parent */
-        printf("Hello from parent...waiting\n");
-        pid = waitpid(pid, &status, 0);
-        printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+    i = 0;
 
-    } else {               
-        /* Child */
-        execvp(token_array[0][0], token_array[0]); // hardcoded for testing
+    while (token_array[i][0] != NULL) {
+        if (strcmp(token_array[i][0], "|")) printf("Operation %d is %s", i + 1, token_array[i][0]);
+
+        // if ((pid = fork()) == -1) {
+        //     perror("fork");
+        //     exit(0);
+        // } else if (pid > 0) {
+        //     /* Parent */
+        //     printf("Hello from parent...waiting\n");
+        //     pid = waitpid(pid, &status, 0);
+        //     printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+
+        // } else {
+        //     /* Child */
+        //     execvp(token_array[0][0], token_array[0]);  // hardcoded for testing
+        // }
+
+        ++i;
     }
-
-    // if (j == 0) { /* NO METACHARACTERS */
-    //     if ((pid = fork()) > 0) {
-    //         /* Parent */
-    //         printf("Hello from parent..waiting\n");
-    //         pid = waitpid(pid, &status, 0);
-    //         printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
-    //     } else {
-    //         /* Child */
-    //         execvp(tokens[0], tokens);
-    //     }
-    //     return 0;
-    // }
 
     return 0;
 }
