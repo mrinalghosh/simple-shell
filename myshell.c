@@ -66,8 +66,8 @@ int commandHandler(char* tokens[]) {
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
-            metachars[j]->index = i;         // index of metacharacter
-            metachars[j]->type = tokens[i];  // pointer to metacharacter
+            (*metachars)[j].index = i;         // index of metacharacter
+            (*metachars)[j]->type = tokens[i];  // pointer to metacharacter
             ++j;                             // metacharacter count
         }
         basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
