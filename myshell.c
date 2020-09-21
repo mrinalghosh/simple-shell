@@ -60,7 +60,7 @@ int pipeHandler(char* tokens[]) {
 
 int commandHandler(char* tokens[]) {
     char* basetokens[TOKEN_LIMIT];
-    metachar* metachars[TOKEN_LIMIT];  // array of indexes to metacharacters in order
+    metachar* metachars[TOKEN_LIMIT] = TOKEN_LIMIT * malloc(sizeof(metachar));  // array of indexes to metacharacters in order
 
     int i = 0, j = 0;
 
