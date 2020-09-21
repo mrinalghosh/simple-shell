@@ -176,20 +176,19 @@ int commandHandler(char* tokens[]) {
     size_t row = 0, col = 0;
 
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
-        token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
-        memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
-        ++col;
-        printf("MOVE TO NEXT COL");
 
         if (charCompare(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = tok_c;         // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
 
-            printf("MOVE DOWN ROW");
             col = 0;
             ++row;
         }
+
+        token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
+        memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
+        ++col;
 
         ++tok_c;  // TOKEN COUNT;
     }
@@ -197,7 +196,6 @@ int commandHandler(char* tokens[]) {
     int row_c = row + 1;
 
     printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
-    printf("row: %d, col: %d", row, col);
 
     j = 0;
     for (i = 0; i < row_c; ++i) {
