@@ -93,7 +93,7 @@ int commandHandler(char* tokens[]) {
             printf("BASE %d %s\n", k, base[k]);
         }
         for (k = metachars[0].index; k < i; ++k) {
-            memcpy(aux[k - metachars[0].index], tokens[k+1], MAX_TOKEN);
+            memcpy(aux[k - metachars[0].index], tokens[k], MAX_TOKEN);
             printf("AUX %d %s\n", k, aux[k - metachars[0].index]);
         }
     }
