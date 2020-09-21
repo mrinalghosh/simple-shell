@@ -87,43 +87,48 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 int pipeHandler(char* base[], char* aux[]) {
     int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
     pid_t pid;
+    int statusl
 
-    if (pipe(fd) == -1) {
-        printf("pipe redirection failed");
-        exit(1);
+        pipe(fd);
+
+    // perror("pipe") exit(1);
+    // exit(1);
+
+    pid = fork();
+
+    switch (pid) {
+        case 0:  //child
+            char* ls_args[2] = {"ls", "-a"};
+            execvp(ls_args[0], ls_args);
+            exit(0);
+        case -1:
+            perror("fork");
+            exit(1);
+        default:  //parent
+            while ((pid = wait(&status)) != -1) {
+                fprintf(stderr, "process %d exits with %d\n",
+                        pid,
+                        WEXITSTATUS(status));
+                break;
+            }
     }
+    exit(0);
 
-    if ((pid = fork()) == -1) {
-        printf("fork error!!!");  // TODO: error handling with perror?
-        exit(1);
-    }
+    // if (fork() == 0) {  // child1
+    //     dup2(fd[1], STDOUT_FILENO);
+    //     close(fd[0]);
+    //     close(fd[1]);
 
-    if (fork() == 0) {  // child1
-        dup2(fd[1], STDOUT_FILENO);
-        close(fd[0]);
-        close(fd[1]);
+    //     char* ls_args[2] = {"ls", "-a"};
+    //     execvp(ls_args[0], ls_args);
+    //     perror("Child1 failed");
+    //     exit(1);
+    // }
 
-        char* ls_args[2] = {"ls", "-a"};
-        execvp(ls_args[0], ls_args);
-        perror("Child1 failed");
-        exit(1);
-    }
-
-    if (fork() == 0) {
-        dup2(fd[0], STDIN_FILENO);
-        close(fd[0]);
-        close(fd[1]);
-
-        char* cat_args[1] = {"cat"};
-        execvp(cat_args[0], cat_args);
-        perror("child2 failed");
-        exit(1);
-    }
-
-    close(fd[0]);
-    close(fd[1]);
-    wait(0);
-    wait(0);
+    // close(fd[0]);
+    // close(fd[1]);
+    // wait(0);
+    // wait(0);
 
     // if ((pid = fork()) > 0) {
     //     /* Parent - close fd1 */
@@ -201,7 +206,11 @@ int commandHandler(char* tokens[]) {
         // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
         // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
 
-        pipeHandler(base, aux);
+        // pipeHandler(base, aux); // TODO: fix piping
+
+        char* inputfile = "LICENSE";
+        char* outputfile = "testout";
+        fileHandler();  //TODO: move this to appropriate place after testing io
     }
 
     return 0;
