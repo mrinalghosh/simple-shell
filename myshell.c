@@ -200,6 +200,7 @@ int commandHandler(char* tokens[]) {
     }
 
     ++row;  // if ends in a metacharacter
+    printf("rows: %d\n", row);
 
     for (i = 0; i < row; ++i) {
         j = 0;
