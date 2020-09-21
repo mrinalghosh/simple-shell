@@ -39,7 +39,7 @@ void prompt(void) {
     write(STD_OUTPUT, buf, strlen(buf));
 }
 
-int pipeHandler(char* tokens[]) {
+int pipeHandler(char* left[], char* right[]) {
     int fd[2];
     pid_t pid;
 
@@ -59,10 +59,12 @@ int pipeHandler(char* tokens[]) {
 }
 
 int commandHandler(char* tokens[]) {
-    char* basetokens[TOKEN_LIMIT];
+    char* base[TOKEN_LIMIT];  // left to metachars
+    char* aux[TOKEN_LIMIT];   // right to metachar
+
     metachar** metachars = (metachar**)malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes to metacharacters in order
 
-    int i = 0, j = 0;
+    int i = 0, j = 0, k;
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
@@ -70,11 +72,20 @@ int commandHandler(char* tokens[]) {
             (*metachars)[j].type = tokens[i];  // pointer to metacharacter
             ++j;                               // metacharacter count
         }
-        basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
-        ++i;                        // number of tokens;
+        // basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
+        ++i;  // number of tokens;
     }
 
     // break into arrays of strings between metachars - can use to execvp
+
+    if (strcmp((*metachars)[0].type, "|") == 0) {
+        memcpy(base, tokens, (*metachars)[0].index);                                 // copy from start to before metac
+        memcpy(aux, tokens + ((*metachars)[0].index), i - ((*metachars)[0].index));  // copy start from after metac
+        for (k = 0; k < (*metachars)[0].index; ++k)
+            printf("BASE: %s\n", base[k]);
+        // pipeHandler();
+    }
+
     pid_t pid;
     int status;
     if (j == 0) {
