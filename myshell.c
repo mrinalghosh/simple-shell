@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -49,6 +50,36 @@ void prompt(void) {
     write(STD_OUTPUT, buf, strlen(buf));
 }
 
+void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
+    /* general purpose I/O handling - tokens include  */
+
+    int fd;  // file descriptor
+    pid_t pid;
+    int status;
+
+    if ((pid = fork()) == -1) {
+        printf("Error - child could not be created\n");
+        return 0;  // exit vs return?
+    }
+    if (pid == 0) {
+        /* Child */
+        if (io_opt == STD_INPUT) {
+            fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);  // TODO: does the environment variable need to be concatenated?
+            dup2(fd, STDOUT_FILENO);                                                  // duplicate fd to stdout
+            close(fd);
+        } else if (io_opt == STD_OUTPUT) {
+            fd = open(input_file, O_RDONLY, S_IRUSR | S_IWUSR);
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
+
+        // TODO: need to handle case with both I and O
+
+        execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
+    }
+    waitpid(pid, &status, 0);  // wait for any child process in group
+}
+
 int pipeHandler(char* base[], char* aux[]) {
     int fd[2];  // file descriptors
     pid_t pid;
@@ -56,7 +87,7 @@ int pipeHandler(char* base[], char* aux[]) {
     pipe(fd);
 
     if ((pid = fork()) == -1) {
-        perror("fork error");
+        perror("fork error!!!");  // TODO: error handling
         exit(1);
     }
     if (pid == 0) {
@@ -91,8 +122,8 @@ int pipeHandler(char* base[], char* aux[]) {
 int commandHandler(char* tokens[]) {
     int i = 0, j = 0, k;
 
-    char* base[TOKEN_LIMIT];  // left to metachar i
-    char* aux[TOKEN_LIMIT];   // right to metachar i TODO: implement recursively
+    char* base[TOKEN_LIMIT];  // left of metachar i
+    char* aux[TOKEN_LIMIT];   // right of metachar i TODO: implement iteratively instead of hardcoding just the first
 
     for (k = 0; k < TOKEN_LIMIT; ++k) {
         base[k] = malloc(MAX_TOKEN);
@@ -116,13 +147,12 @@ int commandHandler(char* tokens[]) {
     pid_t pid;
     int status;
 
-    if (j == 0) {
-        /* NO METACHARACTERS */
+    if (j == 0) { /* NO METACHARACTERS */
         if ((pid = fork()) > 0) {
             // PARENT
-            printf("Hello from parent..waiting\n");
+            // printf("Hello from parent..waiting\n");
             pid = waitpid(pid, &status, 0);
-            printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+            // printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
         } else {
             // CHILD
             execvp(tokens[0], tokens);
