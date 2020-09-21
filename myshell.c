@@ -59,12 +59,16 @@ int pipeHandler(char* left[], char* right[]) {
 }
 
 int commandHandler(char* tokens[]) {
+    int i = 0, j = 0, k;
+
     char* base[TOKEN_LIMIT];  // left to metachars
     char* aux[TOKEN_LIMIT];   // right to metachar
+    for (k = 0; k < TOKEN_LIMIT; ++k) {
+        base[k] = malloc(MAX_TOKEN);
+        aux[k] = malloc(MAX_TOKEN);
+    }
 
-    metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order
-
-    int i = 0, j = 0, k;
+    metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
@@ -75,9 +79,6 @@ int commandHandler(char* tokens[]) {
         // base[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
         ++i;  // number of tokens;
     }
-
-    for (k = 0; k < j; ++k)
-        printf("MC type, index: %s, %d", metachars[k].type, metachars[k].index);
 
     // printf("number of tokens: %d, number of metachars: %d", i, j);
     // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
@@ -92,8 +93,8 @@ int commandHandler(char* tokens[]) {
     // }
 
     // memcpy(base[0], tokens[0], metachars[0].index);
-    // strcpy(base[0], tokens[0]);
-    // printf("BASE0 %s\n", base[0]);
+    strcpy(base[0], tokens[0]);
+    printf("BASE0 %s\n", base[0]);
 
     pid_t pid;
     int status;
