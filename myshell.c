@@ -166,14 +166,10 @@ int commandHandler(char* tokens[]) {
     j = 0;  // metacharacter counter
 
     while (token_array[i][0] != NULL) {
-        /* // SAME INFO AS IN METACHARS
-        if (strcmp(token_array[i][0], "|") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
-        if (strcmp(token_array[i][0], "<") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
-        if (strcmp(token_array[i][0], ">") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
-        if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
-        */
 
-        // ASSUMPTION - every special character beside & has stuff on the right and left
+        // ASSUMPTIONS:
+        // every special character besides & has args on the right and left - can index ahead or behind
+        // < > have single token filenames
 
         if (strcmp(token_array[i][0], "|") == 0) {
             printf("Operation %d is %s\n", i, token_array[i][0]);
@@ -183,6 +179,8 @@ int commandHandler(char* tokens[]) {
         }
         if (strcmp(token_array[i][0], ">") == 0) {
             printf("Operation %d is %s\n", i, token_array[i][0]);
+            strcpy(filename, token_array[i+1][0]);
+            printf("filename: %s", filename);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
             printf("Operation %d is %s\n", i, token_array[i][0]);
