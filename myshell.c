@@ -156,7 +156,7 @@ int commandHandler(char* tokens[]) {
     pid_t pid;  // only one fork at a time
     int status;
     int fd;
-    char* filename;
+    char* filename = malloc(MAX_TOKEN * sizeof(char));
 
     for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0)
@@ -166,7 +166,6 @@ int commandHandler(char* tokens[]) {
     j = 0;  // metacharacter counter
 
     while (token_array[i][0] != NULL) {
-
         // ASSUMPTIONS:
         // every special character besides & has args on the right and left - can index ahead or behind
         // < > have single token filenames
@@ -179,7 +178,7 @@ int commandHandler(char* tokens[]) {
         }
         if (strcmp(token_array[i][0], ">") == 0) {
             printf("Operation %d is %s\n", i, token_array[i][0]);
-            strcpy(filename, token_array[i+1][0]);
+            strcpy(filename, token_array[i + 1][0]);
             printf("filename: %s", filename);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
