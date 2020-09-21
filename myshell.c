@@ -100,7 +100,7 @@ int commandHandler(char* tokens[]) {
     // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
 
     /* break into arrays of strings between metachars - can use to execvp */
-    if (charComp(metachars[0].type, "|<>&")) {
+    if (charCompare(metachars[0].type, "|<>&")) {
         for (k = 0; k < metachars[0].index; ++k) {
             memcpy(base[k], tokens[k], MAX_TOKEN);
             printf("BASE %d %s\n", k, base[k]);
