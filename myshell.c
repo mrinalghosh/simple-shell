@@ -176,7 +176,7 @@ int commandHandler(char* tokens[]) {
     size_t row = 0, col = 0;
 
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
-        token_array[row][col] = malloc(TOKEN_LIMIT * sizeof(char));
+        token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
         memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
         ++col;
 
@@ -184,6 +184,7 @@ int commandHandler(char* tokens[]) {
             metachars[meta_c].index = tok_c;         // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
+            
             col = 0;
             ++row;
         }
