@@ -1,4 +1,4 @@
 CC=gcc
 
 myshell: myshell.c
-	$(CC) --std=c99 -Werror -o myshell myshell.c
+	$(CC) -Werror -g -o myshell myshell.c

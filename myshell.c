@@ -137,26 +137,43 @@ int commandHandler(char* tokens[]) {
     ++row;  // row index -> count
 
     // print 2D array
-    printf("rows: %d\n", row);
-    for (i = 0; i < row; ++i) {
-        j = 0;
-        while (token_array[i][j] != NULL) {
-            printf("\"%s\"  ", token_array[i][j]);
-            ++j;
-        }
-        printf("\n");
-    }
+    // printf("rows: %d\n", row);
+    // for (i = 0; i < row; ++i) {
+    //     j = 0;
+    //     while (token_array[i][j] != NULL) {
+    //         printf("\"%s\"  ", token_array[i][j]);
+    //         ++j;
+    //     }
+    //     printf("\n");
+    // }
 
-    // print metacharacters
-    for (i = 0; i < meta_c; ++i)
-        printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
+    // // print metacharacters
+    // for (i = 0; i < meta_c; ++i)
+    //     printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
 
     /* ----COMMAND EXECUTION---- */
-    for (i = 0; i < row; ++i) {
-    }
 
-    // pid_t pid;
-    // int status;
+    pid_t pid;  // only one fork at a time
+    int status;
+    int fd;
+
+    for (i = 0; i < meta_c; ++i)  // init pipes for every |
+        if (strcmp(metachars[i].type, "|") == 0)
+            pipe(metachars[i].fd);  // metachar struct contains fd[2]
+
+    if ((pid = fork()) == -1) {
+        perror("fork");
+        exit(0);
+    } else if (pid > 0) {  
+        /* Parent */
+        printf("Hello from parent...waiting\n");
+        pid = waitpid(pid, &status, 0);
+        printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+
+    } else {               
+        /* Child */
+        execvp(token_array[0][0], token_array[0]); // hardcoded for testing
+    }
 
     // if (j == 0) { /* NO METACHARACTERS */
     //     if ((pid = fork()) > 0) {

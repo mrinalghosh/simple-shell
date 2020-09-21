@@ -11,6 +11,7 @@
 typedef struct {
     int index;
     char* type;
+    int fd[2];
 } metachar;
 
 // TODO: add function prototypes
