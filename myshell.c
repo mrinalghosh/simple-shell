@@ -66,7 +66,7 @@ void execute(char* args[], char* filename, int options) {
     int rflags = O_RDONLY;
     mode_t mode = S_IRUSR | S_IWUSR;
 
-    int fd, status;
+    int fd, status, nread;
     pid_t pid;
     char fbuf[MAX_FILE];
 
@@ -89,7 +89,7 @@ void execute(char* args[], char* filename, int options) {
                 nread = read(fd, fbuf, MAX_FILE);
                 dup2(fd, STDIN_FILENO);
                 write(fd, fbuf, MAX_FILE);
-                
+
                 execvp(args[0], args);
 
                 close(fd);
