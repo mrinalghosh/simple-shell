@@ -68,7 +68,8 @@ int commandHandler(char* tokens[]) {
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
-            (*metachars)[j].index = i;         // index of metacharacter
+            (*metachars)[j].index = i;  // index of metacharacter
+            printf("index is %d\n", (*metachars)[j].index);
             (*metachars)[j].type = tokens[i];  // pointer to metacharacter
             ++j;                               // metacharacter count
         }
