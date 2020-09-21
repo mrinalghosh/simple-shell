@@ -195,11 +195,10 @@ int commandHandler(char* tokens[]) {
     }
 
     printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
-    // printf("MC type: \"%s\" index: %d\n", metachars[0].type, metachars[0].index);
 
     for (i = 0; i < row; ++i) {
         for (j = 0; j < col; ++j)
-            printf("!!!%s\t", token_array[i][j]);
+            printf("!!!\t");
         printf("\n");
     }
 
