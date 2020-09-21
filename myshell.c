@@ -202,7 +202,7 @@ int commandHandler(char* tokens[]) {
     j = 0;
     for (i = 0; i < row_c; ++i) {
         while (token_array[i][j] != NULL) {
-            printf("!!!\t");
+            printf("%s\t", token_array[i][j]);
             ++j;
         }
         printf("\n");
