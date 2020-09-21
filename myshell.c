@@ -173,15 +173,10 @@ int commandHandler(char* tokens[]) {
         if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
         */
 
-        if (metachars[j].type[0] == '<') {
-            strcpy(filename, token_array[i][0]);
-            printf("filename: %s", filename);
-        }
-
-        if (metachars[j].type[0] == '>') {
-            strcpy(filename, token_array[i][0]);
-            printf("filename: %s", filename);
-        }
+        if (strcmp(token_array[i][0], "|") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
+        if (strcmp(token_array[i][0], "<") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
+        if (strcmp(token_array[i][0], ">") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
+        if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
 
         // if (i % 2 == 0)  // all argument sets
         // {
