@@ -121,14 +121,13 @@ int commandHandler(char* tokens[]) {
             ++meta_c;                                // METACHARACTER COUNT
 
             col = 0;
-
+            
             ++row;
 
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
-            if (tokens[tok_c + 1] == NULL)  // if last non-NULL token, don't increment
-                ++row;
+            ++row;  // assuming can never start with a pipe
 
         } else {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
