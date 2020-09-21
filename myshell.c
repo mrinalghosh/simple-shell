@@ -184,11 +184,15 @@ int commandHandler(char* tokens[]) {
 
             col = 0;
             ++row;
-        }
 
-        token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
-        memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
-        ++col;
+            token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
+            memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
+            ++row;
+        } else {
+            token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
+            memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
+            ++col;
+        }
 
         ++tok_c;  // TOKEN COUNT;
     }
