@@ -64,10 +64,11 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
         printf("Error - child could not be created\n");
         return;  // TODO: exit vs return on fork fail?
     }
+
     if (pid == 0) {
         /* Child */
         if (io_opt == STD_INPUT) {
-            fd = open(output_file, wflags, mode);  // TODO: does the environment variable need to be concatenated?
+            fd = open(output_file, rflags, mode);  // TODO: does the environment variable need to be concatenated?
             dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
             close(fd);
         } else if (io_opt == STD_OUTPUT) {
@@ -84,7 +85,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 }
 
 int pipeHandler(char* base[], char* aux[]) {
-    // TODO: THIS DOESN'T WORK FUCK
+    // TODO: THIS DOESN'T WORK
     int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
     pid_t pid;
     int status;
@@ -159,8 +160,8 @@ int commandHandler(char* tokens[]) {
     char* aux[TOKEN_LIMIT];   // right of metachar i TODO: implement iteratively instead of hardcoding just the first
 
     for (k = 0; k < TOKEN_LIMIT; ++k) {
-        base[k] = malloc(MAX_TOKEN);
-        aux[k] = malloc(MAX_TOKEN);
+        base[k] = NULL;
+        aux[k] = NULL;
     }
 
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
