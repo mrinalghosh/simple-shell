@@ -44,7 +44,7 @@ bool strCompare(char* str, char* list, int n) {
     return false;
 }
 
-bool charCompare(char ch, char* list, int 4) {
+bool charCompare(char ch, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
         if (ch == list[i]) return true;
