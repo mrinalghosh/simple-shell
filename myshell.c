@@ -75,6 +75,7 @@ int commandHandler(char* tokens[]) {
 
     // break into arrays of strings between metachars - can use to execvp
     pid_t pid;
+    int status;
     if (j == 0) {
         /* NO METACHARACTERS */
         if ((pid = fork()) > 0) {
