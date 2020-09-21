@@ -70,13 +70,15 @@ int commandHandler(char* tokens[]) {
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
             metachars[j].index = i;         // index of metacharacter
             metachars[j].type = tokens[i];  // pointer to metacharacter
-            ++j;                            // metacharacter count
+            ++j;                            // metacharacter COUNT
         }
         // basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
         ++i;  // number of tokens;
     }
 
-    printf("number of tokens: %d, number of metachars: %d", i, j);
+    // printf("number of tokens: %d, number of metachars: %d", i, j);
+    printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
+
     // break into arrays of strings between metachars - can use to execvp
 
     if (strcmp(metachars[0].type, "|") == 0) {
