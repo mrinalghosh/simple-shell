@@ -96,9 +96,9 @@ int pipeHandler(char* base[], char* aux[]) {
 
     pid = fork();
 
+    char* ls_args[2];
     switch (pid) {
         case 0:  //child
-            char* ls_args[2];
             ls_args[0] = "ls";
             ls_args[1] = "-a";
             execvp(ls_args[0], ls_args);
@@ -208,7 +208,7 @@ int commandHandler(char* tokens[]) {
         // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
         // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
 
-        pipeHandler(base, aux); // TODO: fix piping
+        pipeHandler(base, aux);  // TODO: fix piping
 
         // char* inputfile = "LICENSE";
         // char* outputfile = "testout";
