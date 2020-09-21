@@ -110,7 +110,7 @@ int commandHandler(char* tokens[]) {
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
 
         if (strCompare(tokens[tok_c], "|<>&", 4)) {
-            metachars[meta_c].index = tok_c;         // index of metacharacter
+            metachars[meta_c].index = row+1;         // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
 
@@ -136,9 +136,8 @@ int commandHandler(char* tokens[]) {
 
     ++row;  // row index -> count
 
-    // test print for array
+    // print 2D array
     printf("rows: %d\n", row);
-
     for (i = 0; i < row; ++i) {
         j = 0;
         while (token_array[i][j] != NULL) {
@@ -150,9 +149,13 @@ int commandHandler(char* tokens[]) {
 
     // print metacharacters
     for (i = 0; i < meta_c; ++i)
-        printf("metacharacter has index: %d, type: \"%s\"", metachars[i].index, metachars[i].type);
+        printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
+    
 
-    /* COMMAND EXECUTION */
+    /* ----COMMAND EXECUTION---- */
+    for (i = 0; i < row; ++i) {
+
+    }
 
     // pid_t pid;
     // int status;
