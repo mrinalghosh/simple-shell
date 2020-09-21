@@ -62,7 +62,7 @@ int commandHandler(char* tokens[]) {
     char* base[TOKEN_LIMIT];  // left to metachars
     char* aux[TOKEN_LIMIT];   // right to metachar
 
-    metachar* metachars = (metachar*)malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order
+    metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order
 
     int i = 0, j = 0, k;
 
@@ -83,7 +83,7 @@ int commandHandler(char* tokens[]) {
     if (strcmp(metachars[0].type, "|") == 0) {
         memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
         memcpy(aux, tokens + (metachars[0].index), i - metachars[0].index - 1);  // copy start from after metac
-        printf("BASE0 %s\n",tokens[0]);
+        printf("BASE0 %s\n",base[0]);
         // printf("AUX0 %s\n",aux[0]);
         // pipeHandler();
     }
