@@ -59,7 +59,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 
     if ((pid = fork()) == -1) {
         printf("Error - child could not be created\n");
-        return 0;  // exit vs return?
+        return;  // TODO: exit vs return on fork fail?
     }
     if (pid == 0) {
         /* Child */
@@ -157,7 +157,7 @@ int commandHandler(char* tokens[]) {
             // CHILD
             execvp(tokens[0], tokens);
         }
-        return;
+        return 0;
     }
 
     /* break into arrays of strings between metachars - can use to execvp */
