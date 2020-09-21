@@ -128,7 +128,8 @@ int commandHandler(char* tokens[]) {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
-            ++row;  // assuming can never start with a pipe
+            if (tokens[tok_c + 1] != NULL)
+                ++row;  // assuming can never start with a pipe
 
         } else {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
