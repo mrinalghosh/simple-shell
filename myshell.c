@@ -101,7 +101,7 @@ int pipeHandler(char* base[], char* aux[]) {
         dup(fd[0]);
         // dup2(STD_INPUT, fd[0]);
         // execvp(aux[0], aux);
-        execvp("cat", {"cat"});
+        execvp("cat", (char[1]){"cat"});
     } else {
         /* Parent - close fd1 */
         printf("Hello from the parent\n");
@@ -109,7 +109,7 @@ int pipeHandler(char* base[], char* aux[]) {
         dup(fd[1]);
         // dup2(STD_OUTPUT, fd[1]);
         // execvp(base[0], base);
-        execvp("ls",{"ls","."});
+        execvp("ls",(char[2]){"ls","."});
     }
 
     return 0;  // TODO: retcodes?
