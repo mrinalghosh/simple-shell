@@ -76,15 +76,16 @@ int commandHandler(char* tokens[]) {
         ++i;  // number of tokens;
     }
 
+    printf("number of tokens: %d, number of metachars: %d", i, j);
     // break into arrays of strings between metachars - can use to execvp
 
     if (strcmp(metachars[0].type, "|") == 0) {
         memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
         memcpy(aux, tokens + metachars[0].index, i - metachars[0].index);  // copy start from after metac
-        for (k = 0; k < metachars[0].index; ++k)
-            printf("BASE: %s\n", base[k]);
-        for (k = 0; k < i - metachars[0].index; ++k)
-            printf("AUX: %s\n", aux[k]);
+        // for (k = 0; k < metachars[0].index; ++k)
+            // printf("BASE: %s\n", base[k]);
+        // for (k = 0; k < i - metachars[0].index; ++k)
+            // printf("AUX: %s\n", aux[k]);
 
         // pipeHandler();
     }
