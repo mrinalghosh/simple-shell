@@ -36,9 +36,9 @@ all tokenizing
 basic REPL
 */
 
-bool charCompare(char* str, char* list) {
+bool charCompare(char* str, char* list, int n) {
     int i = 0;
-    for (i = 0; i < strlen(str); ++i)
+    for (i = 0; i < n; ++i)
         if (strcmp(str, (char[2]){list[i], '\0'}) == 0)
             return true;
 
@@ -166,7 +166,7 @@ int commandHandler(char* tokens[]) {
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
-        if (charCompare(tokens[i], "|<>&")) {
+        if (charCompare(tokens[i], "|<>&", 4)) {
             metachars[j].index = i;         // index of metacharacter
             metachars[j].type = tokens[i];  // pointer to metacharacter - string
             ++j;                            // METACHARACTER COUNT
@@ -194,7 +194,7 @@ int commandHandler(char* tokens[]) {
     }
 
     /* break into arrays of strings between metachars - can use to execvp */
-    if (charCompare(metachars[0].type, "|<>&")) {
+    if (charCompare(metachars[0].type, "|<>&", 4)) {
         for (k = 0; k < metachars[0].index; ++k) {
             memcpy(base[k], tokens[k], MAX_TOKEN);
             printf("BASE %d %s\n", k, base[k]);
