@@ -62,16 +62,16 @@ int commandHandler(char* tokens[]) {
     char* basetokens[TOKEN_LIMIT];
     metachar* metachars[TOKEN_LIMIT];  // array of indexes to metacharacters in order
 
-    size_t i = 0, j = 0;
+    int i = 0, j = 0;
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
-            metachars[j].index = i;         // index of metacharacter
-            metachars[j].type = tokens[i];  // pointer to metacharacter
+            metachars[j]->index = i;         // index of metacharacter
+            metachars[j]->type = tokens[i];  // pointer to metacharacter
             ++j;                             // metacharacter count
         }
-        basetokens[i] = tokens[i]; //TODO: might not need this - just a copy of tokens
-        ++i;  // number of tokens;
+        basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
+        ++i;                        // number of tokens;
     }
 
     // break into arrays of strings between metachars - can use to execvp
@@ -89,8 +89,6 @@ int commandHandler(char* tokens[]) {
             execvp(tokens[0], tokens);
         }
     }
-
-
 
     // if (metamask[2]) {        // PIPE
     //     pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
