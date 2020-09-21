@@ -57,8 +57,6 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void executeOne() {}
-
 /*
 void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
     // general purpose I/O handling - tokens include  
@@ -94,8 +92,6 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
     waitpid(pid, &status, 0);  // wait for any child process in group
 }
 */
-
-// int pipeHandler(){}
 
 int commandHandler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
@@ -138,7 +134,7 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    ++row;  // ROW index -> count
+    ++row;  // row index -> count
 
     // test print for array
     printf("rows: %d\n", row);
@@ -151,6 +147,12 @@ int commandHandler(char* tokens[]) {
         }
         printf("\n");
     }
+
+    // print metacharacters
+    for (i = 0; i < meta_c; ++i)
+        printf("metacharacter has index: %d, type: \"%s\"", metachars[i].index, metachars[i].type);
+
+    /* COMMAND EXECUTION */
 
     // pid_t pid;
     // int status;
