@@ -91,21 +91,25 @@ int pipeHandler(char* base[], char* aux[]) {
     pipe(fd);
 
     if ((pid = fork()) == -1) {
-        perror("fork error!!!");  // TODO: error handling
+        printf("fork error!!!");  // TODO: error handling with perror?
         exit(1);
     }
     if (pid == 0) {
         /* Child - close fd0 */
+        printf("Hello from the child\n");
         close(STD_INPUT);
         dup(fd[0]);
         // dup2(STD_INPUT, fd[0]);
-        execvp(aux[0], aux);
+        // execvp(aux[0], aux);
+        execvp("cat", {"cat"});
     } else {
         /* Parent - close fd1 */
+        printf("Hello from the parent\n");
         close(STD_OUTPUT);
         dup(fd[1]);
         // dup2(STD_OUTPUT, fd[1]);
-        execvp(base[0], base);
+        // execvp(base[0], base);
+        execvp("ls",{"ls","."});
     }
 
     return 0;  // TODO: retcodes?
@@ -156,12 +160,12 @@ int commandHandler(char* tokens[]) {
     if (charCompare(metachars[0].type, "|<>&")) {
         for (k = 0; k < metachars[0].index; ++k) {
             memcpy(base[k], tokens[k], MAX_TOKEN);
-            printf("BASE %d %s\n", k, base[k]);
+            // printf("BASE %d %s\n", k, base[k]);
         }
 
         for (k = metachars[0].index + 1; k < i; ++k) {
             memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
-            printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
+            // printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
         }
 
         pipeHandler(base, aux);
