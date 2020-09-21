@@ -164,7 +164,7 @@ int commandHandler(char* tokens[]) {
     i = 0;
 
     while (token_array[i][0] != NULL) {
-        if (strcmp(token_array[i][0], "|")) printf("Operation %d is %s", i + 1, token_array[i][0]);
+        if (strcmp(token_array[i][0], "|")==0) printf("Operation %d is %s\n", i + 1, token_array[i][0]);
 
         // if ((pid = fork()) == -1) {
         //     perror("fork");
