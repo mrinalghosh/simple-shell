@@ -40,20 +40,20 @@ void prompt(void) {
 }
 
 int pipeHandler(char* left[], char* right[]) {
-    int fd[2];
-    pid_t pid;
+    // int fd[2];
+    // pid_t pid;
 
-    int command_count = 1;  // pipe count + 1
-    char* command_args[TOKEN_LIMIT];
+    // int command_count = 1;  // pipe count + 1
+    // char* command_args[TOKEN_LIMIT];
 
-    size_t i = 0;
+    // size_t i = 0;
 
-    while (tokens[i] != NULL) {
-        if (strcmp(tokens[i], "|") == 0) {
-            ++command_count;
-        }
-        ++i;
-    }
+    // while (tokens[i] != NULL) {
+    //     if (strcmp(tokens[i], "|") == 0) {
+    //         ++command_count;
+    //     }
+    //     ++i;
+    // }
 
     return 0;
 }
