@@ -195,6 +195,7 @@ int commandHandler(char* tokens[]) {
     }
 
     printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
+    printf("row: %d, col: %d", row, col);
 
     for (i = 0; i < row; ++i) {
         for (j = 0; j < col; ++j)
