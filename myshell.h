@@ -8,6 +8,11 @@
 #define STD_OUTPUT 1
 #define STD_ERROR 2
 
+typedef struct mchars {
+    int index;
+    char* type;
+} metachar;
+
 // TODO: add function prototypes
 void type_prompt(void);
 void error(char* message);

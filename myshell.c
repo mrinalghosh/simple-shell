@@ -73,13 +73,19 @@ int pipeHandler(char* tokens[]) {
 }
 
 int commandParser(char* tokens[]) {
-    char* base_tokens[TOKEN_LIMIT];
+    char* basetokens[TOKEN_LIMIT];
+    metachar* metachars[TOKEN_LIMIT];  // array of indexes to metacharacters in order
 
-    size_t i = 0;
+    size_t i = 0, j = 0;
 
-    while (tokens[i] != NULL) { // get token count and assign to new string
-        base_tokens[i] = tokens[i];
-        ++i;
+    while (tokens[i] != NULL) {  // get token count and assign to new string
+        if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
+            metachars[j]->index = i;         // index of metacharacter
+            metachars[j]->type = tokens[i];  // pointer to metacharacter
+            ++j;                             // metacharacter count
+        }
+        basetokens[i] = tokens[i];
+        ++i;  // number of tokens;
     }
 
     // if (metamask[2]) {        // PIPE
