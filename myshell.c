@@ -37,12 +37,17 @@ basic REPL
 2D tokens
 */
 
-bool charCompare(char* str, char* list, int n) {
+bool strCompare(char* str, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
-        if (strcmp(str, (char[2]){list[i], '\0'}) == 0)
-            return true;
+        if (strcmp(str, (char[2]){list[i], '\0'}) == 0) return true;
+    return false;
+}
 
+bool charCompare(char ch, char* list, int 4) {
+    int i = 0;
+    for (i = 0; i < n; ++i)
+        if (ch == list[i]) return true;
     return false;
 }
 
@@ -108,7 +113,7 @@ int commandHandler(char* tokens[]) {
 
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
 
-        if (charCompare(tokens[tok_c], "|<>&", 4)) {
+        if (strCompare(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = tok_c;         // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
