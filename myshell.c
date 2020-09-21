@@ -174,12 +174,12 @@ int commandHandler(char* tokens[]) {
         */
 
         if (metachars[j].type[0] == '<') {
-            strcpy(filename, token_array[i + 2][0]);
+            strcpy(filename, token_array[i][0]);
             printf("filename: %s", filename);
         }
 
         if (metachars[j].type[0] == '>') {
-            strcpy(filename, token_array[i - 2][0]);
+            strcpy(filename, token_array[i][0]);
             printf("filename: %s", filename);
         }
 
