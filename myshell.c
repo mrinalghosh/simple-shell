@@ -37,9 +37,9 @@ basic REPL
 bool charCompare(char* str, char* list) {
     int i = 0;
     for (i = 0; i < strlen(str); ++i)
-        if (strcmp(str, list[i]) == 0)
+        if (strcmp(str, (char[2]){list[i], '\0'}) == 0)
             return true;
-
+    printf("Comparison wasn't true\n");
     return false;
 }
 
