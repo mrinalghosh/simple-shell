@@ -62,15 +62,15 @@ int commandHandler(char* tokens[]) {
     char* base[TOKEN_LIMIT];  // left to metachars
     char* aux[TOKEN_LIMIT];   // right to metachar
 
-    metachar** metachars = (metachar**)malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes to metacharacters in order
+    metachar* metachars = (metachar*)malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order
 
     int i = 0, j = 0, k;
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
-            (*metachars)[j].index = i;  // index of metacharacter
-            printf("index is %d\n", (*metachars)[j].index);
-            (*metachars)[j].type = tokens[i];  // pointer to metacharacter
+            metachars[j].index = i;  // index of metacharacter
+            printf("index is %d\n", metachars[j].index);
+            metachars[j].type = tokens[i];  // pointer to metacharacter
             ++j;                               // metacharacter count
         }
         // basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
