@@ -51,114 +51,57 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
-    /* general purpose I/O handling - tokens include  */
+// void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
+//     /* general purpose I/O handling - tokens include  */
 
-    int fd;  // file descriptor
-    pid_t pid;
-    int status;
-    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
-    int rflags = O_RDONLY;
-    mode_t mode = S_IRUSR | S_IWUSR;
+//     int fd;  // file descriptor
+//     pid_t pid;
+//     int status;
+//     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
+//     int rflags = O_RDONLY;
+//     mode_t mode = S_IRUSR | S_IWUSR;
 
-    if ((pid = fork()) == -1) {
-        printf("Error - child could not be created\n");
-        return;  // TODO: exit vs return on fork fail?
-    }
+//     if ((pid = fork()) == -1) {
+//         printf("Error - child could not be created\n");
+//         return;  // TODO: exit vs return on fork fail?
+//     }
 
-    if (pid == 0) {
-        /* Child */
-        if (io_opt == STD_INPUT) {
-            fd = open(output_file, rflags, mode);  // TODO: does the environment variable need to be concatenated?
-            dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
-            close(fd);
-        } else if (io_opt == STD_OUTPUT) {
-            fd = open(input_file, rflags, mode);
-            dup2(fd, STDIN_FILENO);
-            close(fd);
-        }
+//     if (pid == 0) {
+//         /* Child */
+//         if (io_opt == STD_INPUT) {
+//             fd = open(output_file, rflags, mode);  // TODO: does the environment variable need to be concatenated?
+//             dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
+//             close(fd);
+//         } else if (io_opt == STD_OUTPUT) {
+//             fd = open(input_file, rflags, mode);
+//             dup2(fd, STDIN_FILENO);
+//             close(fd);
+//         }
 
-        // TODO: need to handle case with both I and O
+//         // TODO: need to handle case with both I and O
 
-        execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
-    }
-    waitpid(pid, &status, 0);  // wait for any child process in group
-}
+//         execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
+//     }
+//     waitpid(pid, &status, 0);  // wait for any child process in group
+// }
 
-int pipeHandler(char* base[], char* aux[]) {
-    // TODO: THIS DOESN'T WORK
-    int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
-    pid_t pid;
-    int status;
+// int pipeHandler(char* base[], char* aux[]) {
+//     // TODO: THIS DOESN'T WORK
+//     int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
+//     pid_t pid;
+//     int status;
 
-    pipe(fd);
+//     pipe(fd);
 
-    // perror("pipe") exit(1);
-    // exit(1);
+//     // perror("pipe") exit(1);
+//     // exit(1);
 
-    pid = fork();
-
-    char* ls_args[2];
-    switch (pid) {
-        case 0:  //child
-            ls_args[0] = "ls";
-            ls_args[1] = "-a";
-            execvp(ls_args[0], ls_args);
-            exit(0);
-        case -1:
-            perror("fork");
-            exit(1);
-        default:  //parent
-            while ((pid = wait(&status)) != -1) {
-                fprintf(stderr, "process %d exits with %d\n",
-                        pid,
-                        WEXITSTATUS(status));
-                break;
-            }
-    }
-    exit(0);
-
-    // if (fork() == 0) {  // child1
-    //     dup2(fd[1], STDOUT_FILENO);
-    //     close(fd[0]);
-    //     close(fd[1]);
-
-    //     char* ls_args[2] = {"ls", "-a"};
-    //     execvp(ls_args[0], ls_args);
-    //     perror("Child1 failed");
-    //     exit(1);
-    // }
-
-    // close(fd[0]);
-    // close(fd[1]);
-    // wait(0);
-    // wait(0);
-
-    // if ((pid = fork()) > 0) {
-    //     /* Parent - close fd1 */
-    //     printf("Hello from the parent\n");
-    //     dup2(STD_OUTPUT, fd[1]);
-    //     // execvp(base[0], base);
-    //     char* ls_args[2] = {"ls", "."};
-    //     if (execvp(ls_args[0], ls_args) == -1) printf("LS FAILED\n");
-
-    // } else {
-    //     /* Child - close fd0 */
-    //     printf("Hello from the child\n");
-    //     dup2(STD_INPUT, fd[0]);
-    //     // execvp(aux[0], aux);
-    //     char* cat_args[1] = {"cat"};
-    //     if (execvp(cat_args[0], cat_args) == -1) printf("CAT FAILED\n");
-    // }
-
-    return 0;  // TODO: retcodes?
-}
+//     return 0;  // TODO: retcodes?
+// }
 
 int commandHandler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
 
-    // char* base[TOKEN_LIMIT];  // left of metachar i
-    // char* aux[TOKEN_LIMIT];   // right of metachar i TODO: implement iteratively instead of hardcoding just the first
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = set of arguments bw metachars - columns = "argument"
 
     for (i = 0; i < TOKEN_LIMIT; ++i) {
@@ -166,11 +109,6 @@ int commandHandler(char* tokens[]) {
             token_array[i][j] = NULL;
         }
     }
-
-    // for (k = 0; k < TOKEN_LIMIT; ++k) {
-    //     base[k] = NULL;
-    //     aux[k] = NULL;
-    // }
 
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
     size_t row = 0, col = 0;
@@ -184,12 +122,14 @@ int commandHandler(char* tokens[]) {
 
             col = 0;
 
-            if (tokens[tok_c + 1] != NULL)
+            if (tokens[tok_c + 1] != NULL)  // if not the last token, increment row
                 ++row;
 
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
-            ++row;
+
+            if (tok_c != 0) // if not the first token, increment row
+                ++row;
 
         } else {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
