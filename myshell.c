@@ -176,6 +176,7 @@ int commandHandler(char* tokens[]) {
     size_t row = 0, col = 0;
 
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
+        token_array[row][col] = malloc(TOKEN_LIMIT * sizeof(char));
         memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
         ++col;
 
