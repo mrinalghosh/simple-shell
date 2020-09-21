@@ -34,14 +34,30 @@ all tokenizing
 basic REPL
 */
 
+bool charCompare(char* str, char* list) {
+    int i = 0;
+    for (i = 0; i < strlen(str); ++i)
+        if (strcmp(str, list[i]) == 0)
+            return true;
+
+    return false;
+}
+
 void prompt(void) {
     char buf[] = "my_shell$ ";
     write(STD_OUTPUT, buf, strlen(buf));
 }
 
-int pipeHandler(char* left[], char* right[]) {
-    // int fd[2];
-    // pid_t pid;
+int pipeHandler(char* base[], char* aux[]) {
+    int fd[2];  // file descriptors
+    pid_t pid;
+
+    pipe(fd);
+
+    if ((pid = fork()) == -1) {
+        // perror("fork error");
+        // exit(1);
+    }
 
     // int command_count = 1;  // pipe count + 1
     // char* command_args[TOKEN_LIMIT];
@@ -77,17 +93,14 @@ int commandHandler(char* tokens[]) {
             metachars[j].type = tokens[i];  // pointer to metacharacter - string
             ++j;                            // METACHARACTER COUNT
         }
-        // base[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
         ++i;  // TOKEN COUNT;
     }
 
     // printf("number of tokens: %d, number of metachars: %d", i, j);
     // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
 
-    // break into arrays of strings between metachars - can use to execvp
-    if (strcmp(metachars[0].type, "|") == 0) {
-        // memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
-        // memcpy(aux, tokens + (metachars[0].index), i - metachars[0].index - 1);  // copy start from after metac
+    /* break into arrays of strings between metachars - can use to execvp */
+    if (charComp(metachars[0].type, "|<>&")) {
         for (k = 0; k < metachars[0].index; ++k) {
             memcpy(base[k], tokens[k], MAX_TOKEN);
             printf("BASE %d %s\n", k, base[k]);
@@ -98,10 +111,6 @@ int commandHandler(char* tokens[]) {
             printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
         }
     }
-
-    // memcpy(base[0], tokens[0], metachars[0].index);
-    // // strcpy(base[0], tokens[0]);
-    // printf("BASE0 %s\n", base[0]);
 
     pid_t pid;
     int status;

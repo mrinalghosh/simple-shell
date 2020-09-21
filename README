@@ -1,6 +1,6 @@
 SOURCES:
 
-<Lectures, office hours with Camden and notes>
+<lectures, office hours with Camden & Daniel and class notes>
 
 Tokenizing:
 https://stackoverflow.com/questions/23456374/why-do-we-use-null-in-strtok
@@ -17,6 +17,7 @@ https://stackoverflow.com/questions/26766419/better-understanding-of-signal-catc
 Metacharacters:
 https://www.linux.com/training-tutorials/and-ampersand-and-linux/
 https://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html
+https://www.tutorialspoint.com/c_standard_library/c_function_memcpy.htm
 
 Misc:
 https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
