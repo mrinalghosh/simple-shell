@@ -174,8 +174,8 @@ int commandHandler(char* tokens[]) {
         ++i;  // TOKEN COUNT;
     }
 
-    // printf("number of tokens: %d, number of metachars: %d", i, j);
-    // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
+    printf("number of tokens: %d, number of metachars: %d", i, j);
+    printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
 
     pid_t pid;
     int status;
