@@ -85,6 +85,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 }
 
 int pipeHandler(char* base[], char* aux[]) {
+    // TODO: THIS DOESN'T WORK FUCK
     int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
     pid_t pid;
     int status;
@@ -208,11 +209,11 @@ int commandHandler(char* tokens[]) {
         // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
         // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
 
-        pipeHandler(base, aux);  // TODO: fix piping
+        // pipeHandler(base, aux);  // TODO: fix piping
 
-        // char* inputfile = "LICENSE";
-        // char* outputfile = "testout";
-        // fileHandler(tokens, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
+        char* inputfile = "LICENSE";
+        char* outputfile = "testout";
+        fileHandler(tokens, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
     }
 
     return 0;
