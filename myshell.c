@@ -1,6 +1,7 @@
 #include "myshell.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -39,7 +40,7 @@ bool charCompare(char* str, char* list) {
     for (i = 0; i < strlen(str); ++i)
         if (strcmp(str, (char[2]){list[i], '\0'}) == 0)
             return true;
-    printf("Comparison wasn't true\n");
+
     return false;
 }
 
@@ -55,8 +56,21 @@ int pipeHandler(char* base[], char* aux[]) {
     pipe(fd);
 
     if ((pid = fork()) == -1) {
-        // perror("fork error");
-        // exit(1);
+        perror("fork error");
+        exit(1);
+    }
+    if (pid == 0) {
+        /* Child - close fd0 */
+        // close(STD_INPUT);
+        // dup(fd[0]);
+        dup2(STD_INPUT, fd[0]);
+        execvp(aux[0], aux);
+    } else {
+        /* Parent - close fd1 */
+        // close(STD_OUTPUT);
+        // dup(fd[1]);
+        dup2(STD_OUTPUT, fd[1]);
+        execvp(base[0], base);
     }
 
     // int command_count = 1;  // pipe count + 1
@@ -77,8 +91,8 @@ int pipeHandler(char* base[], char* aux[]) {
 int commandHandler(char* tokens[]) {
     int i = 0, j = 0, k;
 
-    char* base[TOKEN_LIMIT];  // left to metachars
-    char* aux[TOKEN_LIMIT];   // right to metachar
+    char* base[TOKEN_LIMIT];  // left to metachar i
+    char* aux[TOKEN_LIMIT];   // right to metachar i TODO: implement recursively
 
     for (k = 0; k < TOKEN_LIMIT; ++k) {
         base[k] = malloc(MAX_TOKEN);
@@ -88,7 +102,7 @@ int commandHandler(char* tokens[]) {
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
-        if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
+        if (charCompare(tokens[i], "|<>&")) {
             metachars[j].index = i;         // index of metacharacter
             metachars[j].type = tokens[i];  // pointer to metacharacter - string
             ++j;                            // METACHARACTER COUNT
@@ -98,19 +112,6 @@ int commandHandler(char* tokens[]) {
 
     // printf("number of tokens: %d, number of metachars: %d", i, j);
     // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
-
-    /* break into arrays of strings between metachars - can use to execvp */
-    if (charCompare(metachars[0].type, "|<>&")) {
-        for (k = 0; k < metachars[0].index; ++k) {
-            memcpy(base[k], tokens[k], MAX_TOKEN);
-            printf("BASE %d %s\n", k, base[k]);
-        }
-
-        for (k = metachars[0].index + 1; k < i; ++k) {
-            memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
-            printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
-        }
-    }
 
     pid_t pid;
     int status;
@@ -128,12 +129,20 @@ int commandHandler(char* tokens[]) {
         }
     }
 
-    // if (metamask[2]) {        // PIPE
-    //     pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
-    //     return 2;             // TODO: encode return from cmd handler
-    // } // TODO: deal with pipe without masking - maybe have a list of operations?
+    /* break into arrays of strings between metachars - can use to execvp */
+    if (charCompare(metachars[0].type, "|<>&")) {
+        for (k = 0; k < metachars[0].index; ++k) {
+            memcpy(base[k], tokens[k], MAX_TOKEN);
+            printf("BASE %d %s\n", k, base[k]);
+        }
 
-    // HERE ONWARD SHOULD GO INTO command_handler();
+        for (k = metachars[0].index + 1; k < i; ++k) {
+            memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
+            printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
+        }
+
+        pipeHandler(base, aux);
+    }
 
     return 0;
 }
