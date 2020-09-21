@@ -88,7 +88,8 @@ int commandHandler(char* tokens[]) {
     //     // pipeHandler();
     // }
 
-    memcpy(base[0], tokens[0], metachars[0].index);
+    // memcpy(base[0], tokens[0], metachars[0].index);
+    strcpy(base[0], tokens[0]);
     printf("BASE0 %s\n", base[0]);
 
     pid_t pid;
