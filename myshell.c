@@ -222,7 +222,7 @@ int commandHandler(char* tokens[]) {
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
-    execute(token_array[0]);
+    execute(token_array[0], NULL, 0);
 
     while (token_array[i][0] != NULL) {
         // ASSUMPTIONS:
