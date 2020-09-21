@@ -48,6 +48,7 @@ bool charCompare(char* str, char* list, int n) {
 void prompt(void) {
     char buf[] = "my_shell$ ";
     write(STD_OUTPUT, buf, strlen(buf));
+    fflush(stdout);
 }
 
 void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
@@ -59,14 +60,6 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
     int rflags = O_RDONLY;
     mode_t mode = S_IRUSR | S_IWUSR;
-
-    char* command[];
-    size_t i = 0;
-
-    while (tokens[i] != NULL) {
-        command[i] = tokens[i];
-        ++i;
-    }
 
     if ((pid = fork()) == -1) {
         printf("Error - child could not be created\n");
@@ -87,7 +80,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 
         // TODO: need to handle case with both I and O
 
-        execvp(command[0], command);  // TODO: handle signal - kill if errors - so doesn't overwrite file
+        execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
     }
     waitpid(pid, &status, 0);  // wait for any child process in group
 }
@@ -162,67 +155,89 @@ int pipeHandler(char* base[], char* aux[]) {
 }
 
 int commandHandler(char* tokens[]) {
-    int i = 0, j = 0, k;
+    int tok_c = 0, meta_c = 0, i, j;
 
-    char* base[TOKEN_LIMIT];  // left of metachar i
-    char* aux[TOKEN_LIMIT];   // right of metachar i TODO: implement iteratively instead of hardcoding just the first
+    // char* base[TOKEN_LIMIT];  // left of metachar i
+    // char* aux[TOKEN_LIMIT];   // right of metachar i TODO: implement iteratively instead of hardcoding just the first
+    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = set of arguments bw metachars - columns = "argument"
 
-    for (k = 0; k < TOKEN_LIMIT; ++k) {
-        base[k] = NULL;
-        aux[k] = NULL;
+    for (i = 0; i < TOKEN_LIMIT; ++i) {
+        for (j = 0; j < MAX_TOKEN; ++j) {
+            token_array[i][j] = NULL;
+        }
     }
+
+    // for (k = 0; k < TOKEN_LIMIT; ++k) {
+    //     base[k] = NULL;
+    //     aux[k] = NULL;
+    // }
 
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
+    size_t row = 0, col = 0;
 
-    while (tokens[i] != NULL) {  // get token count and assign to new string
-        if (charCompare(tokens[i], "|<>&", 4)) {
-            metachars[j].index = i;         // index of metacharacter
-            metachars[j].type = tokens[i];  // pointer to metacharacter - string
-            ++j;                            // METACHARACTER COUNT
+    while (tokens[tok_c] != NULL) {  // get token count and assign to new string
+        memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
+        ++col;
+
+        if (charCompare(tokens[tok_c], "|<>&", 4)) {
+            metachars[meta_c].index = tok_c;         // index of metacharacter
+            metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
+            ++meta_c;                                // METACHARACTER COUNT
+            col = 0;
+            ++row;
         }
-        ++i;  // TOKEN COUNT;
+
+        ++tok_c;  // TOKEN COUNT;
     }
 
-    printf("number of tokens: %d, number of metachars: %d\n", i, j);
-    printf("MC type: \"%s\" index: %d\n", metachars[0].type, metachars[0].index);
+    printf("number of tokens: %d, number of metachars: %d\n", tok_c, meta_c);
+    // printf("MC type: \"%s\" index: %d\n", metachars[0].type, metachars[0].index);
 
-    pid_t pid;
-    int status;
-
-    if (j == 0) { /* NO METACHARACTERS */
-        if ((pid = fork()) > 0) {
-            /* Parent */
-            printf("Hello from parent..waiting\n");
-            pid = waitpid(pid, &status, 0);
-            printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
-        } else {
-            /* Child */
-            execvp(tokens[0], tokens);
-        }
-        return 0;
+    for (i = 0; i < row; ++i) {
+        for (j = 0; j < col; ++j)
+            printf("%s\t", token_array[i][j]);
+        printf("\n");
     }
+
+    // pid_t pid;
+    // int status;
+
+    // if (j == 0) { /* NO METACHARACTERS */
+    //     if ((pid = fork()) > 0) {
+    //         /* Parent */
+    //         printf("Hello from parent..waiting\n");
+    //         pid = waitpid(pid, &status, 0);
+    //         printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+    //     } else {
+    //         /* Child */
+    //         execvp(tokens[0], tokens);
+    //     }
+    //     return 0;
+    // }
 
     /* break into arrays of strings between metachars - can use to execvp */
-    if (charCompare(metachars[0].type, "|<>&", 4)) {
-        for (k = 0; k < metachars[0].index; ++k) {
-            memcpy(base[k], tokens[k], MAX_TOKEN);
-            printf("BASE %d %s\n", k, base[k]);
-        }
+    // if (charCompare(metachars[0].type, "|<>&", 4)) {
+    //     // if(tokens[])
+    //     for (k = 0; k < metachars[0].index; ++k) {
+    //         base[k] = malloc(MAX_TOKEN);
+    //         memcpy(base[k], tokens[k], MAX_TOKEN);
+    //         printf("BASE %d %s\n", k, base[k]);
+    //     }
 
-        for (k = metachars[0].index + 1; k < i; ++k) {
-            memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
-            printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
-        }
+    //     for (k = metachars[0].index + 1; k < i; ++k) {
+    //         memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
+    //         printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
+    //     }
 
-        // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
-        // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
+    //     // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
+    //     // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
 
-        // pipeHandler(base, aux);  // TODO: fix piping
+    //     // pipeHandler(base, aux);  // TODO: fix piping
 
-        char* inputfile = "LICENSE";
-        char* outputfile = "testout";
-        fileHandler(base, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
-    }
+    //     char* inputfile = "LICENSE";
+    //     char* outputfile = "testout";
+    //     fileHandler(base, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
+    // }
 
     return 0;
 }
