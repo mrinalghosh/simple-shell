@@ -140,7 +140,7 @@ int commandHandler(char* tokens[]) {
 
     ++row;  // ROW index -> count
 
-    /* // test print for array
+    // test print for array
     printf("rows: %d\n", row);
 
     for (i = 0; i < row; ++i) {
@@ -151,7 +151,6 @@ int commandHandler(char* tokens[]) {
         }
         printf("\n");
     }
-    */
 
     // pid_t pid;
     // int status;
