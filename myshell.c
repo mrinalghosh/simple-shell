@@ -10,31 +10,32 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-// #define TRUE 1 // using stdbool
-// #define FALSE 0
-
 /*
 TODO:
 detect ctrl-D = SIGQUIT - MAY NEED A SIGNAL HANDLER
-basic fork execvp REPL -- read - eval - print - loop
+
 need to hardcode handling metachars:
     (will probably need to dynamically allocate - see brk, sbrk, mmap)
     & - background task (don't wait)
     > - redirection of output
     < - redirection of input
     | - pipe redirection 
+
 SIGNAL HANDLING - SIGQUIT and SIGCHLD especially
+
 take in environment ? (see project desc)
 */
 
 /*
 DONE:
-complete tokenizing
+prompt
+all tokenizing
 -n flag to suppress prompt
+basic REPL
 */
 
 void prompt(void) {
-    char buf[] = "my_shell$";
+    char buf[] = "my_shell$ ";
     write(STD_OUTPUT, buf, strlen(buf));
 }
 
@@ -65,8 +66,8 @@ int commandHandler(char* tokens[]) {
 
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
-            metachars[j]->index = i;         // index of metacharacter
-            metachars[j]->type = tokens[i];  // pointer to metacharacter
+            metachars[j].index = i;         // index of metacharacter
+            metachars[j].type = tokens[i];  // pointer to metacharacter
             ++j;                             // metacharacter count
         }
         basetokens[i] = tokens[i]; //TODO: might not need this - just a copy of tokens
