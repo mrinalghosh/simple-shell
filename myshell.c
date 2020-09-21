@@ -58,7 +58,6 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
     int status;
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
     int rflags = O_RDONLY;
-
     mode_t mode = S_IRUSR | S_IWUSR;
 
     if ((pid = fork()) == -1) {
@@ -198,12 +197,12 @@ int commandHandler(char* tokens[]) {
     if (charCompare(metachars[0].type, "|<>&")) {
         for (k = 0; k < metachars[0].index; ++k) {
             memcpy(base[k], tokens[k], MAX_TOKEN);
-            // printf("BASE %d %s\n", k, base[k]);
+            printf("BASE %d %s\n", k, base[k]);
         }
 
         for (k = metachars[0].index + 1; k < i; ++k) {
             memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
-            // printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
+            printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
         }
 
         // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
@@ -213,7 +212,7 @@ int commandHandler(char* tokens[]) {
 
         char* inputfile = "LICENSE";
         char* outputfile = "testout";
-        fileHandler(tokens, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
+        fileHandler(base, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
     }
 
     return 0;
