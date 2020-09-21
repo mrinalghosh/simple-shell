@@ -155,8 +155,9 @@ int commandHandler(char* tokens[]) {
 
     pid_t pid;  // only one fork at a time
     int status;
-    int fd;
+    int fd, nread;
     char* filename = malloc(MAX_TOKEN * sizeof(char));
+    char fbuf[MAX_FILE];
 
     for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0)
@@ -170,19 +171,23 @@ int commandHandler(char* tokens[]) {
         // every special character besides & has args on the right and left - can index ahead or behind
         // < > have single token filenames
 
+        // i is the index of the metac
         if (strcmp(token_array[i][0], "|") == 0) {
-            printf("Operation %d is %s\n", i, token_array[i][0]);
+            // printf("Operation %d is %s\n", i, token_array[i][0]);
         }
         if (strcmp(token_array[i][0], "<") == 0) {
-            printf("Operation %d is %s\n", i, token_array[i][0]);
         }
         if (strcmp(token_array[i][0], ">") == 0) {
-            printf("Operation %d is %s\n", i, token_array[i][0]);
-            strcpy(filename, token_array[i + 1][0]);
-            printf("filename: %s", filename);
+            strcpy(filename, token_array[i - 1][0]);  // copy file name
+            fd = open(filename, 0);                   // create fd - need to add flags later
+            nread = read(fd, fbuf, MAX_FILE);         // number of characters read
+
+            printf("%s", fbuf);
+
+            close(fd);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
-            printf("Operation %d is %s\n", i, token_array[i][0]);
+            // printf("Operation %d is %s\n", i, token_array[i][0]);
         }
         // if (i % 2 == 0)  // all argument sets
         // {
