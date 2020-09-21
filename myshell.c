@@ -60,6 +60,14 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
     int rflags = O_RDONLY;
     mode_t mode = S_IRUSR | S_IWUSR;
 
+    char* command[];
+    size_t i = 0;
+
+    while (tokens[i] != NULL) {
+        command[i] = tokens[i];
+        ++i;
+    }
+
     if ((pid = fork()) == -1) {
         printf("Error - child could not be created\n");
         return;  // TODO: exit vs return on fork fail?
@@ -79,7 +87,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 
         // TODO: need to handle case with both I and O
 
-        execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
+        execvp(command[0], command);  // TODO: handle signal - kill if errors - so doesn't overwrite file
     }
     waitpid(pid, &status, 0);  // wait for any child process in group
 }
