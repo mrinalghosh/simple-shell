@@ -85,7 +85,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 }
 
 int pipeHandler(char* base[], char* aux[]) {
-    int fd[2]; // TODO: multiple file descriptors to handle multiple pipes
+    int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
     pid_t pid;
 
     pipe(fd);
@@ -100,14 +100,14 @@ int pipeHandler(char* base[], char* aux[]) {
         dup2(STD_INPUT, fd[0]);
         // execvp(aux[0], aux);
         char* cat_args[1] = {"cat"};
-        if(execvp(cat_args[0], cat_args)==-1) printf("CAT FAILED\n");
+        if (execvp(cat_args[0], cat_args) == -1) printf("CAT FAILED\n");
     } else {
         /* Parent - close fd1 */
         printf("Hello from the parent\n");
         dup2(STD_OUTPUT, fd[1]);
         // execvp(base[0], base);
         char* ls_args[2] = {"ls", "."};
-        if(execvp(ls_args[0], ls_args)==-1) printf("LS FAILED\n");
+        if (execvp(ls_args[0], ls_args) == -1) printf("LS FAILED\n");
     }
 
     return 0;  // TODO: retcodes?
@@ -165,6 +165,9 @@ int commandHandler(char* tokens[]) {
             memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
             // printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
         }
+
+        printf("size of base: %d", sizeof(base));
+        printf("size of aux: %d", sizeof(aux));
 
         pipeHandler(base, aux);
     }
