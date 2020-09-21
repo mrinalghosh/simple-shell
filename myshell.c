@@ -173,11 +173,20 @@ int commandHandler(char* tokens[]) {
         if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
         */
 
-        if (strcmp(token_array[i][0], "|") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
-        if (strcmp(token_array[i][0], "<") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
-        if (strcmp(token_array[i][0], ">") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
-        if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i, token_array[i][0]);
+        // ASSUMPTION - every special character beside & has stuff on the right and left
 
+        if (strcmp(token_array[i][0], "|") == 0) {
+            printf("Operation %d is %s\n", i, token_array[i][0]);
+        }
+        if (strcmp(token_array[i][0], "<") == 0) {
+            printf("Operation %d is %s\n", i, token_array[i][0]);
+        }
+        if (strcmp(token_array[i][0], ">") == 0) {
+            printf("Operation %d is %s\n", i, token_array[i][0]);
+        }
+        if (strcmp(token_array[i][0], "&") == 0) {
+            printf("Operation %d is %s\n", i, token_array[i][0]);
+        }
         // if (i % 2 == 0)  // all argument sets
         // {
         //     if ((pid = fork()) == -1) {
