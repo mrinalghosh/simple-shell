@@ -156,31 +156,48 @@ int commandHandler(char* tokens[]) {
     pid_t pid;  // only one fork at a time
     int status;
     int fd;
+    char* filename;
 
-    for (i = 0; i < meta_c; ++i)  // init pipes for every |
+    for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0)
             pipe(metachars[i].fd);  // metachar struct contains fd[2]
 
-    i = 0;
+    i = 0;  // row counter
+    j = 0;  // metacharacter counter
 
     while (token_array[i][0] != NULL) {
-        if (strcmp(token_array[i][0], "|") == 0) printf("Operation %d is %s\n", i + 1, token_array[i][0]);
-        if (strcmp(token_array[i][0], "<") == 0) printf("Operation %d is %s\n", i + 1, token_array[i][0]);
-        if (strcmp(token_array[i][0], ">") == 0) printf("Operation %d is %s\n", i + 1, token_array[i][0]);
-        if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i + 1, token_array[i][0]);
+        /* // SAME INFO AS IN METACHARS
+        if (strcmp(token_array[i][0], "|") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
+        if (strcmp(token_array[i][0], "<") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
+        if (strcmp(token_array[i][0], ">") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
+        if (strcmp(token_array[i][0], "&") == 0) printf("Operation %d is %s\n", i , token_array[i][0]);
+        */
 
-        // if ((pid = fork()) == -1) {
-        //     perror("fork");
-        //     exit(0);
-        // } else if (pid > 0) {
-        //     /* Parent */
-        //     printf("Hello from parent...waiting\n");
-        //     pid = waitpid(pid, &status, 0);
-        //     printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+        if (metachars[j].type[0] == '<') {
+            strcpy(filename, token_array[i + 2][0]);
+            printf("filename: %s", filename);
+        }
 
-        // } else {
-        //     /* Child */
-        //     execvp(token_array[0][0], token_array[0]);  // hardcoded for testing
+        if (metachars[j].type[0] == '>') {
+            strcpy(filename, token_array[i - 2][0]);
+            printf("filename: %s", filename);
+        }
+
+        // if (i % 2 == 0)  // all argument sets
+        // {
+        //     if ((pid = fork()) == -1) {
+        //         perror("fork");
+        //         exit(0);
+        //     } else if (pid > 0) {
+        //         /* Parent */
+        //         printf("Hello from parent...waiting\n");
+        //         pid = waitpid(pid, &status, 0);
+        //         printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+
+        //     } else {
+        //         /* Child */
+        //         execvp(token_array[0][0], token_array[0]);  // hardcoded for testing
+        //     }
         // }
 
         ++i;
