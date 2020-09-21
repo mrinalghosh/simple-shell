@@ -85,7 +85,7 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
 }
 
 int pipeHandler(char* base[], char* aux[]) {
-    int fd[2];  // file descriptors
+    int fd[2]; // TODO: multiple file descriptors to handle multiple pipes
     pid_t pid;
 
     pipe(fd);
@@ -97,21 +97,17 @@ int pipeHandler(char* base[], char* aux[]) {
     if (pid == 0) {
         /* Child - close fd0 */
         printf("Hello from the child\n");
-        close(STD_INPUT);
-        dup(fd[0]);
-        // dup2(STD_INPUT, fd[0]);
+        dup2(STD_INPUT, fd[0]);
         // execvp(aux[0], aux);
         char* cat_args[1] = {"cat"};
-        execvp(cat_args[0], cat_args);
+        if(execvp(cat_args[0], cat_args)==-1) printf("CAT FAILED\n");
     } else {
         /* Parent - close fd1 */
         printf("Hello from the parent\n");
-        close(STD_OUTPUT);
-        dup(fd[1]);
-        // dup2(STD_OUTPUT, fd[1]);
+        dup2(STD_OUTPUT, fd[1]);
         // execvp(base[0], base);
         char* ls_args[2] = {"ls", "."};
-        execvp(ls_args[0], ls_args);
+        if(execvp(ls_args[0], ls_args)==-1) printf("LS FAILED\n");
     }
 
     return 0;  // TODO: retcodes?
