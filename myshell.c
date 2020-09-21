@@ -122,14 +122,13 @@ int commandHandler(char* tokens[]) {
 
             col = 0;
 
-            if (tokens[tok_c + 1] != NULL)  // if not the last token, increment row
-                ++row;
+            // if not the last token, increment row
+            ++row;
 
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
-            if (tok_c != 0) // if not the first token, increment row
-                ++row;
+            ++row;  // assuming can never start with a pipe
 
         } else {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
@@ -146,7 +145,7 @@ int commandHandler(char* tokens[]) {
     for (i = 0; i < row; ++i) {
         j = 0;
         while (token_array[i][j] != NULL) {
-            printf("%s\t", token_array[i][j]);
+            printf("\"%s\"  ", token_array[i][j]);
             ++j;
         }
         printf("\n");
