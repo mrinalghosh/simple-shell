@@ -56,6 +56,10 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
     int fd;  // file descriptor
     pid_t pid;
     int status;
+    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
+    int rflags = O_RDONLY;
+
+    mode_t mode = S_IRUSR | S_IWUSR;
 
     if ((pid = fork()) == -1) {
         printf("Error - child could not be created\n");
@@ -64,11 +68,11 @@ void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt
     if (pid == 0) {
         /* Child */
         if (io_opt == STD_INPUT) {
-            fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);  // TODO: does the environment variable need to be concatenated?
-            dup2(fd, STDOUT_FILENO);                                                  // duplicate fd to stdout
+            fd = open(output_file, wflags, mode);  // TODO: does the environment variable need to be concatenated?
+            dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
             close(fd);
         } else if (io_opt == STD_OUTPUT) {
-            fd = open(input_file, O_RDONLY, S_IRUSR | S_IWUSR);
+            fd = open(input_file, rflags, mode);
             dup2(fd, STDIN_FILENO);
             close(fd);
         }
@@ -92,31 +96,19 @@ int pipeHandler(char* base[], char* aux[]) {
     }
     if (pid == 0) {
         /* Child - close fd0 */
-        // close(STD_INPUT);
-        // dup(fd[0]);
-        dup2(STD_INPUT, fd[0]);
+        close(STD_INPUT);
+        dup(fd[0]);
+        // dup2(STD_INPUT, fd[0]);
         execvp(aux[0], aux);
     } else {
         /* Parent - close fd1 */
-        // close(STD_OUTPUT);
-        // dup(fd[1]);
-        dup2(STD_OUTPUT, fd[1]);
+        close(STD_OUTPUT);
+        dup(fd[1]);
+        // dup2(STD_OUTPUT, fd[1]);
         execvp(base[0], base);
     }
 
-    // int command_count = 1;  // pipe count + 1
-    // char* command_args[TOKEN_LIMIT];
-
-    // size_t i = 0;
-
-    // while (tokens[i] != NULL) {
-    //     if (strcmp(tokens[i], "|") == 0) {
-    //         ++command_count;
-    //     }
-    //     ++i;
-    // }
-
-    return 0;
+    return 0;  // TODO: retcodes?
 }
 
 int commandHandler(char* tokens[]) {
@@ -149,12 +141,12 @@ int commandHandler(char* tokens[]) {
 
     if (j == 0) { /* NO METACHARACTERS */
         if ((pid = fork()) > 0) {
-            // PARENT
-            // printf("Hello from parent..waiting\n");
+            /* Parent */
+            printf("Hello from parent..waiting\n");
             pid = waitpid(pid, &status, 0);
-            // printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+            printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
         } else {
-            // CHILD
+            /* Child */
             execvp(tokens[0], tokens);
         }
         return 0;
