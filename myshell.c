@@ -32,8 +32,9 @@ take in environment ? (see project desc)
 DONE:
 prompt
 all tokenizing
--n flag to suppress prompt
+-n flag to sup prompt
 basic REPL
+2D tokens
 */
 
 bool charCompare(char* str, char* list, int n) {
@@ -51,53 +52,45 @@ void prompt(void) {
     fflush(stdout);
 }
 
-// void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
-//     /* general purpose I/O handling - tokens include  */
+void executeOne() {}
 
-//     int fd;  // file descriptor
-//     pid_t pid;
-//     int status;
-//     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
-//     int rflags = O_RDONLY;
-//     mode_t mode = S_IRUSR | S_IWUSR;
+/*
+void fileHandler(char* tokens[], char* input_file, char* output_file, int io_opt) {
+    // general purpose I/O handling - tokens include  
 
-//     if ((pid = fork()) == -1) {
-//         printf("Error - child could not be created\n");
-//         return;  // TODO: exit vs return on fork fail?
-//     }
+    int fd;  // file descriptor
+    pid_t pid;
+    int status;
+    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
+    int rflags = O_RDONLY;
+    mode_t mode = S_IRUSR | S_IWUSR;
 
-//     if (pid == 0) {
-//         /* Child */
-//         if (io_opt == STD_INPUT) {
-//             fd = open(output_file, rflags, mode);  // TODO: does the environment variable need to be concatenated?
-//             dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
-//             close(fd);
-//         } else if (io_opt == STD_OUTPUT) {
-//             fd = open(input_file, rflags, mode);
-//             dup2(fd, STDIN_FILENO);
-//             close(fd);
-//         }
+    if ((pid = fork()) == -1) {
+        printf("Error - child could not be created\n");
+        return;  // TODO: exit vs return on fork fail?
+    }
 
-//         // TODO: need to handle case with both I and O
+    if (pid == 0) {
+        //  Child 
+        if (io_opt == STD_INPUT) {
+            fd = open(output_file, rflags, mode);  // TODO: does the environment variable need to be concatenated?
+            dup2(fd, STDOUT_FILENO);               // duplicate fd to stdout
+            close(fd);
+        } else if (io_opt == STD_OUTPUT) {
+            fd = open(input_file, rflags, mode);
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
 
-//         execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
-//     }
-//     waitpid(pid, &status, 0);  // wait for any child process in group
-// }
+        // TODO: need to handle case with both I and O
 
-// int pipeHandler(char* base[], char* aux[]) {
-//     // TODO: THIS DOESN'T WORK
-//     int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
-//     pid_t pid;
-//     int status;
+        execvp(tokens[0], tokens);  // TODO: handle signal - kill if errors - so doesn't overwrite file
+    }
+    waitpid(pid, &status, 0);  // wait for any child process in group
+}
+*/
 
-//     pipe(fd);
-
-//     // perror("pipe") exit(1);
-//     // exit(1);
-
-//     return 0;  // TODO: retcodes?
-// }
+// int pipeHandler(){}
 
 int commandHandler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
@@ -129,7 +122,7 @@ int commandHandler(char* tokens[]) {
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
             if (tokens[tok_c + 1] != NULL)
-                ++row;  // assuming can never start with a pipe
+                ++row;
 
         } else {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
@@ -140,7 +133,9 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    ++row;
+    ++row;  // ROW index -> count
+
+    /* // test print for array
     printf("rows: %d\n", row);
 
     for (i = 0; i < row; ++i) {
@@ -151,6 +146,7 @@ int commandHandler(char* tokens[]) {
         }
         printf("\n");
     }
+    */
 
     // pid_t pid;
     // int status;
@@ -168,30 +164,6 @@ int commandHandler(char* tokens[]) {
     //     return 0;
     // }
 
-    /* break into arrays of strings between metachars - can use to execvp */
-    // if (charCompare(metachars[0].type, "|<>&", 4)) {
-    //     // if(tokens[])
-    //     for (k = 0; k < metachars[0].index; ++k) {
-    //         base[k] = malloc(MAX_TOKEN);
-    //         memcpy(base[k], tokens[k], MAX_TOKEN);
-    //         printf("BASE %d %s\n", k, base[k]);
-    //     }
-
-    //     for (k = metachars[0].index + 1; k < i; ++k) {
-    //         memcpy(aux[k - metachars[0].index - 1], tokens[k], MAX_TOKEN);
-    //         printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
-    //     }
-
-    //     // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
-    //     // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
-
-    //     // pipeHandler(base, aux);  // TODO: fix piping
-
-    //     char* inputfile = "LICENSE";
-    //     char* outputfile = "testout";
-    //     fileHandler(base, inputfile, outputfile, STD_INPUT);  //TODO: move this to appropriate place after testing io
-    // }
-
     return 0;
 }
 
@@ -202,41 +174,36 @@ int main(int argc, char** argv) {
     char buffer[MAX_BUFFER];    // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
 
-    bool suppress = ((argc > 1) && !strcmp(argv[1], "-n"));  // suppress output
+    bool sup = ((argc > 1) && !strcmp(argv[1], "-n"));  // supress prompt for automated grading
 
     while (true) {
         token_c = 1;
-        if (!suppress)
+        if (!sup)
             prompt();
 
-        memset(buffer, '\0', MAX_BUFFER);  // TODO:not working for ctrl-D - but memory IS zeroed
+        memset(buffer, '\0', MAX_BUFFER);
         fgets(buffer, MAX_BUFFER, stdin);
 
-        // printf("buffer before: %s", buffer);
-
-        /* correct spacing around metachars before tokenizing */
         i = 0;
         while (buffer[i] != '\0') {
-            if ((buffer[i - 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&')) {  // no space before
+            if ((buffer[i - 1] != ' ') && charCompare(buffer[i], "|&<>", 4)) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
                 buffer[i] = ' ';
             }
-            if ((buffer[i + 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&')) {  // no space after
+            if ((buffer[i + 1] != ' ') && charCompare(buffer[i], "|&<>", 4)) {  // no space after
                 memmove((buffer + i + 2), (buffer + i + 1), sizeof(buffer) - i - 1);
                 buffer[i + 1] = ' ';
             }
             ++i;
         }
 
-        // printf("buffer after: %s", buffer);
-
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters possible?
-            continue;                                         // reshow prompt at next loop
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)
+            continue;
 
         while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)
             ++token_c;
 
-        commandHandler(tokens);  // error checking via encoded return value? - do I need retcode?
+        commandHandler(tokens);
     }
 
     return 0;
