@@ -75,10 +75,10 @@ int commandHandler(char* tokens[]) {
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
             metachars[j].index = i;         // index of metacharacter
             metachars[j].type = tokens[i];  // pointer to metacharacter - string
-            ++j;                            // metacharacter COUNT
+            ++j;                            // METACHARACTER COUNT
         }
         // base[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
-        ++i;  // number of tokens;
+        ++i;  // TOKEN COUNT;
     }
 
     // printf("number of tokens: %d, number of metachars: %d", i, j);
@@ -88,10 +88,14 @@ int commandHandler(char* tokens[]) {
     if (strcmp(metachars[0].type, "|") == 0) {
         // memcpy(base, tokens, metachars[0].index);                          // copy from start to before metac
         // memcpy(aux, tokens + (metachars[0].index), i - metachars[0].index - 1);  // copy start from after metac
-        memcpy(base[0], tokens[0], MAX_TOKEN);  // need to repeat this for everything upto index, skip index, repeat after
-        memcpy(aux[0], tokens[0], MAX_TOKEN);
-        printf("BASE0 %s\n", base[0]);  // SEGFAULTS WHEN TRYING TO ACCESS
-        printf("AUX0 %s\n", aux[0]);
+        for (k = 0; k < metachars[0].index; ++k) {
+            memcpy(base[k], tokens[k], MAX_TOKEN);
+            printf("BASE %d %s\n", k, base[k]);
+        }
+        for (k = metachars[0].index; k < i; ++k) {
+            memcpy(aux[k - metachars[0].index], tokens[k], MAX_TOKEN);
+            printf("AUX %d %s\n", k, aux[k - metachars[0].index]);
+        }
     }
 
     // memcpy(base[0], tokens[0], metachars[0].index);
