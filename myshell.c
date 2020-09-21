@@ -69,12 +69,15 @@ int commandHandler(char* tokens[]) {
     while (tokens[i] != NULL) {  // get token count and assign to new string
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
             metachars[j].index = i;         // index of metacharacter
-            metachars[j].type = tokens[i];  // pointer to metacharacter
+            metachars[j].type = tokens[i];  // pointer to metacharacter - string
             ++j;                            // metacharacter COUNT
         }
-        // basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
+        // base[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
         ++i;  // number of tokens;
     }
+
+    for (k = 0; k < j; ++k)
+        printf("MC type, index: %s, %d", metachars[k].type, metachars[k].index);
 
     // printf("number of tokens: %d, number of metachars: %d", i, j);
     // printf("MC type, index: %s, %d", metachars[0].type, metachars[0].index);
@@ -89,8 +92,8 @@ int commandHandler(char* tokens[]) {
     // }
 
     // memcpy(base[0], tokens[0], metachars[0].index);
-    strcpy(base[0], tokens[0]);
-    printf("BASE0 %s\n", base[0]);
+    // strcpy(base[0], tokens[0]);
+    // printf("BASE0 %s\n", base[0]);
 
     pid_t pid;
     int status;
