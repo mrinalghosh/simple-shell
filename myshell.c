@@ -88,27 +88,59 @@ int pipeHandler(char* base[], char* aux[]) {
     int fd[2];  // TODO: multiple file descriptors to handle multiple pipes
     pid_t pid;
 
-    pipe(fd);
+    if (pipe(fd) == -1) {
+        printf("pipe redirection failed");
+        exit(1);
+    }
 
     if ((pid = fork()) == -1) {
         printf("fork error!!!");  // TODO: error handling with perror?
         exit(1);
     }
-    if (pid == 0) {
-        /* Child - close fd0 */
-        printf("Hello from the child\n");
-        dup2(STD_INPUT, fd[0]);
-        // execvp(aux[0], aux);
-        char* cat_args[1] = {"cat"};
-        if (execvp(cat_args[0], cat_args) == -1) printf("CAT FAILED\n");
-    } else {
-        /* Parent - close fd1 */
-        printf("Hello from the parent\n");
-        dup2(STD_OUTPUT, fd[1]);
-        // execvp(base[0], base);
-        char* ls_args[2] = {"ls", "."};
-        if (execvp(ls_args[0], ls_args) == -1) printf("LS FAILED\n");
+
+    if (fork() == 0) {  // child1
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[0]);
+        close(fd[1]);
+
+        char* ls_args[2] = {"ls", "-a"};
+        execvp(ls_args[0], ls_args);
+        perror("Child1 failed");
+        exit(1);
     }
+
+    if (fork() == 0) {
+        dup2(fd[0], STDIN_FILENO);
+        close(fd[0]);
+        close(fd[1]);
+
+        char* cat_args[1] = {"cat"};
+        execvp(cat_args[0], cat_args);
+        perror("child2 failed");
+        exit(1);
+    }
+
+    close(fd[0]);
+    close(fd[1]);
+    wait(0);
+    wait(0);
+
+    // if ((pid = fork()) > 0) {
+    //     /* Parent - close fd1 */
+    //     printf("Hello from the parent\n");
+    //     dup2(STD_OUTPUT, fd[1]);
+    //     // execvp(base[0], base);
+    //     char* ls_args[2] = {"ls", "."};
+    //     if (execvp(ls_args[0], ls_args) == -1) printf("LS FAILED\n");
+
+    // } else {
+    //     /* Child - close fd0 */
+    //     printf("Hello from the child\n");
+    //     dup2(STD_INPUT, fd[0]);
+    //     // execvp(aux[0], aux);
+    //     char* cat_args[1] = {"cat"};
+    //     if (execvp(cat_args[0], cat_args) == -1) printf("CAT FAILED\n");
+    // }
 
     return 0;  // TODO: retcodes?
 }
@@ -166,8 +198,8 @@ int commandHandler(char* tokens[]) {
             // printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
         }
 
-        printf("size of base: %d", sizeof(base)/sizeof(base[0]));
-        printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
+        // printf("size of base: %d", sizeof(base)/sizeof(base[0]));
+        // printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
 
         pipeHandler(base, aux);
     }
