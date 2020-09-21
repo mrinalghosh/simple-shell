@@ -98,7 +98,9 @@ int pipeHandler(char* base[], char* aux[]) {
 
     switch (pid) {
         case 0:  //child
-            char* ls_args[2] = {"ls", "-a"};
+            char* ls_args[2];
+            ls_args[0] = "ls";
+            ls_args[1] = "-a";
             execvp(ls_args[0], ls_args);
             exit(0);
         case -1:
