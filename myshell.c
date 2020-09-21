@@ -206,6 +206,7 @@ int commandHandler(char* tokens[]) {
             ++j;
         }
         printf("\n");
+        j = 0;
     }
 
     // pid_t pid;
