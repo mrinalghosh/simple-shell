@@ -166,8 +166,8 @@ int commandHandler(char* tokens[]) {
             // printf("AUX %d %s\n", k - metachars[0].index - 1, aux[k - metachars[0].index - 1]);
         }
 
-        printf("size of base: %d", sizeof(base));
-        printf("size of aux: %d", sizeof(aux));
+        printf("size of base: %d", sizeof(base)/sizeof(base[0]));
+        printf("size of aux: %d", sizeof(aux)/sizeof(aux[0]));
 
         pipeHandler(base, aux);
     }
