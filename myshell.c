@@ -60,7 +60,7 @@ int pipeHandler(char* tokens[]) {
 
 int commandHandler(char* tokens[]) {
     char* basetokens[TOKEN_LIMIT];
-    metachar* metachars[TOKEN_LIMIT] = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes to metacharacters in order
+    metachar** metachars = (metachar**)malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes to metacharacters in order
 
     int i = 0, j = 0;
 
@@ -68,7 +68,7 @@ int commandHandler(char* tokens[]) {
         if (strcmp(tokens[i], ">") == 0 || strcmp(tokens[i], "<") == 0 || strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "&") == 0) {
             (*metachars)[j].index = i;         // index of metacharacter
             (*metachars)[j].type = tokens[i];  // pointer to metacharacter
-            ++j;                             // metacharacter count
+            ++j;                               // metacharacter count
         }
         basetokens[i] = tokens[i];  //TODO: might not need this - just a copy of tokens
         ++i;                        // number of tokens;
