@@ -183,7 +183,9 @@ int commandHandler(char* tokens[]) {
             ++meta_c;                                // METACHARACTER COUNT
 
             col = 0;
-            ++row;
+
+            if (tokens[tok_c + 1] != NULL)
+                ++row;
 
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
@@ -197,7 +199,7 @@ int commandHandler(char* tokens[]) {
         ++tok_c;  // TOKEN COUNT;
     }
 
-    ++row;
+    ++row;  // if ends in a metacharacter
 
     for (i = 0; i < row; ++i) {
         j = 0;
