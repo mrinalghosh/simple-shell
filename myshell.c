@@ -78,13 +78,13 @@ int commandHandler(char* tokens[]) {
 
     // break into arrays of strings between metachars - can use to execvp
 
-    if (strcmp((*metachars)[0].type, "|") == 0) {
-        memcpy(base, tokens, (*metachars)[0].index);                                 // copy from start to before metac
-        memcpy(aux, tokens + ((*metachars)[0].index), i - ((*metachars)[0].index));  // copy start from after metac
-        for (k = 0; k < (*metachars)[0].index; ++k)
-            printf("BASE: %s\n", base[k]);
-        // pipeHandler();
-    }
+    // if (strcmp((*metachars)[0].type, "|") == 0) {
+    //     memcpy(base, tokens, (*metachars)[0].index);                                 // copy from start to before metac
+    //     memcpy(aux, tokens + ((*metachars)[0].index), i - ((*metachars)[0].index));  // copy start from after metac
+    //     for (k = 0; k < (*metachars)[0].index; ++k)
+    //         printf("BASE: %s\n", base[k]);
+    //     // pipeHandler();
+    // }
 
     pid_t pid;
     int status;
