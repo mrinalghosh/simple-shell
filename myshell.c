@@ -179,12 +179,14 @@ int commandHandler(char* tokens[]) {
         token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
         memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
         ++col;
+        printf("MOVE TO NEXT COL");
 
         if (charCompare(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = tok_c;         // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
-            
+
+            printf("MOVE DOWN ROW");
             col = 0;
             ++row;
         }
