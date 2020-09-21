@@ -15,7 +15,7 @@
 
 /*
 TODO:
-detect ctrl-D = EOF = SIGQUIT - MAY NEED A SIGNAL HANDLER
+detect ctrl-D = SIGQUIT - MAY NEED A SIGNAL HANDLER
 basic fork execvp REPL -- read - eval - print - loop
 need to hardcode handling metachars:
     (will probably need to dynamically allocate - see brk, sbrk, mmap)
@@ -29,50 +29,35 @@ take in environment ? (see project desc)
 
 /*
 DONE:
-basic tokenizing
+complete tokenizing
 -n flag to suppress prompt
 */
 
-void prompt(void) { printf("my_shell$: "); }  //TODO: replace all printf with write - see strace
-
-// char* charLoc(char* str, char* ch) {
-// }
+void prompt(void) {
+    char buf[] = "my_shell$";
+    write(STD_OUTPUT, buf, strlen(buf));
+}
 
 int pipeHandler(char* tokens[]) {
-    int fd1[2], fd2[2];
-
+    int fd[2];
     pid_t pid;
 
-    int cmd_count = 1;  // pipe count + 1
-    char* command[TOKEN_LIMIT];
+    int command_count = 1;  // pipe count + 1
+    char* command_args[TOKEN_LIMIT];
 
-    size_t i = 0, j = 0, k = 0;
+    size_t i = 0;
 
-    // check for |
     while (tokens[i] != NULL) {
-        // TODO: non-spaced check - if works use same check in cmdhandler
         if (strcmp(tokens[i], "|") == 0) {
-            ++cmd_count;
-            //TODO: strtok for | - add all to new array (split tokens) OR strchr
+            ++command_count;
         }
         ++i;
     }
 
-    // printf("Command count = %d", cmd_count);
-    /* Loop over all commands in array - change to NEWARRAY when strtok for | imp */
-    // while (tokens[j] != NULL) {
-    //     k = 0;
-    //     while (strcmp(tokens[j], "|") != 0) {
-    //         command[k] = tokens[j];
-    //         ++k;
-    //     }
-    //     ++j;
-    // }
-
     return 0;
 }
 
-int commandParser(char* tokens[]) {
+int commandHandler(char* tokens[]) {
     char* basetokens[TOKEN_LIMIT];
     metachar* metachars[TOKEN_LIMIT];  // array of indexes to metacharacters in order
 
@@ -84,41 +69,57 @@ int commandParser(char* tokens[]) {
             metachars[j]->type = tokens[i];  // pointer to metacharacter
             ++j;                             // metacharacter count
         }
-        basetokens[i] = tokens[i];
+        basetokens[i] = tokens[i]; //TODO: might not need this - just a copy of tokens
         ++i;  // number of tokens;
     }
+
+    // break into arrays of strings between metachars - can use to execvp
+    pid_t pid;
+    if (j == 0) {
+        /* NO METACHARACTERS */
+        if ((pid = fork()) > 0) {
+            // PARENT
+            printf("Hello from parent..waiting\n");
+            pid = waitpid(pid, &status, 0);
+            printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
+        } else {
+            // CHILD
+            execvp(tokens[0], tokens);
+        }
+    }
+
+
 
     // if (metamask[2]) {        // PIPE
     //     pipeHandler(tokens);  // need to pass entire args - might have multiple pipes
     //     return 2;             // TODO: encode return from cmd handler
     // } // TODO: deal with pipe without masking - maybe have a list of operations?
 
+    // HERE ONWARD SHOULD GO INTO command_handler();
+
     return 0;
 }
 
 int main(int argc, char** argv) {
-    int token_count;
-    int suppress = (argc > 1) && !strcmp(argv[1], "-n");  // suppress output
-
-    // pid_t pid;
-    // int status;
-    // int retcode;
+    int token_c;
     int i;
 
     char buffer[MAX_BUFFER];    // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
     char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
 
+    bool suppress = ((argc > 1) && !strcmp(argv[1], "-n"));  // suppress output
+
     while (true) {
-        token_count = 1;
+        token_c = 1;
         if (!suppress)
             prompt();
 
         memset(buffer, '\0', MAX_BUFFER);  // TODO:not working for ctrl-D - but memory IS zeroed
-
         fgets(buffer, MAX_BUFFER, stdin);
 
         // printf("buffer before: %s", buffer);
 
+        /* correct spacing around metachars before tokenizing */
         i = 0;
         while (buffer[i] != '\0') {
             if ((buffer[i - 1] != ' ') && (buffer[i] == '|' || buffer[i] == '<' || buffer[i] == '>' || buffer[i] == '&')) {  // no space before
@@ -135,23 +136,12 @@ int main(int argc, char** argv) {
         // printf("buffer after: %s", buffer);
 
         if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // which whitespace characters possible?
-            continue;                                         // reshow prompt
+            continue;                                         // reshow prompt at next loop
 
-        while ((tokens[token_count] = strtok(NULL, " \n\t\v")) != NULL)
-            ++token_count;
+        while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)
+            ++token_c;
 
-        // HERE ONWARD SHOULD GO INTO command_handler();
-        // if ((pid = fork()) > 0) {
-        //     // PARENT
-        //     printf("Hello from parent..waiting\n");
-        //     pid = waitpid(pid, &status, 0);
-        //     printf("child %d exited with status %d\n", pid, WEXITSTATUS(status));
-        // } else {
-        //     // CHILD
-        //     execvp(tokens[0], tokens);
-        // }
-
-        retcode = commandParser(tokens);  // error checking via encoded return value?
+        commandHandler(tokens);  // error checking via encoded return value? - do I need retcode?
     }
 
     return 0;

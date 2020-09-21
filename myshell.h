@@ -8,7 +8,7 @@
 #define STD_OUTPUT 1
 #define STD_ERROR 2
 
-typedef struct mchars {
+typedef struct mchar {
     int index;
     char* type;
 } metachar;
