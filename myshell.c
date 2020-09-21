@@ -122,7 +122,8 @@ int commandHandler(char* tokens[]) {
 
             col = 0;
 
-            ++row;
+            if (tok_c != 0)
+                ++row;
 
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
