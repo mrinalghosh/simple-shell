@@ -57,7 +57,7 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void execute(char* args[], char* filename, int options) {
+void execute(char* args[], char* filename, int options, int fd[]) {
     /* ommand execution function
     options: no file=0, input from file(<)=1, output to file(>)=2 */
     // TODO: add pipes here if necessary
@@ -161,20 +161,22 @@ int commandHandler(char* tokens[]) {
 
     ++row;  // row index -> count
 
+    /* DEBUG OUTPUT FOR TOKENIZING
     // print 2D array
-    // printf("rows: %d\n", row);
-    // for (i = 0; i < row; ++i) {
-    //     j = 0;
-    //     while (token_array[i][j] != NULL) {
-    //         printf("\"%s\"  ", token_array[i][j]);
-    //         ++j;
-    //     }
-    //     printf("\n");
-    // }
+    printf("rows: %d\n", row);
+    for (i = 0; i < row; ++i) {
+        j = 0;
+        while (token_array[i][j] != NULL) {
+            printf("\"%s\"  ", token_array[i][j]);
+            ++j;
+        }
+        printf("\n");
+    }
 
-    // // print metacharacters
-    // for (i = 0; i < meta_c; ++i)
-    //     printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
+    // print metacharacters
+    for (i = 0; i < meta_c; ++i)
+        printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
+    */
 
     /* ####----COMMAND EXECUTION----#### */
 
@@ -191,26 +193,27 @@ int commandHandler(char* tokens[]) {
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
-    if (row == 1)
-        execute(token_array[0], NULL, 0);
-
     while (token_array[i][0] != NULL) {
         // ASSUMPTIONS:
-        // every special character besides & has args on the right and left - can index ahead or behind
-        // < > have single token filenames
+        // - every special character besides & has args on the right and left -> can index ahead or behind
+        // - command { <, > } filename is only form of redirection
 
-        // i is the index of the metac
+        /* SINGLE COMMANDS */
+        if (row == 1)
+            execute(token_array[0], NULL, 0, NULL);
+
+        /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
         }
 
         if (strcmp(token_array[i][0], "<") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 1);
+            execute(token_array[i - 1], filename, 1, NULL);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2);
+            execute(token_array[i - 1], filename, 2, NULL);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
         }
