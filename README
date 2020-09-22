@@ -25,6 +25,10 @@ https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/C/libc/func
 https://stackoverflow.com/questions/12902627/the-difference-between-stdout-and-stdout-fileno/12902707#12902707
 https://stackoverflow.com/questions/15102992/what-is-the-difference-between-stdin-and-stdin-fileno
 
+Background tasks:
+https://stackoverflow.com/questions/8319484/regarding-background-processes-using-fork-and-child-processes-in-my-dummy-shel
+https://www.unix.com/programming/45993-background-processes-dummy-shell.html
+
 Misc:
 https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
 https://www.tutorialspoint.com/cprogramming/c_break_statement.htm
