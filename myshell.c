@@ -14,28 +14,27 @@
 
 /*
 TODO:
-detect ctrl-D = SIGQUIT - MAY NEED A SIGNAL HANDLER
 
 need to hardcode handling metachars:
-    (will probably need to dynamically allocate - see brk, sbrk, mmap)
     & - background task (don't wait)
-    < - redirection of input !!!not working
-    | - pipe redirection 
+    multiple pipes
 
 SIGNAL HANDLING - SIGQUIT and SIGCHLD especially
 
-take in environment ? (see project desc)
+take in environment? - cd doesn't work
 */
 
 /*
 DONE:
+ctrl-D to quit
 prompt
 all tokenizing
 -n flag to sup prompt
 basic REPL
 2D tokens
 > redirection
-single piping
+single pipe
+< - redirection of input
 */
 
 bool strcomp(char* str, char* list, int n) {
@@ -58,7 +57,7 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void execute(char* args[], char* filename, int options) {
+void execute(char* args[], char* filename, int options, bool bg) {
     /* options: single:0, input from file (<):1, output to file (>):2 */
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
@@ -80,6 +79,8 @@ void execute(char* args[], char* filename, int options) {
         return;
     } else {
         /* Child */
+        if (bg) setpgid(0, 0);
+
         switch (options) {
             case 0: {  // single command execution
                 execvp(args[0], args);
@@ -239,7 +240,7 @@ int commandHandler(char* tokens[]) {
 
         /* SINGLE COMMANDS */
         if (row == 1)
-            execute(token_array[0], NULL, 0);
+            execute(token_array[0], NULL, 0, true);
 
         /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
@@ -248,12 +249,12 @@ int commandHandler(char* tokens[]) {
 
         if (strcmp(token_array[i][0], "<") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 1);
+            execute(token_array[i - 1], filename, 1, false);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2);
+            execute(token_array[i - 1], filename, 2, false);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
         }
@@ -281,8 +282,10 @@ int main(int argc, char** argv) {
         memset(buffer, '\0', MAX_BUFFER);
         fgets(buffer, MAX_BUFFER, stdin);
 
-        if (buffer[0] == '\0')
+        if (buffer[0] == '\0') {
+            printf("\n");
             exit(0);
+        }
 
         i = 0;
         while (buffer[i] != '\0') {
