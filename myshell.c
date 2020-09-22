@@ -74,7 +74,8 @@ void execute(char* args[], char* filename, int options, bool bg) {
     } else if (pid > 0) {
         /* Parent */
         // printf("Parental guidance.. waiting\n");
-        pid = waitpid(pid, &status, 0);
+        if (!bg)
+            pid = waitpid(pid, &status, 0);
         // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
         return;
     } else {
