@@ -35,8 +35,8 @@ single pipe
 */
 
 void child_handler(int signum) {
-    // printf("inside child handler function\n");
-    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {}
+    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {  // -1 - for any child process
+    }                                               // spin while pid != 0 (children exist but no state change) and pid != -1 (error)
     return;
 }
 
@@ -58,6 +58,12 @@ void prompt(void) {
     char buf[] = "my_shell$ ";
     write(STD_OUTPUT, buf, strlen(buf));
     fflush(stdout);
+    return;
+}
+
+void error_message(char* message) {
+    printf("ERROR: %s", message);
+    return;
 }
 
 void execute(char* args[], char* filename, int options, bool bg) {
@@ -133,7 +139,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
     if ((pid[0] = fork()) == 0) {
         close(STDOUT_FILENO);  // explicit close stdout of first child
         dup(fd[1]);            // duplicate first child stdout to pipe stdin
-        close(fd[0]);          // close both sides of pipe in child
+        close(fd[0]);          // TODO: WHY DO WE close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
         perror("execvp left | ... failed");
@@ -162,7 +168,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
     return;
 }
 
-int command_handler(char* tokens[]) {
+void command_handler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
     size_t row = 0, col = 0;
 
@@ -176,7 +182,7 @@ int command_handler(char* tokens[]) {
         }
     }
 
-    while (tokens[tok_c] != NULL) {  // get token count and assign to new string
+    while (tokens[tok_c] != NULL) {  // get token count and put into 2D token_array
 
         if (strcomp(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = row + 1;       // index of metacharacter
@@ -203,76 +209,66 @@ int command_handler(char* tokens[]) {
         ++tok_c;  // token count;
     }
 
-    ++row;  // row index -> count
+    ++row;  // row index -> row count
 
-    /* DEBUG OUTPUT FOR TOKENIZING
-    // print 2D array
-    printf("rows: %d\n", row);
-    for (i = 0; i < row; ++i) {
-        j = 0;
-        while (token_array[i][j] != NULL) {
-            printf("\"%s\"  ", token_array[i][j]);
-            ++j;
-        }
-        printf("\n");
+    /* ####---- SINGLE-METACHARACTER EXECUTION----#### */
+
+    // while (token_array[i][0] != NULL) {
+    //     // ASSUMPTIONS:
+    //     // - every special character besides & has args on the right and left -> can index ahead or behind
+    //     // - command { <, > } filename is only form of redirection
+
+    //     /* SINGLE COMMANDS */
+    //     if (row == 1)
+    //         execute(token_array[0], NULL, 0, bg);
+
+    //     /* METACHARACTER HANDLING */
+    //     if (strcmp(token_array[i][0], "|") == 0) {
+    //         pipe_handler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
+    //     }
+
+    //     if (strcmp(token_array[i][0], "<") == 0) {
+    //         strcpy(filename, token_array[i + 1][0]);
+    //         execute(token_array[i - 1], filename, 1, bg);
+    //     }
+
+    //     if (strcmp(token_array[i][0], ">") == 0) {
+    //         strcpy(filename, token_array[i + 1][0]);
+    //         execute(token_array[i - 1], filename, 2, bg);
+    //     }
+
+    //     ++i;
+    // }
+
+    /* ####----MULTI-METACHARACTER EXECUTION----#### */
+
+    bool bg = false;              // background
+    int ffd, status, pipe_c = 0;  // file fd, status, pipe count
+    pid_t pid;                    // only one pid/fork at a time
+
+    // background task
+    if (strcmp(token_array[row - 1][0], "&") == 0) {
+        bg = true;
+        token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array
+        --row;
     }
 
-    // print metacharacters
+    // initialize pipes
     for (i = 0; i < meta_c; ++i)
-        printf("metacharacter has index: %d, type: \"%s\"\n", metachars[i].index, metachars[i].type);
-    */
-
-    /* ####----COMMAND EXECUTION----#### */
-
-    pid_t pid;  // only making one fork at a time
-    int fd, nread, status, pipe_c = 0;
-    char* filename = malloc(MAX_TOKEN * sizeof(char));
-    char fbuf[MAX_FILE];
-    bool bg = false;
-
-    for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0) {
-            // pipe(metachars[i].fd);  //  don't need to pipe later - changes fd[2]
-            ++pipe_c;  // pipe count
+            pipe(metachars[i].fd);  // create pipes
+            ++pipe_c;               // pipe count
         }
 
     i = 0;  // row counter
     j = 0;  // metacharacter counter
-
-    if (strcmp(token_array[row - 1][0], "&") == 0) {  // check for background (&) in last position
-        bg = true;
-        token_array[row - 1][0] = NULL;  // remove & from last row of token_array
-        --row;
+    
+    while (j < meta_c) {
+        printf("metacharacter no:%d, type:%s\n", metachars[j].index, metachars[j].type);
+        ++j;
     }
 
-    while (token_array[i][0] != NULL) {
-        // ASSUMPTIONS:
-        // - every special character besides & has args on the right and left -> can index ahead or behind
-        // - command { <, > } filename is only form of redirection
-
-        /* SINGLE COMMANDS */
-        if (row == 1)
-            execute(token_array[0], NULL, 0, bg);
-
-        /* METACHARACTER HANDLING */
-        if (strcmp(token_array[i][0], "|") == 0) {
-            pipe_handler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
-        }
-
-        if (strcmp(token_array[i][0], "<") == 0) {
-            strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 1, bg);
-        }
-
-        if (strcmp(token_array[i][0], ">") == 0) {
-            strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2, bg);
-        }
-
-        ++i;
-    }
-
-    return 0;
+    return;
 }
 
 int main(int argc, char** argv) {
@@ -310,11 +306,11 @@ int main(int argc, char** argv) {
             ++i;
         }
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) { // skip to next loop if no input
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) {  // skip to next loop if no input
             continue;
         }
 
-        while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL) // tokenize to 2D array
+        while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)  // tokenize to 2D array
             ++token_c;
 
         command_handler(tokens);
