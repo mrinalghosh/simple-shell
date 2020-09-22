@@ -37,8 +37,9 @@ single pipe
 < - redirection of input
 */
 
-static void child_handler(int signum) {
+static void child_handler(int signum, ) {
     printf("inside child handler function...exiting\n");
+    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {}
     exit(1);
 }
 
@@ -79,12 +80,16 @@ void execute(char* args[], char* filename, int options, bool bg) {
     } else if (pid > 0) {
         /* Parent */
 
-        // printf("Parental guidance.. waiting\n");
         if (!bg)  // if running in the background
+        {
+            // printf("Parental guidance.. waiting\n");
             pid = waitpid(pid, &status, 0);
-        else
+            printf("FOREGROUND\n");
+            // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+        } else {
             signal(SIGCHLD, child_handler);
-        // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+            printf("BACKGROUND\n");
+        }
 
         return;
     } else {
