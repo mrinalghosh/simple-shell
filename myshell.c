@@ -279,7 +279,7 @@ void command_handler(char* tokens[]) {
                 }
 
                 if (strcmp(token_array[i][0], ">") == 0) {
-                    ffd = open(token_array[i + 1][0], wflags);  // see above
+                    ffd = open(token_array[i + 1][0], wflags);
                     dup2(ffd, STDOUT_FILENO);
 
                     execvp(token_array[i - 1][0], token_array[i - 1]);
