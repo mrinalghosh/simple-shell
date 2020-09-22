@@ -80,7 +80,7 @@ void execute(char* args[], char* filename, int options, bool bg) {
         return;
     } else {
         /* Child */
-        if (bg) setpgid(0, 0);
+        if (bg) setpgid(0, 0);  // sets pid(child) to pid(parent) AND pgid(child) = pid(child) = pid(parent)
 
         switch (options) {
             case 0: {  // single command execution
@@ -109,6 +109,8 @@ void execute(char* args[], char* filename, int options, bool bg) {
                 break;
             }
         }
+
+        printf("Child exited\n");
 
         exit(0);
     }
