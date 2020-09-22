@@ -85,12 +85,9 @@ void execute(char* args[], char* filename, int options) {
                 execvp(args[0], args);
                 break;
             }
-            case 1: {  // command < file - DOESN'T WORK
-                // printf("Child command < file\n");
+            case 1: {  // command < file
                 ffd = open(filename, rflags);
-                // nread = read(ffd, fbuf, MAX_FILE);
                 dup2(ffd, STDIN_FILENO);
-                // write(ffd, fbuf, MAX_FILE);
 
                 execvp(args[0], args);
 
@@ -98,7 +95,6 @@ void execute(char* args[], char* filename, int options) {
                 break;
             }
             case 2: {  // command > file
-                // printf("Child command > file\n");
                 ffd = open(filename, wflags);
                 dup2(ffd, STDOUT_FILENO);
 
@@ -285,6 +281,9 @@ int main(int argc, char** argv) {
         memset(buffer, '\0', MAX_BUFFER);
         fgets(buffer, MAX_BUFFER, stdin);
 
+        if (buffer[0] == '\0')
+            exit(0);
+
         i = 0;
         while (buffer[i] != '\0') {
             if ((buffer[i - 1] != ' ') && chcomp(buffer[i], "|&<>", 4)) {  // no space before
@@ -300,7 +299,6 @@ int main(int argc, char** argv) {
 
         if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) {
             continue;
-            printf(" (ALL INPUT NULL) ");
         }
 
         while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)
