@@ -19,8 +19,7 @@ detect ctrl-D = SIGQUIT - MAY NEED A SIGNAL HANDLER
 need to hardcode handling metachars:
     (will probably need to dynamically allocate - see brk, sbrk, mmap)
     & - background task (don't wait)
-    > - redirection of output
-    < - redirection of input
+    < - redirection of input !!!not working
     | - pipe redirection 
 
 SIGNAL HANDLING - SIGQUIT and SIGCHLD especially
@@ -35,6 +34,7 @@ all tokenizing
 -n flag to sup prompt
 basic REPL
 2D tokens
+> redirection
 */
 
 bool strCompare(char* str, char* list, int n) {
