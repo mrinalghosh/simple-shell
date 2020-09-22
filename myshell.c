@@ -128,7 +128,7 @@ void pipeHandler(char* args1[], char* args2[], int fd[]) {
     if ((pid[0] = fork()) == 0) {
         close(STDOUT_FILENO);  // explicit close stdout of first child
         dup(fd[1]);            // duplicate first child stdout to pipe stdin
-        close(fd[0]);          // close both sides of pipe in child
+        close(fd[0]);           // close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
         perror("execvp left | ... failed");
@@ -158,7 +158,7 @@ void pipeHandler(char* args1[], char* args2[], int fd[]) {
 }
 
 int commandHandler(char* tokens[]) {
-    // int tok_c = 0, meta_c = 0, i, j;
+    int tok_c = 0, meta_c = 0, i, j;
     size_t row = 0, col = 0;
 
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = [arguments...] bw metachars - columns = argument
