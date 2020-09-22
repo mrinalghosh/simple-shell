@@ -83,7 +83,7 @@ void execute(char* args[], char* filename, int options) {
 
         signal(SIGINT, signal_handler);  // register signal handler
         int i;
-        while (TRUE) {
+        while (true) {
             printf("%d\n", i);
             sleep(1);
             ++i;
