@@ -37,8 +37,9 @@ single pipe
 < - redirection of input
 */
 
-static void signal_handler(int signum) {
-    printf("inside handler function\n");
+static void child_handler(int signum) {
+    printf("inside child handler function...exiting\n");
+    exit(1);
 }
 
 bool strcomp(char* str, char* list, int n) {
@@ -61,7 +62,7 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void execute(char* args[], char* filename, int options) {
+void execute(char* args[], char* filename, int options, bool bg) {
     /* options: single:0, input from file (<):1, output to file (>):2 */
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
@@ -77,17 +78,13 @@ void execute(char* args[], char* filename, int options) {
         exit(1);
     } else if (pid > 0) {
         /* Parent */
-        // printf("Parental guidance.. waiting\n");
-        pid = waitpid(pid, &status, 0);
-        // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
 
-        signal(SIGINT, signal_handler);  // register signal handler
-        int i;
-        while (true) {
-            printf("%d\n", i);
-            sleep(1);
-            ++i;
-        }
+        // printf("Parental guidance.. waiting\n");
+        if (!bg)  // if running in the background
+            pid = waitpid(pid, &status, 0);
+        else
+            signal(SIGCHLD, child_handler);
+        // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
 
         return;
     } else {
@@ -232,6 +229,7 @@ int command_handler(char* tokens[]) {
     int fd, nread, status, pipe_c = 0;
     char* filename = malloc(MAX_TOKEN * sizeof(char));
     char fbuf[MAX_FILE];
+    bool bg = false;
 
     for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0) {
@@ -244,6 +242,11 @@ int command_handler(char* tokens[]) {
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
+    if (strcmp(token_array[row - 1][0], "&") == 0) {  // can only be last token if present
+        printf("backgrounding tasks");
+        bg = true;
+    }
+
     while (token_array[i][0] != NULL) {
         // ASSUMPTIONS:
         // - every special character besides & has args on the right and left -> can index ahead or behind
@@ -251,7 +254,7 @@ int command_handler(char* tokens[]) {
 
         /* SINGLE COMMANDS */
         if (row == 1)
-            execute(token_array[0], NULL, 0);
+            execute(token_array[0], NULL, 0, bg);
 
         /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
@@ -260,14 +263,12 @@ int command_handler(char* tokens[]) {
 
         if (strcmp(token_array[i][0], "<") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 1);
+            execute(token_array[i - 1], filename, 1, bg);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2);
-        }
-        if (strcmp(token_array[i][0], "&") == 0) {
+            execute(token_array[i - 1], filename, 2, bg);
         }
 
         ++i;

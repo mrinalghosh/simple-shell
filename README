@@ -36,6 +36,7 @@ SOURCES:
 
     Signal Handling:
     https://www.geeksforgeeks.org/signals-c-language/
+    https://www.gnu.org/software/libc/manual/html_node/Sigaction-Function-Example.html#:~:text=Here%20is%20an%20equivalent%20example,to%20specify%20the%20new%20action.
     
     Misc:
     https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
