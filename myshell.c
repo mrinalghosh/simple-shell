@@ -82,6 +82,12 @@ void execute(char* args[], char* filename, int options) {
         // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
 
         signal(SIGINT, signal_handler);  // register signal handler
+        int i;
+        while (TRUE) {
+            printf("%d\n", i);
+            sleep(1);
+            ++i;
+        }
 
         return;
     } else {
