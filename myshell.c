@@ -39,7 +39,8 @@ single pipe
 
 void child_handler(int signum) {
     printf("inside child handler function...exiting\n");
-    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {}
+    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {
+    }
     exit(1);
 }
 
@@ -82,13 +83,13 @@ void execute(char* args[], char* filename, int options, bool bg) {
 
         if (!bg)  // if running in the background
         {
+            printf("FOREGROUND\n");
             // printf("Parental guidance.. waiting\n");
             pid = waitpid(pid, &status, 0);
-            printf("FOREGROUND\n");
             // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
         } else {
-            signal(SIGCHLD, child_handler);
             printf("BACKGROUND\n");
+            signal(SIGCHLD, child_handler);
         }
 
         return;
