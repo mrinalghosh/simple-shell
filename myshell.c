@@ -188,7 +188,6 @@ void command_handler(char* tokens[]) {
             metachars[meta_c].index = row + 1;       // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
-
             col = 0;
 
             if (tok_c != 0)
@@ -205,10 +204,8 @@ void command_handler(char* tokens[]) {
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
             ++col;
         }
-
         ++tok_c;  // token count;
     }
-
     ++row;  // row index -> row count
 
     /* ####---- SINGLE-METACHARACTER EXECUTION----#### */
@@ -246,6 +243,10 @@ void command_handler(char* tokens[]) {
     int ffd, status, pipe_c = 0;  // file fd, status, pipe count
     pid_t pid;                    // only one pid/fork at a time
 
+    int wflags = O_WRONLY | O_CREAT | O_TRUNC;  // write flags
+    int rflags = O_RDONLY;                      // read flag
+    mode_t mode = S_IRUSR | S_IWUSR;            // user permissions flags
+
     // background task
     if (strcmp(token_array[row - 1][0], "&") == 0) {
         bg = true;
@@ -254,19 +255,32 @@ void command_handler(char* tokens[]) {
     }
 
     // initialize pipes
-    for (i = 0; i < meta_c; ++i)
+    for (i = 0; i < meta_c; ++i) {
         if (strcmp(metachars[i].type, "|") == 0) {
-            pipe(metachars[i].fd);  // create pipes
-            ++pipe_c;               // pipe count
+            if (pipe(metachars[i].fd) < 0) {
+                perror("pipe");
+                exit(1);
+            }
+            ++pipe_c;  // pipe count
         }
+    }
 
     i = 0;  // row counter
     j = 0;  // metacharacter counter
-    
-    while (j < meta_c) {
-        printf("metacharacter no:%d, type:%s\n", metachars[j].index, metachars[j].type);
-        ++j;
+
+    if (row == 1) {
+        if (execvp(token_array[0][0], token_array[0]) < 0) {
+            perror("execvp failed");
+            exit(1);
+        }
+        return;
     }
+
+    // while (j < meta_c) {
+    //     // printf("metacharacter no:%d, type:%s\n", metachars[j].index, metachars[j].type);
+
+    //     ++j;
+    // }
 
     return;
 }
