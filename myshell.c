@@ -37,7 +37,7 @@ single pipe
 < - redirection of input
 */
 
-static void child_handler(int signum, ) {
+void child_handler(int signum) {
     printf("inside child handler function...exiting\n");
     while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {}
     exit(1);
