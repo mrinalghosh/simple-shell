@@ -37,6 +37,10 @@ single pipe
 < - redirection of input
 */
 
+static void signal_handler(int signum) {
+    printf("inside handler function\n");
+}
+
 bool strcomp(char* str, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
@@ -57,7 +61,7 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void execute(char* args[], char* filename, int options, bool bg) {
+void execute(char* args[], char* filename, int options) {
     /* options: single:0, input from file (<):1, output to file (>):2 */
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
@@ -74,18 +78,17 @@ void execute(char* args[], char* filename, int options, bool bg) {
     } else if (pid > 0) {
         /* Parent */
         // printf("Parental guidance.. waiting\n");
-        if (!bg)
-            pid = waitpid(pid, &status, 0);
+        pid = waitpid(pid, &status, 0);
         // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+
+        signal(SIGINT, signal_handler);  // register signal handler
+
         return;
     } else {
         /* Child */
-        if (bg) setpgid(0, 0);  // sets pid(child) to pid(parent) AND pgid(child) = pid(child) = pid(parent)
-
         switch (options) {
             case 0: {  // single command execution
                 execvp(args[0], args);
-                printf("execvp worked!\n");
                 break;
             }
             case 1: {  // command < file
@@ -111,14 +114,12 @@ void execute(char* args[], char* filename, int options, bool bg) {
             }
         }
 
-        printf("Child exited\n");
-
         exit(0);
     }
     return;
 }
 
-void pipeHandler(char* args1[], char* args2[], int fd[]) {
+void pipe_handler(char* args1[], char* args2[], int fd[]) {
     // TODO: retcode encoding?
     pid_t pid[2];
 
@@ -159,7 +160,7 @@ void pipeHandler(char* args1[], char* args2[], int fd[]) {
     return;
 }
 
-int commandHandler(char* tokens[]) {
+int command_handler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
     size_t row = 0, col = 0;
 
@@ -244,21 +245,21 @@ int commandHandler(char* tokens[]) {
 
         /* SINGLE COMMANDS */
         if (row == 1)
-            execute(token_array[0], NULL, 0, true);
+            execute(token_array[0], NULL, 0);
 
         /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
-            pipeHandler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
+            pipe_handler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
         }
 
         if (strcmp(token_array[i][0], "<") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 1, false);
+            execute(token_array[i - 1], filename, 1);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2, false);
+            execute(token_array[i - 1], filename, 2);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
         }
@@ -311,7 +312,7 @@ int main(int argc, char** argv) {
         while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)
             ++token_c;
 
-        commandHandler(tokens);
+        command_handler(tokens);
     }
 
     return 0;

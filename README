@@ -34,6 +34,9 @@ SOURCES:
     https://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html
     https://linuxhint.com/pipe_system_call_c/#:~:text=The%20pipe()%20system%20function,inter%2Dprocess%20communication%20in%20Linux.
 
+    Signal Handling:
+    https://www.geeksforgeeks.org/signals-c-language/
+    
     Misc:
     https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
     https://www.tutorialspoint.com/cprogramming/c_break_statement.htm
