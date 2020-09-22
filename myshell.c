@@ -38,14 +38,14 @@ basic REPL
 single piping
 */
 
-bool strCompare(char* str, char* list, int n) {
+bool strcomp(char* str, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
         if (strcmp(str, (char[2]){list[i], '\0'}) == 0) return true;
     return false;
 }
 
-bool charCompare(char ch, char* list, int n) {
+bool chcomp(char ch, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
         if (ch == list[i]) return true;
@@ -71,6 +71,7 @@ void execute(char* args[], char* filename, int options) {
 
     if ((pid = fork()) == -1) {
         perror("fork");
+        exit(1);
     } else if (pid > 0) {
         /* Parent */
         // printf("Parental guidance.. waiting\n");
@@ -87,9 +88,9 @@ void execute(char* args[], char* filename, int options) {
             case 1: {  // command < file - DOESN'T WORK
                 // printf("Child command < file\n");
                 ffd = open(filename, rflags);
-                nread = read(ffd, fbuf, MAX_FILE);
+                // nread = read(ffd, fbuf, MAX_FILE);
                 dup2(ffd, STDIN_FILENO);
-                write(ffd, fbuf, MAX_FILE);
+                // write(ffd, fbuf, MAX_FILE);
 
                 execvp(args[0], args);
 
@@ -173,7 +174,7 @@ int commandHandler(char* tokens[]) {
 
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
 
-        if (strCompare(tokens[tok_c], "|<>&", 4)) {
+        if (strcomp(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = row + 1;       // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
@@ -186,7 +187,7 @@ int commandHandler(char* tokens[]) {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
-            if (tokens[tok_c + 1] != NULL && !strCompare(tokens[tok_c + 1], "|<>&", 4))
+            if (tokens[tok_c + 1] != NULL && !strcomp(tokens[tok_c + 1], "|<>&", 4))
                 ++row;
 
         } else {
@@ -286,11 +287,11 @@ int main(int argc, char** argv) {
 
         i = 0;
         while (buffer[i] != '\0') {
-            if ((buffer[i - 1] != ' ') && charCompare(buffer[i], "|&<>", 4)) {  // no space before
+            if ((buffer[i - 1] != ' ') && chcomp(buffer[i], "|&<>", 4)) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
                 buffer[i] = ' ';
             }
-            if ((buffer[i + 1] != ' ') && charCompare(buffer[i], "|&<>", 4)) {  // no space after
+            if ((buffer[i + 1] != ' ') && chcomp(buffer[i], "|&<>", 4)) {  // no space after
                 memmove((buffer + i + 2), (buffer + i + 1), sizeof(buffer) - i - 1);
                 buffer[i + 1] = ' ';
             }
