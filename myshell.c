@@ -229,6 +229,7 @@ void command_handler(char* tokens[]) {
         bg = true;
         token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
         --row;
+        --meta_c;
     }
 
     // initialize pipes
@@ -253,6 +254,11 @@ void command_handler(char* tokens[]) {
         return;
     } else {
         while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
+
+            if (strcomp(token_array[i][0], "|<>", 3) != 0) {
+                ++i;
+                continue;
+            }
 
             if ((pid = fork()) == -1) {
                 perror("fork failed");
