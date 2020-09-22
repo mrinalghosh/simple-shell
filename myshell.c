@@ -74,10 +74,9 @@ void execute(char* args[], char* filename, int options, int pfd[]) {
         perror("fork");
     } else if (pid > 0) {
         /* Parent */
-        printf("Parental guidance.. waiting\n");
+        // printf("Parental guidance.. waiting\n");
         pid = waitpid(pid, &status, 0);
-        printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
-
+        // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
         return;
     } else {
         /* Child */
@@ -87,7 +86,7 @@ void execute(char* args[], char* filename, int options, int pfd[]) {
                 break;
             }
             case 1: {  // command < file
-
+                printf("Child command < file\n");
                 ffd = open(filename, rflags);
                 nread = read(ffd, fbuf, MAX_FILE);
                 dup2(ffd, STDIN_FILENO);
@@ -99,7 +98,7 @@ void execute(char* args[], char* filename, int options, int pfd[]) {
                 break;
             }
             case 2: {  //command > file
-
+                printf("Child command > file\n");
                 ffd = open(filename, wflags);
                 dup2(ffd, STDOUT_FILENO);
 
