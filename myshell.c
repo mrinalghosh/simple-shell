@@ -121,7 +121,7 @@ void execute(char* args[], char* filename, int options) {
 int commandHandler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
 
-    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = set of arguments bw metachars - columns = "argument"
+    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = [arguments...] bw metachars - columns = argument
 
     for (i = 0; i < TOKEN_LIMIT; ++i) {
         for (j = 0; j < MAX_TOKEN; ++j) {
@@ -156,7 +156,7 @@ int commandHandler(char* tokens[]) {
             ++col;
         }
 
-        ++tok_c;  // TOKEN COUNT;
+        ++tok_c;  // token count;
     }
 
     ++row;  // row index -> count
@@ -178,7 +178,7 @@ int commandHandler(char* tokens[]) {
 
     /* ####----COMMAND EXECUTION----#### */
 
-    pid_t pid;  // only one fork at a time
+    pid_t pid;  // only making one fork at a time
     int status;
     int fd, nread;
     char* filename = malloc(MAX_TOKEN * sizeof(char));
@@ -214,22 +214,6 @@ int commandHandler(char* tokens[]) {
         if (strcmp(token_array[i][0], "&") == 0) {
             // printf("Operation %d is %s\n", i, token_array[i][0]);
         }
-        // if (i % 2 == 0)  // all argument sets
-        // {
-        //     if ((pid = fork()) == -1) {
-        //         perror("fork");
-        //         exit(0);
-        //     } else if (pid > 0) {
-        //         /* Parent */
-        //         printf("Hello from parent...waiting\n");
-        //         pid = waitpid(pid, &status, 0);
-        //         printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
-
-        //     } else {
-        //         /* Child */
-        //         execvp(token_array[0][0], token_array[0]);  // hardcoded for testing
-        //     }
-        // }
 
         ++i;
     }
@@ -255,6 +239,12 @@ int main(int argc, char** argv) {
         fgets(buffer, MAX_BUFFER, stdin);
 
         i = 0;
+
+        if (buffer[0] == EOF) {
+            printf("at EOF\n");
+            continue;
+        }
+
         while (buffer[i] != '\0') {
             if ((buffer[i - 1] != ' ') && charCompare(buffer[i], "|&<>", 4)) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
