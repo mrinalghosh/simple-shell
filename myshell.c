@@ -238,13 +238,9 @@ int main(int argc, char** argv) {
         memset(buffer, '\0', MAX_BUFFER);
         fgets(buffer, MAX_BUFFER, stdin);
 
+        printf("First character in buffer is %d\n", buffer[0]);
+
         i = 0;
-
-        if (buffer[0] == '\0') {
-            printf("at EOF\n");
-            continue;
-        }
-
         while (buffer[i] != '\0') {
             if ((buffer[i - 1] != ' ') && charCompare(buffer[i], "|&<>", 4)) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
