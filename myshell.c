@@ -85,6 +85,7 @@ void execute(char* args[], char* filename, int options, bool bg) {
         switch (options) {
             case 0: {  // single command execution
                 execvp(args[0], args);
+                printf("execvp worked!\n");
                 break;
             }
             case 1: {  // command < file
