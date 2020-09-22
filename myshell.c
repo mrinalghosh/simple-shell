@@ -249,8 +249,10 @@ int command_handler(char* tokens[]) {
     j = 0;  // metacharacter counter
 
     if (strcmp(token_array[row - 1][0], "&") == 0) {  // can only be last token if present
-        printf("backgrounding tasks");
+        printf("&: Backgrounding tasks\n");
         bg = true;
+        token_array[row - 1][0] = NULL;
+        --row;
     }
 
     while (token_array[i][0] != NULL) {
