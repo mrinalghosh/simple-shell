@@ -57,16 +57,16 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void execute(char* args[], char* filename, int options, int fd[]) {
-    /* ommand execution function
-    options: no file=0, input from file(<)=1, output to file(>)=2 */
-    // TODO: add pipes here if necessary
+void execute(char* args[], char* filename, int options, int pfd[]) {
+    /* general and meta execution function
+    options: no file=0, input from file(<)=1, output to file(>)=2 
+    */
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
     int rflags = O_RDONLY;
     mode_t mode = S_IRUSR | S_IWUSR;
 
-    int fd, status, nread;
+    int ffd, status, nread;
     pid_t pid;
     char fbuf[MAX_FILE];
 
@@ -88,24 +88,24 @@ void execute(char* args[], char* filename, int options, int fd[]) {
             }
             case 1: {  // command < file
 
-                fd = open(filename, rflags);
-                nread = read(fd, fbuf, MAX_FILE);
-                dup2(fd, STDIN_FILENO);
-                write(fd, fbuf, MAX_FILE);
+                ffd = open(filename, rflags);
+                nread = read(ffd, fbuf, MAX_FILE);
+                dup2(ffd, STDIN_FILENO);
+                write(ffd, fbuf, MAX_FILE);
 
                 execvp(args[0], args);
 
-                close(fd);
+                close(ffd);
                 break;
             }
             case 2: {  //command > file
 
-                fd = open(filename, wflags);
-                dup2(fd, STDOUT_FILENO);
+                ffd = open(filename, wflags);
+                dup2(ffd, STDOUT_FILENO);
 
                 execvp(args[0], args);
 
-                close(fd);
+                close(ffd);
                 break;
             }
             default: {
