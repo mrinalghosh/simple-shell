@@ -35,9 +35,8 @@ single pipe
 */
 
 void child_handler(int signum) {
-    printf("inside child handler function\n");
-    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {
-    }
+    // printf("inside child handler function\n");
+    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {}
     return;
 }
 
@@ -124,7 +123,6 @@ void execute(char* args[], char* filename, int options, bool bg) {
 }
 
 void pipe_handler(char* args1[], char* args2[], int fd[]) {
-    // TODO: retcode encoding?
     pid_t pid[2];
 
     if (pipe(fd) == -1) {
@@ -234,19 +232,17 @@ int command_handler(char* tokens[]) {
 
     for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0) {
-            pipe(metachars[i].fd);  //  don't need to pipe later - changes fd[2]
-            // perror("pipe");
-            // exit(1);
+            // pipe(metachars[i].fd);  //  don't need to pipe later - changes fd[2]
             ++pipe_c;  // pipe count
         }
 
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
-    if (strcmp(token_array[row - 1][0], "&") == 0) {  // can only be last token if present
+    if (strcmp(token_array[row - 1][0], "&") == 0) {  // check for background (&) in last position
         bg = true;
         token_array[row - 1][0] = NULL;  // remove & from last row of token_array
-        --row;                           // decrement
+        --row;
     }
 
     while (token_array[i][0] != NULL) {
@@ -283,8 +279,8 @@ int main(int argc, char** argv) {
     int token_c;
     int i;
 
-    char buffer[MAX_BUFFER];    // DON'T NEED TO MALLOC THESE - MAX SIZE GIVEN
-    char* tokens[TOKEN_LIMIT];  // TODO: may not need array - might be able to dynamically allocate only size needed?
+    char buffer[MAX_BUFFER];
+    char* tokens[TOKEN_LIMIT];
 
     bool sup = ((argc > 1) && !strcmp(argv[1], "-n"));  // supress prompt for automated grading
 
@@ -314,11 +310,11 @@ int main(int argc, char** argv) {
             ++i;
         }
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) {
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) { // skip to next loop if no input
             continue;
         }
 
-        while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)
+        while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL) // tokenize to 2D array
             ++token_c;
 
         command_handler(tokens);
