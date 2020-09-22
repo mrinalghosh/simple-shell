@@ -276,6 +276,7 @@ void command_handler(char* tokens[]) {
                     execvp(token_array[i - 1][0], token_array[i - 1]);
 
                     close(ffd);
+                    exit(0);
                 }
 
                 if (strcmp(token_array[i][0], ">") == 0) {
@@ -285,6 +286,7 @@ void command_handler(char* tokens[]) {
                     execvp(token_array[i - 1][0], token_array[i - 1]);
 
                     close(ffd);
+                    exit(0);
                 }
             }
 
