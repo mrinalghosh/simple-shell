@@ -62,58 +62,60 @@ void execute(char* args[], char* filename, int options, int pfd[]) {
     options: no file=0, input from file(<)=1, output to file(>)=2 
     */
 
-    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
-    int rflags = O_RDONLY;
-    mode_t mode = S_IRUSR | S_IWUSR;
+    printf("fd: %d %d\n", pfd[0], pfd[1]);
 
-    int ffd, status, nread;
-    pid_t pid;
-    char fbuf[MAX_FILE];
+    // int wflags = O_WRONLY | O_CREAT | O_TRUNC;
+    // int rflags = O_RDONLY;
+    // mode_t mode = S_IRUSR | S_IWUSR;
 
-    if ((pid = fork()) == -1) {
-        perror("fork");
-    } else if (pid > 0) {
-        /* Parent */
-        // printf("Parental guidance.. waiting\n");
-        pid = waitpid(pid, &status, 0);
-        // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
-        return;
-    } else {
-        /* Child */
-        switch (options) {
-            case 0: {  // no file - single commands
-                execvp(args[0], args);
-                break;
-            }
-            case 1: {  // command < file
-                printf("Child command < file\n");
-                ffd = open(filename, rflags);
-                nread = read(ffd, fbuf, MAX_FILE);
-                dup2(ffd, STDIN_FILENO);
-                write(ffd, fbuf, MAX_FILE);
+    // int ffd, status, nread;
+    // pid_t pid;
+    // char fbuf[MAX_FILE];
 
-                execvp(args[0], args);
+    // if ((pid = fork()) == -1) {
+    //     perror("fork");
+    // } else if (pid > 0) {
+    //     /* Parent */
+    //     // printf("Parental guidance.. waiting\n");
+    //     pid = waitpid(pid, &status, 0);
+    //     // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+    //     return;
+    // } else {
+    //     /* Child */
+    //     switch (options) {
+    //         case 0: {  // no file - single commands
+    //             execvp(args[0], args);
+    //             break;
+    //         }
+    //         case 1: {  // command < file
+    //             printf("Child command < file\n");
+    //             ffd = open(filename, rflags);
+    //             nread = read(ffd, fbuf, MAX_FILE);
+    //             dup2(ffd, STDIN_FILENO);
+    //             write(ffd, fbuf, MAX_FILE);
 
-                close(ffd);
-                break;
-            }
-            case 2: {  //command > file
-                printf("Child command > file\n");
-                ffd = open(filename, wflags);
-                dup2(ffd, STDOUT_FILENO);
+    //             execvp(args[0], args);
 
-                execvp(args[0], args);
+    //             close(ffd);
+    //             break;
+    //         }
+    //         case 2: {  //command > file
+    //             printf("Child command > file\n");
+    //             ffd = open(filename, wflags);
+    //             dup2(ffd, STDOUT_FILENO);
 
-                close(ffd);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
+    //             execvp(args[0], args);
 
-        exit(0);
-    }
+    //             close(ffd);
+    //             break;
+    //         }
+    //         default: {
+    //             break;
+    //         }
+    //     }
+
+    //     exit(0);
+    // }
     return;
 }
 
@@ -180,14 +182,15 @@ int commandHandler(char* tokens[]) {
     /* ####----COMMAND EXECUTION----#### */
 
     pid_t pid;  // only making one fork at a time
-    int status;
-    int fd, nread;
+    int fd, nread, status, pipe_c = 0;
     char* filename = malloc(MAX_TOKEN * sizeof(char));
     char fbuf[MAX_FILE];
 
     for (i = 0; i < meta_c; ++i)  // init pipes
-        if (strcmp(metachars[i].type, "|") == 0)
+        if (strcmp(metachars[i].type, "|") == 0) {
             pipe(metachars[i].fd);  // metachar struct contains fd[2]
+            ++pipe_c;               // pipe count
+        }
 
     i = 0;  // row counter
     j = 0;  // metacharacter counter
@@ -203,6 +206,8 @@ int commandHandler(char* tokens[]) {
 
         /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
+            printf("mc fd: %d %d\n", metachars[i].fd[0], metachars[i].fd[1]);
+            execute(token_array[i], NULL, 3, metachars[i].fd);
         }
 
         if (strcmp(token_array[i][0], "<") == 0) {
