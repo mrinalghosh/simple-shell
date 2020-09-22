@@ -214,7 +214,7 @@ void command_handler(char* tokens[]) {
 
     // ASSUMPTIONS:     metacharacters can only be in the valid form (<) (||...||) (>) (&)
     //                  the resulting token_array is of the form amama....amamama (&) where a = args
-    //                  command { <, > } filename 
+    //                  command { <, > } filename
 
     bool bg = false;              // background
     int ffd, status, pipe_c = 0;  // file fd, status, pipe count
@@ -251,45 +251,45 @@ void command_handler(char* tokens[]) {
             exit(1);
         }
         return;
-    }
+    } else {
+        while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
 
-    while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
+            if ((pid = fork()) == -1) {
+                perror("fork failed");
+                exit(1);
 
-        if ((pid = fork()) == -1) {
-            perror("fork failed");
-            exit(1);
-
-        } else if (pid > 0) {
-            /* Parent */
-            if (!bg) {
-                // printf("Parental guidance.. waiting\n");
-                pid = waitpid(pid, &status, 0);
-                // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+            } else if (pid > 0) {
+                /* Parent */
+                if (!bg) {
+                    // printf("Parental guidance.. waiting\n");
+                    pid = waitpid(pid, &status, 0);
+                    // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+                } else {
+                    signal(SIGCHLD, child_handler);
+                }
             } else {
-                signal(SIGCHLD, child_handler);
+                /* Child */
+                if (strcmp(token_array[i][0], "<") == 0) {
+                    ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
+                    dup2(ffd, STDIN_FILENO);
+
+                    execvp(token_array[i - 1][0], token_array[i - 1]);
+
+                    close(ffd);
+                }
+
+                if (strcmp(token_array[i][0], ">") == 0) {
+                    ffd = open(token_array[i + 1][0], wflags);  // see above
+                    dup2(ffd, STDOUT_FILENO);
+
+                    execvp(token_array[i - 1][0], token_array[i - 1]);
+
+                    close(ffd);
+                }
             }
-        } else {
-            /* Child */
-            if (strcmp(token_array[i][0], "<") == 0) {
-                ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
-                dup2(ffd, STDIN_FILENO);
 
-                execvp(token_array[i - 1][0], token_array[i - 1]);
-
-                close(ffd);
-            }
-
-            if (strcmp(token_array[i][0], ">") == 0) {
-                ffd = open(token_array[i + 1][0], wflags); // see above
-                dup2(ffd, STDOUT_FILENO);
-
-                execvp(token_array[i - 1][0], token_array[i - 1]);
-
-                close(ffd);
-            }
+            ++i;
         }
-
-        ++i;
     }
 
     return;
