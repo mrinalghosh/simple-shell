@@ -128,7 +128,7 @@ void pipeHandler(char* args1[], char* args2[], int fd[]) {
     if ((pid[0] = fork()) == 0) {
         close(STDOUT_FILENO);  // explicit close stdout of first child
         dup(fd[1]);            // duplicate first child stdout to pipe stdin
-        close(fd[0]);           // close both sides of pipe in child
+        close(fd[0]);          // close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
         perror("execvp left | ... failed");
@@ -297,8 +297,10 @@ int main(int argc, char** argv) {
             ++i;
         }
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) {
             continue;
+            printf(" (ALL INPUT NULL) ");
+        }
 
         while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)
             ++token_c;
