@@ -120,17 +120,17 @@ void execute(char* args[], char* filename, int options) {
 
 int commandHandler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
+    size_t row = 0, col = 0;
 
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = [arguments...] bw metachars - columns = argument
+
+    metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes, type and fd[2] of metacharacters in order
 
     for (i = 0; i < TOKEN_LIMIT; ++i) {
         for (j = 0; j < MAX_TOKEN; ++j) {
             token_array[i][j] = NULL;
         }
     }
-
-    metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes and type of metacharacters in order - FUNCTIONAL
-    size_t row = 0, col = 0;
 
     while (tokens[tok_c] != NULL) {  // get token count and assign to new string
 
@@ -191,8 +191,6 @@ int commandHandler(char* tokens[]) {
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
-    execute(token_array[0], NULL, 0);
-
     while (token_array[i][0] != NULL) {
         // ASSUMPTIONS:
         // every special character besides & has args on the right and left - can index ahead or behind
@@ -212,7 +210,6 @@ int commandHandler(char* tokens[]) {
             execute(token_array[i - 1], filename, 2);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
-            // printf("Operation %d is %s\n", i, token_array[i][0]);
         }
 
         ++i;
@@ -237,8 +234,6 @@ int main(int argc, char** argv) {
 
         memset(buffer, '\0', MAX_BUFFER);
         fgets(buffer, MAX_BUFFER, stdin);
-
-        printf("First character in buffer is %d\n", buffer[0]);
 
         i = 0;
         while (buffer[i] != '\0') {
