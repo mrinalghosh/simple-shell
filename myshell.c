@@ -58,12 +58,7 @@ void prompt(void) {
 }
 
 void execute(char* args[], char* filename, int options) {
-    /* 
-    options: 
-    no file:0, 
-    input from file (<):1, 
-    output to file (>):2
-    */
+    /* options: single:0, input from file (<):1, output to file (>):2 */
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;
     int rflags = O_RDONLY;
@@ -84,7 +79,7 @@ void execute(char* args[], char* filename, int options) {
     } else {
         /* Child */
         switch (options) {
-            case 0: {  // no file - single commands
+            case 0: {  // single command execution
                 execvp(args[0], args);
                 break;
             }
@@ -121,37 +116,40 @@ void execute(char* args[], char* filename, int options) {
 }
 
 void pipeHandler(char* args1[], char* args2[], int fd[]) {
-    pid_t pid1, pid2;
+    // TODO: retcode encoding?
+    pid_t pid[2];
 
     if (pipe(fd) == -1) {
         perror("pipe failed");
         exit(1);
     }
 
-    if ((pid1 = fork()) == 0) {
-        close(STDOUT_FILENO);
-        dup(fd[1]);
-        close(fd[0]);
+    if ((pid[0] = fork()) == 0) {
+        close(STDOUT_FILENO);  // explicit close stdout of first child
+        dup(fd[1]);            // duplicate first child stdout to pipe stdin
+        close(fd[0]);           // close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
-        perror("execvp of left | failed");
+        perror("execvp left | ... failed");
         exit(1);
     }
 
-    if ((pid1 = fork()) == 0) {
+    if ((pid[1] = fork()) == 0) {
         close(STDIN_FILENO);
         dup(fd[0]);
-        close(fd[1]);
         close(fd[0]);
+        close(fd[1]);
         execvp(args2[0], args2);
-        perror("execvp of right | failed");
+        perror("execvp ... | right failed");
         exit(1);
     }
 
-    close(fd[0]);  // close pipe fd
+    // PROPERLY close pipe fd in parent
+    close(fd[0]);
     close(fd[1]);
 
-    wait(0);  // wait for any child to finish
+    // wait for both child processes under group to terminate
+    wait(0);
     wait(0);
 
     return;
