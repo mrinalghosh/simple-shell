@@ -101,21 +101,11 @@ void execute(char* args[], char* filename, int options, bool bg) {
                 break;
             }
             case 1: {  // command < file
-                ffd = open(filename, rflags);
-                dup2(ffd, STDIN_FILENO);
 
-                execvp(args[0], args);
-
-                close(ffd);
                 break;
             }
             case 2: {  // command > file
-                ffd = open(filename, wflags);
-                dup2(ffd, STDOUT_FILENO);
 
-                execvp(args[0], args);
-
-                close(ffd);
                 break;
             }
             default: {
@@ -211,33 +201,20 @@ void command_handler(char* tokens[]) {
     /* ####---- SINGLE-METACHARACTER EXECUTION----#### */
 
     // while (token_array[i][0] != NULL) {
-    //     // ASSUMPTIONS:
-    //     // - every special character besides & has args on the right and left -> can index ahead or behind
-    //     // - command { <, > } filename is only form of redirection
-
-    //     /* SINGLE COMMANDS */
-    //     if (row == 1)
-    //         execute(token_array[0], NULL, 0, bg);
 
     //     /* METACHARACTER HANDLING */
     //     if (strcmp(token_array[i][0], "|") == 0) {
     //         pipe_handler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
     //     }
 
-    //     if (strcmp(token_array[i][0], "<") == 0) {
-    //         strcpy(filename, token_array[i + 1][0]);
-    //         execute(token_array[i - 1], filename, 1, bg);
-    //     }
-
-    //     if (strcmp(token_array[i][0], ">") == 0) {
-    //         strcpy(filename, token_array[i + 1][0]);
-    //         execute(token_array[i - 1], filename, 2, bg);
-    //     }
-
     //     ++i;
     // }
 
     /* ####----MULTI-METACHARACTER EXECUTION----#### */
+
+    // ASSUMPTIONS:     metacharacters can only be in the valid form (<) (||...||) (>) (&)
+    //                  the resulting token_array is of the form amama....amamama (&) where a = args
+    //                  command { <, > } filename 
 
     bool bg = false;              // background
     int ffd, status, pipe_c = 0;  // file fd, status, pipe count
@@ -250,7 +227,7 @@ void command_handler(char* tokens[]) {
     // background task
     if (strcmp(token_array[row - 1][0], "&") == 0) {
         bg = true;
-        token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array
+        token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
         --row;
     }
 
@@ -265,10 +242,10 @@ void command_handler(char* tokens[]) {
         }
     }
 
-    i = 0;  // row counter
+    i = 0;  // row counter (even->A, odd->M)
     j = 0;  // metacharacter counter
 
-    if (row == 1) {
+    if (row == 1) {  // ZERO metacharacters - execute and return
         if (execvp(token_array[0][0], token_array[0]) < 0) {
             perror("execvp failed");
             exit(1);
@@ -276,11 +253,44 @@ void command_handler(char* tokens[]) {
         return;
     }
 
-    // while (j < meta_c) {
-    //     // printf("metacharacter no:%d, type:%s\n", metachars[j].index, metachars[j].type);
+    while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
 
-    //     ++j;
-    // }
+        if ((pid = fork()) == -1) {
+            perror("fork failed");
+            exit(1);
+
+        } else if (pid > 0) {
+            /* Parent */
+            if (!bg) {
+                // printf("Parental guidance.. waiting\n");
+                pid = waitpid(pid, &status, 0);
+                // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+            } else {
+                signal(SIGCHLD, child_handler);
+            }
+        } else {
+            /* Child */
+            if (strcmp(token_array[i][0], "<") == 0) {
+                ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
+                dup2(ffd, STDIN_FILENO);
+
+                execvp(token_array[i - 1][0], token_array[i - 1]);
+
+                close(ffd);
+            }
+
+            if (strcmp(token_array[i][0], ">") == 0) {
+                ffd = open(token_array[i + 1][0], wflags); // see above
+                dup2(ffd, STDOUT_FILENO);
+
+                execvp(token_array[i - 1][0], token_array[i - 1]);
+
+                close(ffd);
+            }
+        }
+
+        ++i;
+    }
 
     return;
 }
