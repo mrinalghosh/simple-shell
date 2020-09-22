@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
 
         i = 0;
 
-        if (buffer[0] == EOF) {
+        if (buffer[0] == '\0') {
             printf("at EOF\n");
             continue;
         }
