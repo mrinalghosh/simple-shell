@@ -35,6 +35,7 @@ all tokenizing
 basic REPL
 2D tokens
 > redirection
+single piping
 */
 
 bool strCompare(char* str, char* list, int n) {
@@ -83,8 +84,8 @@ void execute(char* args[], char* filename, int options) {
                 execvp(args[0], args);
                 break;
             }
-            case 1: {  // command < file
-                printf("Child command < file\n");
+            case 1: {  // command < file - DOESN'T WORK
+                // printf("Child command < file\n");
                 ffd = open(filename, rflags);
                 nread = read(ffd, fbuf, MAX_FILE);
                 dup2(ffd, STDIN_FILENO);
@@ -96,7 +97,7 @@ void execute(char* args[], char* filename, int options) {
                 break;
             }
             case 2: {  // command > file
-                printf("Child command > file\n");
+                // printf("Child command > file\n");
                 ffd = open(filename, wflags);
                 dup2(ffd, STDOUT_FILENO);
 
@@ -127,10 +128,11 @@ void pipeHandler(char* args1[], char* args2[], int fd[]) {
     if ((pid[0] = fork()) == 0) {
         close(STDOUT_FILENO);  // explicit close stdout of first child
         dup(fd[1]);            // duplicate first child stdout to pipe stdin
-        close(fd[0]);           // close both sides of pipe in child
+        close(fd[0]);          // close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
         perror("execvp left | ... failed");
+        printf("left passed\n");
         exit(1);
     }
 
@@ -156,7 +158,7 @@ void pipeHandler(char* args1[], char* args2[], int fd[]) {
 }
 
 int commandHandler(char* tokens[]) {
-    int tok_c = 0, meta_c = 0, i, j;
+    // int tok_c = 0, meta_c = 0, i, j;
     size_t row = 0, col = 0;
 
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = [arguments...] bw metachars - columns = argument
@@ -224,7 +226,9 @@ int commandHandler(char* tokens[]) {
 
     for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0) {
-            // pipe(metachars[i].fd);  // metachar struct contains fd[2]
+            pipe(metachars[i].fd);  //  don't need to pipe later - changes fd[2]
+            // perror("pipe");
+            // exit(1);
             ++pipe_c;  // pipe count
         }
 
