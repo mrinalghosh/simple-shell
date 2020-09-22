@@ -240,7 +240,7 @@ int commandHandler(char* tokens[]) {
 
         /* SINGLE COMMANDS */
         if (row == 1)
-            execute(token_array[0], NULL, 0, NULL);
+            execute(token_array[0], NULL, 0);
 
         /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
