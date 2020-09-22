@@ -57,65 +57,103 @@ void prompt(void) {
     fflush(stdout);
 }
 
-void execute(char* args[], char* filename, int options, int pfd[]) {
-    /* general and meta execution function
-    options: no file=0, input from file(<)=1, output to file(>)=2 
+void execute(char* args[], char* filename, int options) {
+    /* 
+    options: 
+    no file:0, 
+    input from file (<):1, 
+    output to file (>):2
     */
 
-    printf("fd: %d %d\n", pfd[0], pfd[1]);
+    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
+    int rflags = O_RDONLY;
+    mode_t mode = S_IRUSR | S_IWUSR;
 
-    // int wflags = O_WRONLY | O_CREAT | O_TRUNC;
-    // int rflags = O_RDONLY;
-    // mode_t mode = S_IRUSR | S_IWUSR;
+    int ffd, status, nread;
+    pid_t pid;
+    char fbuf[MAX_FILE];
 
-    // int ffd, status, nread;
-    // pid_t pid;
-    // char fbuf[MAX_FILE];
+    if ((pid = fork()) == -1) {
+        perror("fork");
+    } else if (pid > 0) {
+        /* Parent */
+        // printf("Parental guidance.. waiting\n");
+        pid = waitpid(pid, &status, 0);
+        // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
+        return;
+    } else {
+        /* Child */
+        switch (options) {
+            case 0: {  // no file - single commands
+                execvp(args[0], args);
+                break;
+            }
+            case 1: {  // command < file
+                printf("Child command < file\n");
+                ffd = open(filename, rflags);
+                nread = read(ffd, fbuf, MAX_FILE);
+                dup2(ffd, STDIN_FILENO);
+                write(ffd, fbuf, MAX_FILE);
 
-    // if ((pid = fork()) == -1) {
-    //     perror("fork");
-    // } else if (pid > 0) {
-    //     /* Parent */
-    //     // printf("Parental guidance.. waiting\n");
-    //     pid = waitpid(pid, &status, 0);
-    //     // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
-    //     return;
-    // } else {
-    //     /* Child */
-    //     switch (options) {
-    //         case 0: {  // no file - single commands
-    //             execvp(args[0], args);
-    //             break;
-    //         }
-    //         case 1: {  // command < file
-    //             printf("Child command < file\n");
-    //             ffd = open(filename, rflags);
-    //             nread = read(ffd, fbuf, MAX_FILE);
-    //             dup2(ffd, STDIN_FILENO);
-    //             write(ffd, fbuf, MAX_FILE);
+                execvp(args[0], args);
 
-    //             execvp(args[0], args);
+                close(ffd);
+                break;
+            }
+            case 2: {  // command > file
+                printf("Child command > file\n");
+                ffd = open(filename, wflags);
+                dup2(ffd, STDOUT_FILENO);
 
-    //             close(ffd);
-    //             break;
-    //         }
-    //         case 2: {  //command > file
-    //             printf("Child command > file\n");
-    //             ffd = open(filename, wflags);
-    //             dup2(ffd, STDOUT_FILENO);
+                execvp(args[0], args);
 
-    //             execvp(args[0], args);
+                close(ffd);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
 
-    //             close(ffd);
-    //             break;
-    //         }
-    //         default: {
-    //             break;
-    //         }
-    //     }
+        exit(0);
+    }
+    return;
+}
 
-    //     exit(0);
-    // }
+void pipeHandler(char* args1[], char* args2[], int fd[]) {
+    pid_t pid1, pid2;
+
+    if (pipe(fd) == -1) {
+        perror("pipe failed");
+        exit(1);
+    }
+
+    if ((pid1 = fork()) == 0) {
+        close(STDOUT_FILENO);
+        dup(fd[1]);
+        close(fd[0]);
+        close(fd[1]);
+        execvp(args1[0], args1);
+        perror("execvp of left | failed");
+        exit(1);
+    }
+
+    if ((pid1 = fork()) == 0) {
+        close(STDIN_FILENO);
+        dup(fd[0]);
+        close(fd[1]);
+        close(fd[0]);
+        execvp(args2[0], args2);
+        perror("execvp of right | failed");
+        exit(1);
+    }
+
+    close(fd[0]);  // close pipe fd
+    close(fd[1]);
+
+    wait(0);  // wait for any child to finish
+    wait(0);
+
     return;
 }
 
@@ -188,8 +226,8 @@ int commandHandler(char* tokens[]) {
 
     for (i = 0; i < meta_c; ++i)  // init pipes
         if (strcmp(metachars[i].type, "|") == 0) {
-            pipe(metachars[i].fd);  // metachar struct contains fd[2]
-            ++pipe_c;               // pipe count
+            // pipe(metachars[i].fd);  // metachar struct contains fd[2]
+            ++pipe_c;  // pipe count
         }
 
     i = 0;  // row counter
@@ -206,18 +244,17 @@ int commandHandler(char* tokens[]) {
 
         /* METACHARACTER HANDLING */
         if (strcmp(token_array[i][0], "|") == 0) {
-            printf("mc fd: %d %d\n", metachars[i].fd[0], metachars[i].fd[1]);
-            execute(token_array[i], NULL, 3, metachars[i].fd);
+            pipeHandler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
         }
 
         if (strcmp(token_array[i][0], "<") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 1, NULL);
+            execute(token_array[i - 1], filename, 1);
         }
 
         if (strcmp(token_array[i][0], ">") == 0) {
             strcpy(filename, token_array[i + 1][0]);
-            execute(token_array[i - 1], filename, 2, NULL);
+            execute(token_array[i - 1], filename, 2);
         }
         if (strcmp(token_array[i][0], "&") == 0) {
         }
