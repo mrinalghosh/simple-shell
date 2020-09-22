@@ -17,11 +17,8 @@ TODO:
 
 need to hardcode handling metachars:
     & - background task (don't wait)
-    multiple pipes
-
-SIGNAL HANDLING - SIGQUIT and SIGCHLD especially
-
-take in environment? - cd doesn't work
+    multiple pipes and characters
+signal handling SIGCHLD
 */
 
 /*
@@ -38,10 +35,10 @@ single pipe
 */
 
 void child_handler(int signum) {
-    printf("inside child handler function...exiting\n");
+    printf("inside child handler function\n");
     while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {
     }
-    exit(1);
+    return;
 }
 
 bool strcomp(char* str, char* list, int n) {
@@ -81,14 +78,12 @@ void execute(char* args[], char* filename, int options, bool bg) {
     } else if (pid > 0) {
         /* Parent */
 
-        if (!bg)  // if running in the background
+        if (!bg)  // background processes
         {
-            printf("FOREGROUND\n");
             // printf("Parental guidance.. waiting\n");
             pid = waitpid(pid, &status, 0);
             // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
         } else {
-            printf("BACKGROUND\n");
             signal(SIGCHLD, child_handler);
         }
 
@@ -249,10 +244,9 @@ int command_handler(char* tokens[]) {
     j = 0;  // metacharacter counter
 
     if (strcmp(token_array[row - 1][0], "&") == 0) {  // can only be last token if present
-        printf("&: Backgrounding tasks\n");
         bg = true;
-        token_array[row - 1][0] = NULL;
-        --row;
+        token_array[row - 1][0] = NULL;  // remove & from last row of token_array
+        --row;                           // decrement
     }
 
     while (token_array[i][0] != NULL) {
@@ -302,7 +296,7 @@ int main(int argc, char** argv) {
         memset(buffer, '\0', MAX_BUFFER);
         fgets(buffer, MAX_BUFFER, stdin);
 
-        if (buffer[0] == '\0') {
+        if (buffer[0] == '\0') {  // ctrl-D
             printf("\n");
             exit(0);
         }
