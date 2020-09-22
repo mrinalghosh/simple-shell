@@ -191,6 +191,9 @@ int commandHandler(char* tokens[]) {
     i = 0;  // row counter
     j = 0;  // metacharacter counter
 
+    if (row == 1)
+        execute(token_array[0], NULL, 0);
+
     while (token_array[i][0] != NULL) {
         // ASSUMPTIONS:
         // every special character besides & has args on the right and left - can index ahead or behind
