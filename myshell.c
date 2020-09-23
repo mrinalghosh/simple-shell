@@ -151,7 +151,7 @@ void command_handler(char* tokens[]) {
     //                  command { <, > } filename
 
     bool bg = false;                        // background
-    int filefd, status, pipe_c, tmpfd = 0;  // file fd, status, pipe count, temp fd=0 initially for stdin
+    int filefd, status, pipe_c, fdd = 0;  // file fd, status, pipe count, temp fd=0 initially for stdin
     int fd[2];                              // pipe file descriptors
     pid_t pid;                              // only one pid/fork at a time
 
@@ -198,17 +198,17 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* Child */
-            dup2(tmpfd, STD_INPUT);
-            if (token_array[i + 1][0] != NULL)
-                dup2(fd[WRITE], STD_OUTPUT);
-            close(fd[WRITE]);
+            dup2(fdd, 0);
+            if (token_array[i + 2][0] != NULL)
+                dup2(fd[1], 1);
+            close(fd[0]);
             execvp(token_array[i][0], token_array[i]);
             exit(1);
         } else {
             /* Parent */
             wait(NULL);  // termination of any child proc
-            close(fd[READ]);
-            tmpfd = fd[WRITE];
+            close(fd[1]);
+            fdd = fd[0];
             i += 2;
         }
 
