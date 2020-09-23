@@ -222,11 +222,11 @@ void command_handler(char* tokens[]) {
 
             if (strcmp(token_array[i][0], "<") == 0) {  // command < file
 
-                if ((j + 1 < meta_c) && (strcmp(metachars[j + 1].type, "|") == 0)) {  // NEXT metachar accessible and is a pipe
-                    // assuming [ command < file | ... ] is only valid configuration
-                    dup2(metachars[j + 1].fd[0], STDOUT_FILENO);  // dup output of command into write end of incoming pipe
-                    close(metachars[j + 1].fd[0]);
-                }
+                // if ((j + 1 < meta_c) && (strcmp(metachars[j + 1].type, "|") == 0)) {  // NEXT metachar accessible and is a pipe
+                //     // assuming [ command < file | ... ] is only valid configuration
+                //     dup2(metachars[j + 1].fd[0], STDOUT_FILENO);  // dup output of command into write end of incoming pipe
+                //     close(metachars[j + 1].fd[0]);
+                // }
 
                 ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
                 dup2(ffd, STDIN_FILENO);
@@ -240,11 +240,11 @@ void command_handler(char* tokens[]) {
 
             if (strcmp(token_array[i][0], ">") == 0) {  // command > file
 
-                if ((strcmp(metachars[j - 1].type, "|") == 0)) {  // PREVIOUS meta_c accessible and is a pipe
-                    // assuming [ ... | command > file ] is only valid configuration
-                    dup2(metachars[j - 1].fd[1], STDIN_FILENO);  // dup input of command to read end of previous pipe
-                    close(metachars[j - 1].fd[1]);
-                }
+                // if ((strcmp(metachars[j - 1].type, "|") == 0)) {  // PREVIOUS meta_c accessible and is a pipe
+                //     // assuming [ ... | command > file ] is only valid configuration
+                //     dup2(metachars[j - 1].fd[1], STDIN_FILENO);  // dup input of command to read end of previous pipe
+                //     close(metachars[j - 1].fd[1]);
+                // }
 
                 ffd = open(token_array[i + 1][0], wflags);
                 dup2(ffd, STDOUT_FILENO);
@@ -268,7 +268,8 @@ void command_handler(char* tokens[]) {
                 // }
 
                 if (j == 0) {  // first metacharacter is a pipe - first set of arguments <args> | ....
-                    dup2(metachars[0].fd[0], STDOUT_FILENO);
+                    if (dup2(metachars[0].fd[0], STDOUT_FILENO) == -1)
+                        perror("ERROR: ");
 
                     if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
                         perror("ERROR: ");
