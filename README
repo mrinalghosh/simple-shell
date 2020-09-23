@@ -1,0 +1,98 @@
+Assignment 1
+EC440 - Operating Systems
+Professor Manuel Egele
+Mrinal Ghosh (U33402990)
+
+This project was based around the simple shell, which emulates basic BASH and legacy shell command execution. The shell follows a REPL (read - eval - print loop) in order to provide an interactive environment for users.
+
+The simple shell largely follows the specifics of the project description provided, albeit with some features currently not supported. Metacharacters, specifically input redirect(<), output redirect(>), pipes(|) and background tasks(&) are implemented alongside the binary executables normally used in a Linux environment. The command line argument '-n' is passed to the shell to suppress the default prompt. Ctrl-D (^D or the EOF) is used to exit the shell, similarly to how bandit and other environments end user sessions with this input. The assumptions made and the design choices taken are discussed below.
+
+ASSUMPTIONS:
+
+-   metacharacters cannot be adjacent to each other
+-   input redirect (<) can only be at the first metacharacter position
+-   background (&) can only be at the last metacharacter position and the last token position
+-   output redirect (>) can only be in the last position (if no &) or the second to last position
+-   pipes can be multiple but are always consecutive metacharacters if multiple
+-   command argument sets ('A') interleaved metacharacters('M'), and a command argument always began the tokens
+-   therefore the order of tokens I saw as valid were:
+        A M A M A M A ..... A M A M A (M=&)
+-   the valid orders of metacharacters for the simple shell are:  <  | | ... | |  >  & 
+-   therefore the <,>,& positions could be explicitly handled and the rest of the input piped as necessary.
+
+
+DESIGN AND STRUCTURE:
+
+1. On logging in the user is shown the default prompt on every line unless the command line argument '-n' is provided when running the 'myshell' executable.
+2. A 1-D buffer (char) to hold user input is initialized to all null bytes ('\0'), as this special character is not used in valid ascii command input.
+3. fgets(...) reads in user input from stdin to the buffer.
+4. If ctrl+D is pressed, there is no input to the buffer, and if the first character is still '\0' we should exit the shell.
+5. In order to deal with spacing variation in the input (especially between metacharacters and command arguments), a loop searches for unspaced metacharacters and shifts the entire array down by one and writes a ' ' to the gap created.
+6. strtok(...) is then used to check if there are non-whitespace characters and if so, break them down into individual string 'tokens' to be passed to a command handler. 
+7. This array of string tokens is now parsed into a 2-D array which separates adjacent command args (A) and metacharacters(M) onto different rows. This structure was useful for breaking up sets of command arguments and locating the next metacharacters.
+8. Boolean checks are made for the presense of <, > and &. These checks are to the specific positions stated above and help in command flow.
+9. The sets of command args are used to fork processes iteratively. A fork duplicates the parent process, except for the PID , as a child process. Each child is used to execute commands in the order called and then exits.
+10. In order to handle multiple pipes, there is a pipe set up for each fork which allows the processes to communicate. These pipes are dup'd onto stdout and stdin depending on the metacharacters needs.
+11. The parent waits for the child to exit unless specified by background (&). In this case, a signal handler is implemented for SIGCHLD that spins until the child changes state.
+12. File IO (with < and >) uses a file descriptor that is dup'd onto either stdout or stdin depending on the redirect type.
+13. The parent returns after all processes have been set up  
+
+IMPROVEMENTS:
+Though I was able to get all of the metacharacters required working correctly (single <>& - multiple pipes), I was not able to get DIFFERENT types of metacharacters in a single user input to interact correctly. There seemed to always be a process that would not return or terminate. There were edge cases where my implementation worked with different metacharacters together, but none seemed consistent. All single redirects and multiple pipes worked correctly and printed the same output as when run by BASH or ZSH. 
+There was also an issue of background processes finishing asynchronously with the prompt display which caused the prompt to show up on the same line as the stdout for a background process.
+
+SOURCES:
+    Lectures
+    OH with Daniel and Camden
+    man page
+
+    Tokenizing:
+    https://stackoverflow.com/questions/23456374/why-do-we-use-null-in-strtok
+    https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
+    https://stackoverflow.com/questions/12935752/how-to-memset-char-array-with-null-terminating-character 
+    https://unix.stackexchange.com/questions/72295/what-is-an-invisible-whitespace-character-that-takes-up-space
+    https://stackoverflow.com/questions/49241835/insert-char-into-char-array-c-string
+    https://beginnersbook.com/2014/01/c-continue-statement/
+
+    Ctrl-D catching:
+    https://www.tutorialspoint.com/unix/unix-signals-traps.htm
+    https://stackoverflow.com/questions/26766419/better-understanding-of-signal-catching-ie-sigint-sigquit-in-c
+
+    Metacharacters:
+    https://www.linux.com/training-tutorials/and-ampersand-and-linux/
+    https://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html
+    https://www.tutorialspoint.com/c_standard_library/c_function_memcpy.htm
+
+    File IO:
+    https://www.gnu.org/software/libc/manual/html_node/Opening-and-Closing-Files.html
+    https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/C/libc/functions/open/index
+    https://stackoverflow.com/questions/12902627/the-difference-between-stdout-and-stdout-fileno/12902707#12902707
+    https://stackoverflow.com/questions/15102992/what-is-the-difference-between-stdin-and-stdin-fileno
+
+    Background tasks:
+    https://stackoverflow.com/questions/8319484/regarding-background-processes-using-fork-and-child-processes-in-my-dummy-shel
+    https://www.unix.com/programming/45993-background-processes-dummy-shell.html
+    https://stackoverflow.com/questions/18686114/cd-command-not-working-with-execvp
+
+    Pipes:
+    https://tldp.org/LDP/lpg/node11.html
+    https://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html
+    https://linuxhint.com/pipe_system_call_c/#:~:text=The%20pipe()%20system%20function,inter%2Dprocess%20communication%20in%20Linux.
+    https://stackoverflow.com/questions/33884291/pipes-dup2-and-exec
+    https://www.quora.com/How-does-wait-null-work-in-C
+
+    Signal Handling:
+    https://www.geeksforgeeks.org/signals-c-language/
+    https://www.gnu.org/software/libc/manual/html_node/Sigaction-Function-Example.html#:~:text=Here%20is%20an%20equivalent%20example,to%20specify%20the%20new%20action.
+
+    Permissions:
+    https://stackoverflow.com/questions/2245193/why-does-open-create-my-file-with-the-wrong-permissions
+
+    Waiting:
+    https://webdocs.cs.ualberta.ca/~tony/C379/C379Labs/Lab3/wait.html
+    
+    Misc:
+    https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
+    https://www.tutorialspoint.com/cprogramming/c_break_statement.htm
+    https://www.learn-c.org/en/Bitmasks
+    https://www.tutorialspoint.com/ansi_c/c_strchr.htm
