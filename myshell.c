@@ -246,13 +246,7 @@ void command_handler(char* tokens[]) {
     i = 0;  // row counter (even->A, odd->M)
     j = 0;  // metacharacter counter
 
-    if (row == 1) {  // ZERO metacharacters - execute and return
-        if (execvp(token_array[0][0], token_array[0]) < 0) {
-            perror("execvp failed");
-            exit(1);
-        }
-        return;
-    } else {
+    else {
         while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
 
             if (strcomp(token_array[i][0], "|<>", 3) != 0) {
@@ -266,15 +260,20 @@ void command_handler(char* tokens[]) {
 
             } else if (pid > 0) {
                 /* Parent */
-                if (!bg) {
-                    // printf("Parental guidance.. waiting\n");
+                if (!bg)
                     pid = waitpid(pid, &status, 0);
-                    // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
-                } else {
+                else
                     signal(SIGCHLD, child_handler);
-                }
+
             } else {
                 /* Child */
+                if (row == 1) {
+                    if (execvp(token_array[0][0], token_array[0]) < 0) {
+                        perror("execvp failed");
+                        exit(0);
+                    }
+                }
+
                 if (strcmp(token_array[i][0], "<") == 0) {
                     ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
                     dup2(ffd, STDIN_FILENO);
