@@ -217,7 +217,8 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
-            printf("i am baby\n");
+            printf("i am baby from %d\n", i);
+
             if (row == 1) {  // exception for single command without metacharacters
                 if (execvp(token_array[0][0], token_array[0]) < 0) {
                     perror("ERROR: ");
