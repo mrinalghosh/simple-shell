@@ -105,7 +105,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
 }
 
 void command_handler(char* tokens[]) {
-    int tok_c = 0, meta_c = 0, i, j;
+    int tok_c = 0, meta_c = 0, i, j, k;
     size_t row = 0, col = 0;
 
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = [arguments...] bw metachars - columns = argument
