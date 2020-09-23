@@ -18,6 +18,7 @@ TODO:
 PIPES
 cat < x > y
 MULTIPLE PIPES
+error message
 */
 
 /*
@@ -61,7 +62,7 @@ void prompt(void) {
 }
 
 void error_message(char* message) {
-    perror("ERROR: %s", message);
+    printf("ERROR: %s", message);
     return;
 }
 
