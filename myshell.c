@@ -143,7 +143,8 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* ####--Child--#### */
-            printf("tok_c: %d\n", tok_c);
+            
+            printf("tok_c: %d, row: %d\n", tok_c, row);
             k = 0;
             for (j = 0; j < row; ++j) {
                 while (token_array[j][k] != NULL) {
@@ -175,10 +176,10 @@ void command_handler(char* tokens[]) {
                 close(filefd);
                 close(fd[0]);
                 exit(1);
-            } else if (o_redirect && i == tok_c - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
-                printf("Running output redirection\n");
+            } else if (o_redirect && i == row - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
+                printf("Running output redirection on row %d\n", i);
 
-                if ((filefd = open(token_array[tok_c - 1][0], wflags, mode)) == -1)  // single file name only
+                if ((filefd = open(token_array[row - 1][0], wflags, mode)) == -1)  // single file name only
                     perror("open");
 
                 if (dup2(filefd, STDOUT_FILENO) == -1)
