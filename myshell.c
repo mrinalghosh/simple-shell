@@ -265,7 +265,6 @@ void command_handler(char* tokens[]) {
                 signal(SIGCHLD, child_handler);
 
         } else {
-            printf("%d rows\n", row);
             /* ---Child--- */
             if (row == 1) {
                 if (execvp(token_array[0][0], token_array[0]) < 0) {
