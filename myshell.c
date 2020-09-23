@@ -56,7 +56,7 @@ void command_handler(char* tokens[]) {
     int tok_c = 0, meta_c = 0, i, j;
     size_t row = 0, col = 0;
 
-    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = {arguments...} alternated w metachars, columns = delimited argument string
+    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = {arguments...} alternated w metachars, columns = argument string
 
     for (i = 0; i < TOKEN_LIMIT; ++i) {
         for (j = 0; j < MAX_TOKEN; ++j) {
@@ -64,10 +64,10 @@ void command_handler(char* tokens[]) {
         }
     }
 
-    while (tokens[tok_c] != NULL) {  // get token count and parses into 2D token_array
+    while (tokens[tok_c] != NULL) {  // get token count and parse into 2D token_array
 
         if (strsearch(tokens[tok_c], "|<>&", 4)) {
-            ++meta_c;                                // METACHARACTER COUNT
+            ++meta_c;  // metacharacter count
             col = 0;
 
             if (tok_c != 0)
@@ -246,9 +246,8 @@ int main(int argc, char** argv) {
             ++i;
         }
 
-        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL) {  // skip to next loop if no input
+        if ((tokens[0] = strtok(buffer, " \n\t\v")) == NULL)  // skip to next loop if no input
             continue;
-        }
 
         while ((tokens[token_c] = strtok(NULL, " \n\t\v")) != NULL)  // tokenize to 2D array
             ++token_c;
