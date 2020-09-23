@@ -19,22 +19,6 @@ cat < x > y
 error messages
 */
 
-/*
-DONE:
-ctrl-D to quit
-prompt
-all tokenizing
--n flag to sup prompt
-basic REPL
-2D tokens
-> redirection
-single pipe
-< - redirection of input
-PIPES
-MULTIPLE PIPES
-
-*/
-
 void nanny(int signum) {                            // child handler function
     while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {  // -1 - for any child process
     }                                               // spin while pid != 0 (children exist but no state change) and pid != -1 (error)
@@ -62,55 +46,17 @@ void prompt(void) {
     return;
 }
 
-void error_message(char* message) {
-    printf("ERROR: %s", message);
-    return;
-}
-
-void pipe_handler(char* args1[], char* args2[], int fd[]) {
-    pid_t pid[2];
-
-    if (pipe(fd) == -1) {
-        perror("pipe");
-        exit(1);
-    }
-
-    if ((pid[0] = fork()) == 0) {
-        close(STDOUT_FILENO);  // explicit close stdout of first child
-        dup(fd[1]);            // duplicate first child stdout to pipe stdin
-        close(fd[0]);          // TODO: WHY DO WE close both sides of pipe in child
-        close(fd[1]);
-        execvp(args1[0], args1);
-        perror("execvp");
-        exit(1);
-    }
-
-    if ((pid[1] = fork()) == 0) {
-        close(STDIN_FILENO);
-        dup(fd[0]);
-        close(fd[0]);
-        close(fd[1]);
-        execvp(args2[0], args2);
-        perror("execvp");
-        exit(1);
-    }
-
-    // PROPERLY close pipe fd in parent
-    close(fd[0]);
-    close(fd[1]);
-
-    // wait for both child processes under group to terminate
-    wait(0);
-    wait(0);
-
-    return;
-}
-
 void command_handler(char* tokens[]) {
-    int tok_c = 0, meta_c = 0, i, j, k;
+    /*
+    ###################################
+    ########----TOKEN PARSER----#######
+    ###################################
+    */
+
+    int tok_c = 0, meta_c = 0, i, j;
     size_t row = 0, col = 0;
 
-    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = [arguments...] bw metachars - columns = argument
+    char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = {arguments...} alternated w metachars, columns = delimited argument string
 
     metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes, type and fd[2] of metacharacters in order
 
@@ -120,7 +66,7 @@ void command_handler(char* tokens[]) {
         }
     }
 
-    while (tokens[tok_c] != NULL) {  // get token count and put into 2D token_array
+    while (tokens[tok_c] != NULL) {  // get token count and parses into 2D token_array
 
         if (strsearch(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = row + 1;       // index of metacharacter
@@ -146,15 +92,19 @@ void command_handler(char* tokens[]) {
     }
     ++row;  // row index -> row count
 
-    /*  
-        #############################################
-        ####----MULTI-METACHARACTER EXECUTION----#### 
-        #############################################
-    */
+    /* 
+         _____________________________________________
+        |#############################################|
+        |####----MULTI-METACHARACTER EXECUTION----####|
+        |#############################################|
 
-    // ASSUMPTIONS:     metacharacters can only be in the valid form (<) (||...||) (>) (&)
-    //                  the resulting token_array is of the form amama....amamama (&) where a = args
-    //                  command { <, > } filename
+        ASSUMPTIONS:
+        -   Metacharacters can only be of the form (<) {||...||} (>) (&),
+            where they are interleaved by arguments (commands or files).
+        -   The 2-D array therefore has the order of rows [A M A ... A M A (&)]
+        -   command </> file
+
+    */
 
     bool bg = false, i_redirect = false, o_redirect = false;  // background, input redirect, output redirect
     int filefd, status, pipe_c, tfd = 0;                      // file fd, status, pipe count, temp fd=0 initially for stdin
@@ -190,7 +140,6 @@ void command_handler(char* tokens[]) {
 
     i = 0;  // row counter (even->A, odd->M)
     j = 0;  // metacharacter counter
-    k = 0;  // counter to print tokens
 
     while (token_array[i][0] != NULL) {  // loop over every A(args) row of token_array of form AMAMA---AMAMA
         pipe(fd);
@@ -198,9 +147,9 @@ void command_handler(char* tokens[]) {
             perror("fork");
             exit(1);
         } else if (pid == 0) {
-            /* Child */
+            /* ####--Child--#### */
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
-                printf("Running input redirection\n");
+                // printf("Running input redirection\n");
 
                 if (filefd = open(token_array[i + 2][0], rflags, mode) == -1)
                     perror("open");  // assuming only one filename
@@ -209,7 +158,7 @@ void command_handler(char* tokens[]) {
                     perror("dup2");
 
                 if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )
-                    printf("pipe next\n");
+                    // printf("pipe next\n");
                     if (dup2(fd[1], STDOUT_FILENO) == -1)  // does not do anything
                         perror("dup2");
                 }
@@ -221,7 +170,7 @@ void command_handler(char* tokens[]) {
                 close(fd[0]);
                 exit(1);
             } else if (o_redirect && i == tok_c - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
-                printf("Running output redirection\n");
+                // printf("Running output redirection\n");
 
                 if ((filefd = open(token_array[i + 2][0], wflags)) == -1)
                     perror("open");
@@ -230,7 +179,7 @@ void command_handler(char* tokens[]) {
                     perror("dup2");
 
                 if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {  // look for pipe before
-                    printf("pipe before\n");
+                    // printf("pipe before\n");
                     dup2(fd[0], STDIN_FILENO);
                 }
 
@@ -253,7 +202,7 @@ void command_handler(char* tokens[]) {
             }
 
         } else {
-            /* Parent */
+            /* ####--Parent--#### */
             if (!bg) {
                 if (waitpid(pid, &status, 0) == -1)
                     perror("waitpid");
@@ -261,125 +210,24 @@ void command_handler(char* tokens[]) {
                 signal(SIGCHLD, nanny);
             }
             close(fd[1]);
-            tfd = fd[0];  // TODO: what does this line do??? - from quora
+            tfd = fd[0];
             i += 2;
         }
-
-        // if ((pid = fork()) == -1) {
-        //     perror("ERROR: ");
-        //     exit(1);
-        // } else if (pid > 0) {
-        //     /* ---Parent--- */
-
-        //     // printf("henlo from papa\n");
-
-        //     if (!bg) {
-        //         pid = waitpid(pid, &status, 0);
-        //     } else {
-        //         signal(SIGCHLD, nanny);
-        //     }
-
-        // } else {
-        //     /* ---Child--- */
-
-        //     // printf("i am litle baby from i:%d j:%d\n", i, j);
-
-        //     if (row == 1) {  // exception for single command without metacharacters
-        //         // printf("Running single command\n");
-        //         if (execvp(token_array[0][0], token_array[0]) < 0) {
-        //             perror("ERROR: ");
-        //         }
-        //         exit(0);
-        //     }
-
-        //     if (strcmp(token_array[i][0], "<") == 0) {  // command < file
-        //                                                 // TODO: special case of cmd < file | cmd and cmd < file > file
-
-        //         // printf("Running input redirection\n");
-        //         ++j;                                        // increment metacharacter array
-        //         filefd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
-        //         dup2(filefd, STDIN_FILENO);
-
-        //         if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-        //             perror("ERROR: ");
-
-        //         close(filefd);
-        //         exit(0);
-        //     }
-
-        //     if (strcmp(token_array[i][0], ">") == 0) {  // command > file
-
-        //         // printf("Running output redirection\n");
-        //         ++j;  // increment metacharacter array
-        //         filefd = open(token_array[i + 1][0], wflags);
-        //         dup2(filefd, STDOUT_FILENO);
-
-        //         if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-        //             perror("ERROR: ");
-
-        //         close(filefd);
-        //         exit(0);
-        //     }
-
-        //     if ((i - 1 >= 0) && (strcmp(token_array[i - 1][0], "|") == 0)) {  // LEFT PIPE (| args)
-        //         // printf("Pipe to the left of command (index %d)... reading from pipe", i);
-
-        //         // if (dup2(metachars[j].fd[0], STDIN_FILENO) == -1)
-        //         //     perror("ERROR: ");
-
-        //         // if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
-        //         //     perror("ERROR: ");
-
-        //         // close(metachars[j].fd[0]);
-        //         // close(metachars[j].fd[1]);
-        //         // // ++j;  //increment metachars
-
-        //         exit(0);
-        //     }
-
-        //     if ((i + 1 < tok_c) && strcmp(token_array[i + 1][0], "|") == 0) {  // RIGHT PIPE (args |)
-        //         // execute args after setting output
-        //         // printf("Pipe on the right of command (index %d)... writing to pipe", i);
-
-        //         // if (dup2(metachars[j].fd[1], STDOUT_FILENO) == -1)
-        //         //     perror("ERROR: ");
-
-        //         // if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-        //         //     perror("ERROR: ");
-
-        //         // close(metachars[0].fd[0]);
-        //         // close(metachars[0].fd[1]);
-        //         // ++j;  // increment metachars only when it's next
-
-        //         // exit(0);
-        //         // pipe_handler(token_array[i], token_array[i + 2], metachars[0].fd);
-        //         exit(0);
-        //     }
-
-        //     // TODO: DO | cmd |
-
-        //     // printf("Tokens starting with %s run through loop", token_array[i][0]);
-        //     exit(0);
-        // }
-        // printf("Read tokens starting with: \"%s\"", token_array[i][0]);
-
-        // i += 2;  // increment to two rows down (args->(meta)->args...)
     }
     return;
 }
 
 int main(int argc, char** argv) {
-    int token_c;
-    int i;
+    int token_c, i;
 
     char buffer[MAX_BUFFER];
     char* tokens[TOKEN_LIMIT];
 
-    bool sup = ((argc > 1) && !strcmp(argv[1], "-n"));  // supress prompt for automated grading
+    bool silence = ((argc > 1) && !strcmp(argv[1], "-n"));  // suppress prompt for automated grading
 
     while (true) {
         token_c = 1;
-        if (!sup)
+        if (!silence)
             prompt();
 
         memset(buffer, '\0', MAX_BUFFER);
