@@ -223,7 +223,7 @@ void command_handler(char* tokens[]) {
             } else if (o_redirect && i == tok_c - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
                 printf("Running output redirection\n");
 
-                if (filefd = open(token_array[i + 2][0], wflags) == -1)
+                if ((filefd = open(token_array[i + 2][0], wflags)) == -1)
                     perror("open");
 
                 if (dup2(filefd, STDOUT_FILENO) == -1)
