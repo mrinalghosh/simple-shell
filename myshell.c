@@ -136,7 +136,7 @@ void command_handler(char* tokens[]) {
     while (token_array[i][0] != NULL) {  // loop over every A(args) row of token_array of form AMAMA---AMAMA
         pipe(fd);
         if ((pid = fork()) == -1) {
-            perror("fork");
+            perror("ERROR: fork");
             exit(1);
         } else if (pid == 0) {
             /* ####--Child--#### */
@@ -144,24 +144,24 @@ void command_handler(char* tokens[]) {
                 printf("Running input redirection\n");
 
                 if ((filefd = open(token_array[i + 2][0], rflags, mode)) == -1) {
-                    perror("open");  // assuming only one filename
+                    perror("ERROR: open");  // assuming only one filename
                 }
 
                 if (dup2(filefd, STDIN_FILENO) == -1) {
-                    perror("dup2");
+                    perror("ERROR: dup2");
                     exit(1);
                 }
 
                 if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )?
                     printf("pipe next\n");
                     if (dup2(fd[1], STDOUT_FILENO) == -1) {  // TODO: not working with pipes at all
-                        perror("dup2");
+                        perror("ERROR: dup2");
                         exit(1);
                     }
                 }
 
                 if (execvp(token_array[i][0], token_array[i]) < 0) {
-                    perror("execvp");
+                    perror("ERROR: execvp");
                     exit(1);
                 }
 
@@ -172,12 +172,12 @@ void command_handler(char* tokens[]) {
                 printf("Running output redirection\n");
 
                 if ((filefd = open(token_array[row - 1][0], wflags, mode)) == -1) {  // single file name only
-                    perror("open");
+                    perror("ERROR: open");
                     exit(1);
                 }
 
                 if (dup2(filefd, STDOUT_FILENO) == -1) {
-                    perror("dup2");
+                    perror("ERROR: dup2");
                     exit(1);
                 }
 
@@ -187,7 +187,7 @@ void command_handler(char* tokens[]) {
                 }
 
                 if (execvp(token_array[i][0], token_array[i]) == -1) {
-                    perror("execvp");
+                    perror("ERROR: execvp");
                     exit(1);
                 }
 
@@ -196,10 +196,10 @@ void command_handler(char* tokens[]) {
                 exit(1);
             } else {  // multiple consecutive pipes
                 if (dup2(tfd, 0) == -1)
-                    perror("dup2");
+                    perror("ERROR: dup2");
                 if (token_array[i + 2][0] != NULL)
                     if (dup2(fd[1], 1) == -1)
-                        perror("dup2");
+                        perror("ERROR: dup2");
 
                 close(fd[0]);
                 execvp(token_array[i][0], token_array[i]);
@@ -210,7 +210,7 @@ void command_handler(char* tokens[]) {
             /* ####--Parent--#### */
             if (!bg) {
                 if (waitpid(pid, &status, 0) == -1)
-                    perror("waitpid");
+                    perror("ERROR: waitpid");
             } else {
                 signal(SIGCHLD, nanny);
             }
