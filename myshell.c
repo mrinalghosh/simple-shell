@@ -12,13 +12,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-/*
-TODO:
-compound metachars
-cat < x > y
-error messages
-*/
-
 void nanny(int signum) {                            // child handler function
     while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {  // -1 - for any child process
     }                                               // spin while pid != 0 (children exist but no state change) and pid != -1 (error)
@@ -141,7 +134,6 @@ void command_handler(char* tokens[]) {
         } else if (pid == 0) {
             /* ####--Child--#### */
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
-                printf("Running input redirection\n");
 
                 if ((filefd = open(token_array[i + 2][0], rflags, mode)) == -1) {
                     perror("ERROR: open");  // assuming only one filename
@@ -153,8 +145,7 @@ void command_handler(char* tokens[]) {
                 }
 
                 if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )?
-                    printf("pipe next\n");
-                    if (dup2(fd[1], STDOUT_FILENO) == -1) {  // TODO: not working with pipes at all
+                    if (dup2(fd[1], STDOUT_FILENO) == -1) {                                      // TODO: not working with pipes at all
                         perror("ERROR: dup2");
                         exit(1);
                     }
@@ -169,7 +160,6 @@ void command_handler(char* tokens[]) {
                 close(fd[0]);
                 exit(1);
             } else if (o_redirect && i == row - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
-                printf("Running output redirection\n");
 
                 if ((filefd = open(token_array[row - 1][0], wflags, mode)) == -1) {  // single file name only
                     perror("ERROR: open");
@@ -182,7 +172,6 @@ void command_handler(char* tokens[]) {
                 }
 
                 if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {  // look for pipe before on its own row
-                    printf("pipe before\n");
                     dup2(fd[0], STDIN_FILENO);
                 }
 
