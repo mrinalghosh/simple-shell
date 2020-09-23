@@ -14,11 +14,9 @@
 
 /*
 TODO:
-
-PIPES
+compound metachars
 cat < x > y
-MULTIPLE PIPES
-error message
+error messages
 */
 
 /*
@@ -32,9 +30,12 @@ basic REPL
 > redirection
 single pipe
 < - redirection of input
+PIPES
+MULTIPLE PIPES
+
 */
 
-void child_handler(int signum) {
+void nanny(int signum) {                            // child handler function
     while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {  // -1 - for any child process
     }                                               // spin while pid != 0 (children exist but no state change) and pid != -1 (error)
     return;
@@ -145,7 +146,11 @@ void command_handler(char* tokens[]) {
     }
     ++row;  // row index -> row count
 
-    /* ####----MULTI-METACHARACTER EXECUTION----#### */
+    /*  
+        #############################################
+        ####----MULTI-METACHARACTER EXECUTION----#### 
+        #############################################
+    */
 
     // ASSUMPTIONS:     metacharacters can only be in the valid form (<) (||...||) (>) (&)
     //                  the resulting token_array is of the form amama....amamama (&) where a = args
@@ -177,33 +182,17 @@ void command_handler(char* tokens[]) {
         i_redirect = true;
     }
 
-    // initialize pipes - DO NOT DO THIS OUTSIDE THE WHILE LOOP
+    // count pipes
     pipe_c = 0;
-    for (i = 0; i < meta_c; ++i) {
-        if (strcmp(metachars[i].type, "|") == 0) {
-            // if (pipe(metachars[i].fd) < 0) {
-            //     perror("ERROR: ");
-            // }
+    for (i = 0; i < meta_c; ++i)
+        if (strcmp(metachars[i].type, "|") == 0)
             ++pipe_c;  // pipe count
-        }
-    }
 
     i = 0;  // row counter (even->A, odd->M)
     j = 0;  // metacharacter counter
     k = 0;  // counter to print tokens
 
-    while (token_array[i][0] != NULL) {  // loop over rows of token_array of form AMAMA---AMAMA - just the A=arguments
-
-        // print all tokens
-        // while (token_array[i][k] != NULL) {
-        //     printf("\"%s\"  ", token_array[i][k]);
-        //     ++k;
-        // }
-        // printf("\n-----\n");
-        // k = 0;
-
-        // printf("pipe_c: %d, row_c: %d\n", pipe_c, row);  // print number of pipes and rows
-
+    while (token_array[i][0] != NULL) {  // loop over every A(args) row of token_array of form AMAMA---AMAMA
         pipe(fd);
         if ((pid = fork()) == -1) {
             perror("fork");
@@ -213,12 +202,15 @@ void command_handler(char* tokens[]) {
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
                 printf("Running input redirection\n");
 
-                filefd = open(token_array[i + 2][0], rflags, mode);  // assuming only one filename
-                dup2(filefd, STDIN_FILENO);
+                if (filefd = open(token_array[i + 2][0], rflags, mode) == -1)
+                    perror("open");  // assuming only one filename
+
+                if (dup2(filefd, STDIN_FILENO) == -1)
+                    perror("dup2");
 
                 if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )
                     printf("pipe next\n");
-                    if (dup2(fd[1], STDOUT_FILENO) == -1)
+                    if (dup2(fd[1], STDOUT_FILENO) == -1)  // does not do anything
                         perror("dup2");
                 }
 
@@ -234,7 +226,7 @@ void command_handler(char* tokens[]) {
                 if (filefd = open(token_array[i + 2][0], wflags) == -1)
                     perror("open");
 
-                if (dup2(filefd, STDOUT_FILENO))
+                if (dup2(filefd, STDOUT_FILENO) == -1)
                     perror("dup2");
 
                 if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {  // look for pipe before
@@ -250,9 +242,11 @@ void command_handler(char* tokens[]) {
                 exit(1);
             } else {  // multiple consecutive pipes
                 if (dup2(tfd, 0) == -1)
-                    perror("ERROR: ");
+                    perror("dup2");
                 if (token_array[i + 2][0] != NULL)
-                    dup2(fd[1], 1);
+                    if (dup2(fd[1], 1) == -1)
+                        perror("dup2");
+
                 close(fd[0]);
                 execvp(token_array[i][0], token_array[i]);
                 exit(1);
@@ -261,9 +255,10 @@ void command_handler(char* tokens[]) {
         } else {
             /* Parent */
             if (!bg) {
-                waitpid(pid, &status, 0);
+                if (waitpid(pid, &status, 0) == -1)
+                    perror("waitpid");
             } else {
-                signal(SIGCHLD, child_handler);
+                signal(SIGCHLD, nanny);
             }
             close(fd[1]);
             tfd = fd[0];  // TODO: what does this line do??? - from quora
@@ -281,7 +276,7 @@ void command_handler(char* tokens[]) {
         //     if (!bg) {
         //         pid = waitpid(pid, &status, 0);
         //     } else {
-        //         signal(SIGCHLD, child_handler);
+        //         signal(SIGCHLD, nanny);
         //     }
 
         // } else {
