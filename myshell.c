@@ -265,11 +265,12 @@ void command_handler(char* tokens[]) {
                 signal(SIGCHLD, child_handler);
 
         } else {
+            printf("%d rows\n", row);
             /* ---Child--- */
-            if (row == 1 && !(execvp(token_array[0][0], token_array[0]) < 0)) {
-                exit(0);
-            } else {
-                perror("execvp failed");
+            if (row == 1) {
+                if (execvp(token_array[0][0], token_array[0]) < 0) {
+                    perror("execvp failed");
+                }
                 exit(0);
             }
 
