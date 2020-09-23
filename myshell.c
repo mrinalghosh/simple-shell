@@ -54,7 +54,7 @@ void command_handler(char* tokens[]) {
     ###################################
     */
 
-    int tok_c = 0, meta_c = 0, i, j;
+    int tok_c = 0, meta_c = 0, i, j, k;
     size_t row = 0, col = 0;
 
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = {arguments...} alternated w metachars, columns = argument string
@@ -143,6 +143,17 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* ####--Child--#### */
+            printf("tok_c: %d\n", tok_c);
+            k = 0;
+            for (j = 0; j < row; ++j) {
+                while (token_array[j][k] != NULL) {
+                    printf("\"%s\"  ", token_array[j][k]);
+                    ++k;
+                }
+                printf("\n------\n");
+                k = 0;
+            }
+
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
                 printf("Running input redirection\n");
 
