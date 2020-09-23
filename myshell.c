@@ -266,7 +266,9 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
-            if (row == 1 && (execvp(token_array[0][0], token_array[0]) < 0)) {
+            if (row == 1 && !(execvp(token_array[0][0], token_array[0]) < 0)) {
+                exit(0);
+            } else {
                 perror("execvp failed");
                 exit(0);
             }
@@ -275,7 +277,8 @@ void command_handler(char* tokens[]) {
                 ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
                 dup2(ffd, STDIN_FILENO);
 
-                execvp(token_array[i - 1][0], token_array[i - 1]);
+                if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                    perror("execvp failed");
 
                 close(ffd);
                 exit(0);
@@ -285,7 +288,8 @@ void command_handler(char* tokens[]) {
                 ffd = open(token_array[i + 1][0], wflags);
                 dup2(ffd, STDOUT_FILENO);
 
-                execvp(token_array[i - 1][0], token_array[i - 1]);
+                if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                    perror("execvp failed");
 
                 close(ffd);
                 exit(0);
