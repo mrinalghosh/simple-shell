@@ -130,8 +130,8 @@ void command_handler(char* tokens[]) {
 
     // count pipes
     pipe_c = 0;
-    for (i = 0; i < meta_c; ++i)
-        if (strcmp(metachars[i].type, "|") == 0)
+    for (i = 0; i < tok_c; ++i)
+        if (strcmp(tokens[i], "|") == 0)
             ++pipe_c;  // pipe count
 
     i = 0;  // row counter (even->A, odd->M)
