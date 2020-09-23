@@ -15,7 +15,6 @@ typedef struct {
     int fd[2];
 } metachar;
 
-// TODO: add function prototypes
 void type_prompt(void);
 void error(char* message);
 
