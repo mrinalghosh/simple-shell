@@ -160,7 +160,7 @@ void command_handler(char* tokens[]) {
     mode_t mode = S_IRUSR | S_IWUSR;            // user permissions flags
 
     // background task
-    if (row > 1 && strcmp(token_array[row - 1][0], "&") == 0) {
+    if (row > 1 && strcmp(token_array[row - 1][0], "&") == 0) { // check last row filled
         bg = true;
         token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
         --row;
@@ -168,9 +168,9 @@ void command_handler(char* tokens[]) {
         --tok_c;
     }
 
-    if (row > 2 && strcmp(token_array[row - 2][0], ">") == 0) {
-        o_redirect = true;  // only one position at eol ... cmd > file (&)
-    }
+    // if (row > 2 && strcmp(token_array[row - 2][0], ">") == 0) { // check second last row
+    //     o_redirect = true;  // only one position at eol ... cmd > file (&)
+    // }
 
     if (strcmp(token_array[1][0], "<") == 0) {
         i_redirect = true;
@@ -201,7 +201,7 @@ void command_handler(char* tokens[]) {
         // printf("\n-----\n");
         // k = 0;
 
-        // printf("pipe_c: %d\n", pipe_c); // print number of pipes
+        printf("pipe_c: %d, row_c: %d\n", pipe_c, row);  // print number of pipes
 
         pipe(fd);
         if ((pid = fork()) == -1) {
