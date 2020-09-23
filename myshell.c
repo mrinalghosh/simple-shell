@@ -255,17 +255,17 @@ void command_handler(char* tokens[]) {
             }
 
             if ((i - 1 >= 0) && (strcmp(token_array[i - 1][0], "|") == 0)) {  // LEFT PIPE (| args)
-                printf("Pipe to the left of command (index %d)... reading from pipe", i);
+                // printf("Pipe to the left of command (index %d)... reading from pipe", i);
 
-                if (dup2(metachars[j].fd[0], STDIN_FILENO) == -1)
-                    perror("ERROR: ");
+                // if (dup2(metachars[j].fd[0], STDIN_FILENO) == -1)
+                //     perror("ERROR: ");
 
-                if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
-                    perror("ERROR: ");
+                // if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
+                //     perror("ERROR: ");
 
-                close(metachars[j].fd[0]);
-                close(metachars[j].fd[1]);
-                // ++j;  //increment metachars
+                // close(metachars[j].fd[0]);
+                // close(metachars[j].fd[1]);
+                // // ++j;  //increment metachars
 
                 exit(0);
             }
