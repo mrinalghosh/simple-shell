@@ -248,7 +248,7 @@ void command_handler(char* tokens[]) {
 
     while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
 
-        if (strcomp(token_array[i][0], "|<>", 3) != 0) {
+        if (!strcomp(token_array[i][0], "|<>", 3)) {
             printf("skipping %s\n", token_array[i][0]);
             ++i;
 
