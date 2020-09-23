@@ -277,6 +277,7 @@ void command_handler(char* tokens[]) {
                 printf("FUC\n");
 
                 if (j == 0) {  // first metacharacter at row index 1 is a pipe - first set of arguments <args> | <args>
+                    exit(0);
                     if (pipe_passed) {
                         printf("Child with index %d running 1st pipe", i);
 
