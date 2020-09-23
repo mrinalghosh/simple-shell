@@ -201,7 +201,7 @@ void command_handler(char* tokens[]) {
             dup2(tmpfd, STD_INPUT);
             if (token_array[i + 1][0] != NULL)
                 dup2(fd[WRITE], STD_OUTPUT);
-            close(fd[WRITE);
+            close(fd[WRITE]);
             execvp(token_array[i][0], token_array[i]);
             exit(1);
         } else {
