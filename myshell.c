@@ -151,7 +151,7 @@ void command_handler(char* tokens[]) {
     //                  command { <, > } filename
 
     bool bg = false, i_redirect = false, o_redirect = false;  // background, input redirect, output redirect
-    int filefd, status, pipe_c, fdd = 0;                      // file fd, status, pipe count, temp fd=0 initially for stdin
+    int filefd, status, pipe_c, tfd = 0;                      // file fd, status, pipe count, temp fd=0 initially for stdin
     int fd[2];                                                // pipe file descriptors
     pid_t pid;                                                // only one pid/fork at a time
 
@@ -165,10 +165,11 @@ void command_handler(char* tokens[]) {
         token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
         --row;
         --meta_c;
+        --tok_c;
     }
 
     if (strcmp(token_array[row - 2][0], ">") == 0) {
-        o_redirect = true;  // only one position at eol ... cmd > file ()
+        o_redirect = true;  // only one position at eol ... cmd > file (&)
     }
 
     if (strcmp(token_array[1][0], "<") == 0) {
@@ -200,6 +201,8 @@ void command_handler(char* tokens[]) {
         // printf("\n-----\n");
         // k = 0;
 
+        printf("pipe_c: %d\n", pipe_c);
+
         pipe(fd);
         if ((pid = fork()) == -1) {
             perror("fork");
@@ -207,12 +210,13 @@ void command_handler(char* tokens[]) {
         } else if (pid == 0) {
             /* Child */
             if (i_redirect && i == 0) {  // first command in line
-                // printf("Running input redirection\n");
+                printf("Running input redirection\n");
 
                 filefd = open(token_array[i + 2][0], rflags);  // assuming only one filename
                 dup2(filefd, STDIN_FILENO);
 
-                if (pipe_c > 0) {  // at least one pipe that will be immediately after command < file | ...
+                if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )
+                    printf("pipe up next\n");
                     dup2(fd[1], STDOUT_FILENO);
                 }
 
@@ -220,9 +224,28 @@ void command_handler(char* tokens[]) {
                     perror("ERROR: ");
 
                 close(filefd);
+                close(fd[0]);
                 exit(1);
-            } else {
-                dup2(fdd, 0);
+            } else if (o_redirect && i == tok_c - 3) {  // i = command (> file) which may or may not have a pipe before
+                printf("Running output redirection\n");
+
+                filefd = open(token_array[i + 1][0], wflags);
+                dup2(filefd, STDOUT_FILENO);
+
+                if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {
+                    printf("pipe before\n");
+                    dup2(fd[0], STDIN_FILENO);
+                }
+
+                if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                    perror("ERROR: ");
+
+                close(filefd);
+                close(fd[1]);
+                exit(0);
+            } else {  // multiple consecutive pipes
+                if (dup2(tfd, 0) == -1)
+                    perror("ERROR: ");
                 if (token_array[i + 2][0] != NULL)
                     dup2(fd[1], 1);
                 close(fd[0]);
@@ -238,8 +261,8 @@ void command_handler(char* tokens[]) {
                 signal(SIGCHLD, child_handler);
             }
             close(fd[1]);
-            fdd = fd[0];
-            i += 2;  // go to next command after pipe
+            tfd = fd[0];  // TODO: what does this line do???
+            i += 2;       // go to next command after pipe
         }
 
         // if ((pid = fork()) == -1) {
