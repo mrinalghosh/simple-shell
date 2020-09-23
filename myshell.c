@@ -198,6 +198,7 @@ void command_handler(char* tokens[]) {
 
         if (!strsearch(token_array[i][0], "|<>", 3) && row != 1) {  // not a row w/ metacharacter and not a single line command
             ++i;
+            printf("NOT A METACHARACTER AND ROW ~= 1\n");
             continue;
         }
 
@@ -207,7 +208,7 @@ void command_handler(char* tokens[]) {
 
         } else if (pid > 0) {
             /* ---Parent--- */
-            printf("Hello from papa\n");
+            printf("henlo from papa\n");
             if (!bg)
                 pid = waitpid(pid, &status, 0);
             else
@@ -286,6 +287,7 @@ void command_handler(char* tokens[]) {
 
                         close(metachars[0].fd[0]);
                         close(metachars[0].fd[1]);
+                        exit(0);
                     } else {
                         printf("Child with index %d running 2nd pipe", i);
 
@@ -297,13 +299,14 @@ void command_handler(char* tokens[]) {
 
                         close(metachars[0].fd[0]);
                         close(metachars[0].fd[1]);
+                        exit(0);
                     }
-
-                    exit(0);
                 }
             }
+            printf("SKIPPED THROUGH CHILD\n");
+            exit(0);
         }
-        ++j;  // continue statement guarantees metacharacters only increment here
+        // ++j;  // continue statement guarantees metacharacters only increment here
         ++i;  // increment to next row
     }
 
