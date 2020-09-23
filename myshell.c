@@ -273,6 +273,8 @@ void command_handler(char* tokens[]) {
                 //     close(metachars[j - 1].fd[1]);
                 // }
 
+                printf("j: %d, pipe_passed: %d", j, pipe_passed);
+
                 if (j == 0) {  // first metacharacter at row index 1 is a pipe - first set of arguments <args> | <args>
 
                     if (pipe_passed) {
@@ -303,7 +305,7 @@ void command_handler(char* tokens[]) {
                 }
             }
         }
-        ++j;  // continue statement guarantees metacharacters only increment here
+        // ++j;  // continue statement guarantees metacharacters only increment here
         ++i;  // increment to next row
     }
 
