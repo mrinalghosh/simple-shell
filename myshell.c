@@ -199,10 +199,10 @@ void command_handler(char* tokens[]) {
         } else if (pid == 0) {
             /* Child */
             dup2(tmpfd, STD_INPUT);
-            if (token[i + 1][0] != NULL)
+            if (token_array[i + 1][0] != NULL)
                 dup2(fd[WRITE], STD_OUTPUT);
             close(fd[WRITE);
-            execvp(token_a[WRITE] rray[i][0], token_array[i]);
+            execvp(token_array[i][0], token_array[i]);
             exit(1);
         } else {
             /* Parent */
