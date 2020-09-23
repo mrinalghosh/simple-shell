@@ -78,7 +78,7 @@ void execute(char* args[], char* filename, int options, bool bg) {
     char fbuf[MAX_FILE];
 
     if ((pid = fork()) == -1) {
-        perror("fork");
+        perror("ERROR: ");
         exit(1);
     } else if (pid > 0) {
         /* Parent */
@@ -122,7 +122,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
     pid_t pid[2];
 
     if (pipe(fd) == -1) {
-        perror("pipe failed");
+        perror("ERROR: ");
         exit(1);
     }
 
@@ -132,8 +132,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
         close(fd[0]);          // TODO: WHY DO WE close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
-        perror("execvp left | ... failed");
-        printf("left passed\n");
+        perror("ERROR: ");
         exit(1);
     }
 
@@ -143,7 +142,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
         close(fd[0]);
         close(fd[1]);
         execvp(args2[0], args2);
-        perror("execvp ... | right failed");
+        perror("ERROR: ");
         exit(1);
     }
 
@@ -236,7 +235,7 @@ void command_handler(char* tokens[]) {
     for (i = 0; i < meta_c; ++i) {
         if (strcmp(metachars[i].type, "|") == 0) {
             if (pipe(metachars[i].fd) < 0) {
-                perror("pipe");
+                perror("ERROR: ");
                 exit(1);
             }
             ++pipe_c;  // pipe count
@@ -254,7 +253,7 @@ void command_handler(char* tokens[]) {
         }
 
         if ((pid = fork()) == -1) {
-            perror("fork failed");
+            perror("ERROR: ");
             exit(1);
 
         } else if (pid > 0) {
@@ -268,7 +267,7 @@ void command_handler(char* tokens[]) {
             /* ---Child--- */
             if (row == 1) {
                 if (execvp(token_array[0][0], token_array[0]) < 0) {
-                    perror("execvp failed");
+                    perror("ERROR: ");
                 }
                 exit(0);
             }
@@ -278,7 +277,7 @@ void command_handler(char* tokens[]) {
                 dup2(ffd, STDIN_FILENO);
 
                 if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-                    perror("execvp failed");
+                    perror("ERROR: ");
 
                 close(ffd);
                 exit(0);
@@ -289,7 +288,7 @@ void command_handler(char* tokens[]) {
                 dup2(ffd, STDOUT_FILENO);
 
                 if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-                    perror("execvp failed");
+                    perror("ERROR");
 
                 close(ffd);
                 exit(0);
