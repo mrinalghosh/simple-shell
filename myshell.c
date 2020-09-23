@@ -129,7 +129,7 @@ void command_handler(char* tokens[]) {
         i_redirect = true;
     }
 
-    pipe_c = 0; 
+    pipe_c = 0;
     for (i = 0; i < tok_c; ++i)
         if (strcmp(tokens[i], "|") == 0)
             ++pipe_c;  // pipe count
@@ -167,7 +167,7 @@ void command_handler(char* tokens[]) {
             } else if (o_redirect && i == tok_c - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
                 printf("Running output redirection\n");
 
-                if ((filefd = open(token_array[i + 2][0], wflags)) == -1) // single file name only
+                if ((filefd = open(token_array[tok_c - 1][0], wflags, mode)) == -1)  // single file name only
                     perror("open");
 
                 if (dup2(filefd, STDOUT_FILENO) == -1)
