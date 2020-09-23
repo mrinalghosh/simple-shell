@@ -40,14 +40,14 @@ void child_handler(int signum) {
     return;
 }
 
-bool strcomp(char* str, char* list, int n) {
+bool strsearch(char* str, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
         if (strcmp(str, (char[2]){list[i], '\0'}) == 0) return true;
     return false;
 }
 
-bool chcomp(char ch, char* list, int n) {
+bool chcmp(char ch, char* list, int n) {
     int i = 0;
     for (i = 0; i < n; ++i)
         if (ch == list[i]) return true;
@@ -63,58 +63,6 @@ void prompt(void) {
 
 void error_message(char* message) {
     printf("ERROR: %s", message);
-    return;
-}
-
-void execute(char* args[], char* filename, int options, bool bg) {
-    /* options: single:0, input from file (<):1, output to file (>):2 */
-
-    int wflags = O_WRONLY | O_CREAT | O_TRUNC;
-    int rflags = O_RDONLY;
-    mode_t mode = S_IRUSR | S_IWUSR;
-
-    int ffd, status, nread;
-    pid_t pid;
-    char fbuf[MAX_FILE];
-
-    if ((pid = fork()) == -1) {
-        perror("ERROR: ");
-        exit(1);
-    } else if (pid > 0) {
-        /* Parent */
-
-        if (!bg)  // background processes
-        {
-            // printf("Parental guidance.. waiting\n");
-            pid = waitpid(pid, &status, 0);
-            // printf("Child %d exited with status %d\n", pid, WEXITSTATUS(status));
-        } else {
-            signal(SIGCHLD, child_handler);
-        }
-
-        return;
-    } else {
-        /* Child */
-        switch (options) {
-            case 0: {  // single command execution
-                execvp(args[0], args);
-                break;
-            }
-            case 1: {  // command < file
-
-                break;
-            }
-            case 2: {  // command > file
-
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-
-        exit(0);
-    }
     return;
 }
 
@@ -173,7 +121,7 @@ void command_handler(char* tokens[]) {
 
     while (tokens[tok_c] != NULL) {  // get token count and put into 2D token_array
 
-        if (strcomp(tokens[tok_c], "|<>&", 4)) {
+        if (strsearch(tokens[tok_c], "|<>&", 4)) {
             metachars[meta_c].index = row + 1;       // index of metacharacter
             metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
@@ -185,7 +133,7 @@ void command_handler(char* tokens[]) {
             token_array[row][col] = malloc(MAX_TOKEN * sizeof(char));
             memcpy(token_array[row][col], tokens[tok_c], MAX_TOKEN);
 
-            if (tokens[tok_c + 1] != NULL && !strcomp(tokens[tok_c + 1], "|<>&", 4))
+            if (tokens[tok_c + 1] != NULL && !strsearch(tokens[tok_c + 1], "|<>&", 4))
                 ++row;
 
         } else {
@@ -247,7 +195,7 @@ void command_handler(char* tokens[]) {
 
     while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
 
-        if (!strcomp(token_array[i][0], "|<>", 3) && row != 1) {  // not a row w/ metacharacter and not a single line
+        if (!strsearch(token_array[i][0], "|<>", 3) && row != 1) {  // not a row w/ metacharacter and not a single line
             ++i;
             continue;
         }
@@ -272,7 +220,7 @@ void command_handler(char* tokens[]) {
                 exit(0);
             }
 
-            if (strcmp(token_array[i][0], "<") == 0) {
+            if (strcmp(token_array[i][0], "<") == 0) { // command < file
                 ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
                 dup2(ffd, STDIN_FILENO);
 
@@ -283,7 +231,7 @@ void command_handler(char* tokens[]) {
                 exit(0);
             }
 
-            if (strcmp(token_array[i][0], ">") == 0) {
+            if (strcmp(token_array[i][0], ">") == 0) { // command > file
                 ffd = open(token_array[i + 1][0], wflags);
                 dup2(ffd, STDOUT_FILENO);
 
@@ -325,11 +273,11 @@ int main(int argc, char** argv) {
 
         i = 0;
         while (buffer[i] != '\0') {
-            if ((buffer[i - 1] != ' ') && chcomp(buffer[i], "|&<>", 4)) {  // no space before
+            if ((buffer[i - 1] != ' ') && chcmp(buffer[i], "|&<>", 4)) {  // no space before
                 memmove((buffer + i + 1), (buffer + i), sizeof(buffer) - i);
                 buffer[i] = ' ';
             }
-            if ((buffer[i + 1] != ' ') && chcomp(buffer[i], "|&<>", 4)) {  // no space after
+            if ((buffer[i + 1] != ' ') && chcmp(buffer[i], "|&<>", 4)) {  // no space after
                 memmove((buffer + i + 2), (buffer + i + 1), sizeof(buffer) - i - 1);
                 buffer[i + 1] = ' ';
             }
