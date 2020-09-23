@@ -194,8 +194,9 @@ void command_handler(char* tokens[]) {
     j = 0;  // metacharacter counter
 
     while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
+        printf("ROW NUMBER: %d\n", i);
 
-        if (!strsearch(token_array[i][0], "|<>", 3) && row != 1) {  // not a row w/ metacharacter and not a single line
+        if (!strsearch(token_array[i][0], "|<>", 3) && row != 1) {  // not a row w/ metacharacter and not a single line command
             ++i;
             continue;
         }
@@ -206,6 +207,7 @@ void command_handler(char* tokens[]) {
 
         } else if (pid > 0) {
             /* ---Parent--- */
+            printf("Hello from papa\n");
             if (!bg)
                 pid = waitpid(pid, &status, 0);
             else
@@ -215,6 +217,7 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
+            printf("i am baby\n");
             if (row == 1) {  // exception for single command without metacharacters
                 if (execvp(token_array[0][0], token_array[0]) < 0) {
                     perror("ERROR: ");
