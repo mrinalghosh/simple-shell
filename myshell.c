@@ -218,7 +218,7 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
-            printf("j: %d, pipe_passed: %d", j, pipe_passed);
+            printf("j: %d, pipe_passed: %d\n", j, pipe_passed);
             printf("i am baby from %d\n", i);
 
             if (row == 1) {  // exception for single command without metacharacters
@@ -274,6 +274,7 @@ void command_handler(char* tokens[]) {
                 //     dup2(metachars[j - 1].fd[1], STDIN_FILENO);  // dup input of command to read end of previous pipe
                 //     close(metachars[j - 1].fd[1]);
                 // }
+                printf("FUC\n");
 
                 if (j == 0) {  // first metacharacter at row index 1 is a pipe - first set of arguments <args> | <args>
                     if (pipe_passed) {
