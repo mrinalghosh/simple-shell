@@ -14,7 +14,6 @@
 
 /*
 TODO:
-fix hardcoding > (ls -lsa > file) not working
 compound metachars
 cat < x > y
 error messages
@@ -121,13 +120,11 @@ void command_handler(char* tokens[]) {
         --tok_c;
     }
 
-    if (row > 2 && strcmp(token_array[row - 2][0], ">") == 0) {  // must have at least 3 rows (A>A)
-        o_redirect = true;                                       // only one position at eol ... cmd > file (&)
-    }
+    if (row > 2 && strcmp(token_array[row - 2][0], ">") == 0)  // must have at least 3 rows (A>A)
+        o_redirect = true;                                     // only one position at eol ... cmd > file (&)
 
-    if (row > 2 && strcmp(token_array[1][0], "<") == 0) {  // must have at least 3 rows (A<A)
+    if (row > 2 && strcmp(token_array[1][0], "<") == 0)  // must have at least 3 rows (A<A)
         i_redirect = true;
-    }
 
     pipe_c = 0;
     for (i = 0; i < tok_c; ++i)
@@ -143,18 +140,6 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* ####--Child--#### */
-            
-            printf("tok_c: %d, row: %d\n", tok_c, row);
-            k = 0;
-            for (j = 0; j < row; ++j) {
-                while (token_array[j][k] != NULL) {
-                    printf("\"%s\"  ", token_array[j][k]);
-                    ++k;
-                }
-                printf("\n------\n");
-                k = 0;
-            }
-
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
                 printf("Running input redirection\n");
 
@@ -177,7 +162,7 @@ void command_handler(char* tokens[]) {
                 close(fd[0]);
                 exit(1);
             } else if (o_redirect && i == row - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
-                printf("Running output redirection on row %d\n", i);
+                printf("Running output redirection\n");
 
                 if ((filefd = open(token_array[row - 1][0], wflags, mode)) == -1)  // single file name only
                     perror("open");
