@@ -143,20 +143,27 @@ void command_handler(char* tokens[]) {
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
                 printf("Running input redirection\n");
 
-                if ((filefd = open(token_array[i + 2][0], rflags, mode)) == -1)
+                if ((filefd = open(token_array[i + 2][0], rflags, mode)) == -1) {
                     perror("open");  // assuming only one filename
+                }
 
-                if (dup2(filefd, STDIN_FILENO) == -1)
+                if (dup2(filefd, STDIN_FILENO) == -1) {
                     perror("dup2");
+                    exit(1);
+                }
 
                 if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )?
                     printf("pipe next\n");
-                    if (dup2(fd[1], STDOUT_FILENO) == -1)  // TODO: not working with pipes at all
+                    if (dup2(fd[1], STDOUT_FILENO) == -1) {  // TODO: not working with pipes at all
                         perror("dup2");
+                        exit(1);
+                    }
                 }
 
-                if (execvp(token_array[i][0], token_array[i]) < 0)
+                if (execvp(token_array[i][0], token_array[i]) < 0) {
                     perror("execvp");
+                    exit(1);
+                }
 
                 close(filefd);
                 close(fd[0]);
@@ -164,19 +171,25 @@ void command_handler(char* tokens[]) {
             } else if (o_redirect && i == row - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
                 printf("Running output redirection\n");
 
-                if ((filefd = open(token_array[row - 1][0], wflags, mode)) == -1)  // single file name only
+                if ((filefd = open(token_array[row - 1][0], wflags, mode)) == -1) {  // single file name only
                     perror("open");
+                    exit(1);
+                }
 
-                if (dup2(filefd, STDOUT_FILENO) == -1)
+                if (dup2(filefd, STDOUT_FILENO) == -1) {
                     perror("dup2");
+                    exit(1);
+                }
 
                 if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {  // look for pipe before on its own row
                     printf("pipe before\n");
                     dup2(fd[0], STDIN_FILENO);
                 }
 
-                if (execvp(token_array[i][0], token_array[i]) == -1)
+                if (execvp(token_array[i][0], token_array[i]) == -1) {
                     perror("execvp");
+                    exit(1);
+                }
 
                 close(filefd);
                 close(fd[1]);
