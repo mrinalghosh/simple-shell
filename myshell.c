@@ -200,9 +200,9 @@ void command_handler(char* tokens[]) {
             /* Child */
             dup2(tmpfd, STD_INPUT);
             if (token[i + 1][0] != NULL)
-                dup2(fd, STD_OUTPUT);
-            close(fd[WRITE]);
-            execvp(token_array[i][0], token_array[i]);
+                dup2(fd[WRITE], STD_OUTPUT);
+            close(fd[WRITE);
+            execvp(token_a[WRITE] rray[i][0], token_array[i]);
             exit(1);
         } else {
             /* Parent */
@@ -211,8 +211,6 @@ void command_handler(char* tokens[]) {
             tmpfd = fd[WRITE];
             i += 2;
         }
-
-        i += 2;  // increment to two rows down (args->(meta)->args...)
 
         // if ((pid = fork()) == -1) {
         //     perror("ERROR: ");
@@ -311,6 +309,8 @@ void command_handler(char* tokens[]) {
         //     exit(0);
         // }
         // printf("Read tokens starting with: \"%s\"", token_array[i][0]);
+
+        // i += 2;  // increment to two rows down (args->(meta)->args...)
     }
     return;
 }
