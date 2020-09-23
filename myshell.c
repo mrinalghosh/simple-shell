@@ -178,8 +178,14 @@ void command_handler(char* tokens[]) {
 
     i = 0;  // row counter (even->A, odd->M)
     j = 0;  // metacharacter counter
+    k = 0;  // counter to print tokens
 
     while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
+
+        while (token_array[i][k] != NULL) {
+            printf("\"%s\"  ", token_array[i][k]);
+        }
+        printf("\n");
 
         if ((pid = fork()) == -1) {
             perror("ERROR: ");
@@ -252,14 +258,14 @@ void command_handler(char* tokens[]) {
                 if (dup2(metachars[j].fd[0], STDIN_FILENO) == -1)
                     perror("ERROR: ");
 
-                // if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
-                //     perror("ERROR: ");
+                if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
+                    perror("ERROR: ");
 
-                // close(metachars[j].fd[0]);
-                // close(metachars[j].fd[1]);
-                ++j;  //increment metachars
+                close(metachars[j].fd[0]);
+                close(metachars[j].fd[1]);
+                // ++j;  //increment metachars
 
-                // exit(0); // DON'T EXIT
+                exit(0);
             }
 
             if ((i + 1 < tok_c) && strcmp(token_array[i + 1][0], "|") == 0) {  // RIGHT PIPE (args |)
@@ -274,10 +280,12 @@ void command_handler(char* tokens[]) {
 
                 close(metachars[0].fd[0]);
                 close(metachars[0].fd[1]);
-                ++j;  // increment metachars
+                ++j;  // increment metachars only when it's next
 
                 exit(0);
             }
+
+            // TODO: DO | cmd |
 
             // printf("Tokens starting with %s run through loop", token_array[i][0]);
             exit(0);
