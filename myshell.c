@@ -246,11 +246,27 @@ void command_handler(char* tokens[]) {
                 exit(0);
             }
 
-            if ((i + 1 < tok_c) && strcmp(token_array[i + 1][0], "|") == 0) {  // pipe is after args
-                printf("Left child with index %d writing to pipe", i);
-                ++j;  // increment metachars
+            if ((i - 1 >= 0) && (strcmp(token_array[i - 1][0], "|") == 0)) {  // LEFT PIPE (| args)
+                printf("Right command with index %d reading from pipe", i);
 
-                if (dup2(metachars[0].fd[1], STDOUT_FILENO) == -1)
+                if (dup2(metachars[j].fd[0], STDIN_FILENO) == -1)
+                    perror("ERROR: ");
+
+                // if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
+                //     perror("ERROR: ");
+
+                // close(metachars[j].fd[0]);
+                // close(metachars[j].fd[1]);
+                ++j;  //increment metachars
+
+                // exit(0); // DON'T EXIT
+            }
+
+            if ((i + 1 < tok_c) && strcmp(token_array[i + 1][0], "|") == 0) {  // RIGHT PIPE (args |)
+                // execute args after setting output
+                printf("Left command with index %d writing to pipe", i);
+
+                if (dup2(metachars[j].fd[1], STDOUT_FILENO) == -1)
                     perror("ERROR: ");
 
                 if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
@@ -258,21 +274,8 @@ void command_handler(char* tokens[]) {
 
                 close(metachars[0].fd[0]);
                 close(metachars[0].fd[1]);
-                exit(0);
-            }
+                ++j;  // increment metachars
 
-            if ((i - 1 >= 0) && (strcmp(token_array[i - 1][0], "|") == 0)) {  // pipe is before args
-                printf("Right child with index %d reading from pipe", i);
-                ++j;  //increment metachars
-
-                if (dup2(metachars[0].fd[0], STDIN_FILENO) == -1)
-                    perror("ERROR: ");
-
-                if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
-                    perror("ERROR: ");
-
-                close(metachars[0].fd[0]);
-                close(metachars[0].fd[1]);
                 exit(0);
             }
 
