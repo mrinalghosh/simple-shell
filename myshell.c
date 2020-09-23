@@ -164,6 +164,7 @@ void command_handler(char* tokens[]) {
     //                  command { <, > } filename
 
     bool bg = false;              // background
+    bool pipe_passed = false;     // before pipe = false, after = true, reset after each <>
     int ffd, status, pipe_c = 0;  // file fd, status, pipe count
     pid_t pid;                    // only one pid/fork at a time
 
@@ -209,6 +210,8 @@ void command_handler(char* tokens[]) {
                 pid = waitpid(pid, &status, 0);
             else
                 signal(SIGCHLD, child_handler);
+
+            pipe_passed = !pipe_passed;
 
         } else {
             /* ---Child--- */
@@ -266,23 +269,27 @@ void command_handler(char* tokens[]) {
                 //     close(metachars[j - 1].fd[1]);
                 // }
 
-                printf("fd: %d %d\n", metachars[0].fd[0], metachars[0].fd[1]);
-                printf("metachar - %s , index: %d\n", metachars[0].type, metachars[0].index);
-                if (j == 0) {  // first metacharacter is a pipe - first set of arguments <args> | <args>
-                    if (dup2(metachars[0].fd[0], STDOUT_FILENO) == -1)
-                        perror("ERROR: ");
+                if (j == 0) {  // first metacharacter at row index 1 is a pipe - first set of arguments <args> | <args>
 
-                    // if (dup2(metachars[0].fd[1], STDIN_FILENO) == -1)
-                    //     perror("ERROR: ");
+                    if (pipe_passed) {
+                        if (dup2(metachars[0].fd[1], STDOUT_FILENO) == -1)
+                            perror("ERROR: ");
 
-                    if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-                        perror("ERROR: ");
+                        if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                            perror("ERROR: ");
 
-                    // if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
-                    //     perror("ERROR: ");
+                        close(metachars[0].fd[0]);
+                        close(metachars[0].fd[1]);
+                    } else {
+                        if (dup2(metachars[0].fd[0], STDIN_FILENO) == -1)
+                            perror("ERROR: ");
 
-                    close(metachars[0].fd[0]);
-                    close(metachars[0].fd[1]);
+                        if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
+                            perror("ERROR: ");
+
+                        close(metachars[0].fd[0]);
+                        close(metachars[0].fd[1]);
+                    }
 
                     exit(0);
                 }
