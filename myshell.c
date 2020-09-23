@@ -272,6 +272,8 @@ void command_handler(char* tokens[]) {
                 if (j == 0) {  // first metacharacter at row index 1 is a pipe - first set of arguments <args> | <args>
 
                     if (pipe_passed) {
+                        printf("Child with index %d running 1st pipe", i);
+
                         if (dup2(metachars[0].fd[1], STDOUT_FILENO) == -1)
                             perror("ERROR: ");
 
@@ -281,6 +283,8 @@ void command_handler(char* tokens[]) {
                         close(metachars[0].fd[0]);
                         close(metachars[0].fd[1]);
                     } else {
+                        printf("Child with index %d running 2nd pipe", i);
+
                         if (dup2(metachars[0].fd[0], STDIN_FILENO) == -1)
                             perror("ERROR: ");
 
