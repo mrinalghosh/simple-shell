@@ -218,6 +218,7 @@ void command_handler(char* tokens[]) {
         } else {
             /* ---Child--- */
             printf("i am baby from %d\n", i);
+            printf("j: %d, pipe_passed: %d", j, pipe_passed);
 
             if (row == 1) {  // exception for single command without metacharacters
                 if (execvp(token_array[0][0], token_array[0]) < 0) {
@@ -273,10 +274,7 @@ void command_handler(char* tokens[]) {
                 //     close(metachars[j - 1].fd[1]);
                 // }
 
-                printf("j: %d, pipe_passed: %d", j, pipe_passed);
-
                 if (j == 0) {  // first metacharacter at row index 1 is a pipe - first set of arguments <args> | <args>
-
                     if (pipe_passed) {
                         printf("Child with index %d running 1st pipe", i);
 
@@ -305,7 +303,7 @@ void command_handler(char* tokens[]) {
                 }
             }
         }
-        // ++j;  // continue statement guarantees metacharacters only increment here
+        ++j;  // continue statement guarantees metacharacters only increment here
         ++i;  // increment to next row
     }
 
