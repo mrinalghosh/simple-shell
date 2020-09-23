@@ -255,7 +255,7 @@ void command_handler(char* tokens[]) {
             }
 
             if ((i - 1 >= 0) && (strcmp(token_array[i - 1][0], "|") == 0)) {  // LEFT PIPE (| args)
-                printf("Right command with index %d reading from pipe", i);
+                printf("Pipe to the left of command (index %d)... reading from pipe", i);
 
                 if (dup2(metachars[j].fd[0], STDIN_FILENO) == -1)
                     perror("ERROR: ");
@@ -272,19 +272,20 @@ void command_handler(char* tokens[]) {
 
             if ((i + 1 < tok_c) && strcmp(token_array[i + 1][0], "|") == 0) {  // RIGHT PIPE (args |)
                 // execute args after setting output
-                printf("Left command with index %d writing to pipe", i);
+                // printf("Pipe on the right of command (index %d)... writing to pipe", i);
 
-                if (dup2(metachars[j].fd[1], STDOUT_FILENO) == -1)
-                    perror("ERROR: ");
+                // if (dup2(metachars[j].fd[1], STDOUT_FILENO) == -1)
+                //     perror("ERROR: ");
 
-                if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-                    perror("ERROR: ");
+                // if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                //     perror("ERROR: ");
 
-                close(metachars[0].fd[0]);
-                close(metachars[0].fd[1]);
-                ++j;  // increment metachars only when it's next
+                // close(metachars[0].fd[0]);
+                // close(metachars[0].fd[1]);
+                // ++j;  // increment metachars only when it's next
 
-                exit(0);
+                // exit(0);
+                pipe_handler(token_array[i], token_array[i + 2], metachars[0].fd);
             }
 
             // TODO: DO | cmd |
