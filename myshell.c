@@ -150,10 +150,10 @@ void command_handler(char* tokens[]) {
     //                  the resulting token_array is of the form amama....amamama (&) where a = args
     //                  command { <, > } filename
 
-    bool bg = false;                        // background
-    int filefd, status, pipe_c, fdd = 0;  // file fd, status, pipe count, temp fd=0 initially for stdin
-    int fd[2];                              // pipe file descriptors
-    pid_t pid;                              // only one pid/fork at a time
+    bool bg = false, i_redirect = false, o_redirect = false;  // background, input redirect, output redirect
+    int filefd, status, pipe_c, fdd = 0;                      // file fd, status, pipe count, temp fd=0 initially for stdin
+    int fd[2];                                                // pipe file descriptors
+    pid_t pid;                                                // only one pid/fork at a time
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;  // write flags
     int rflags = O_RDONLY;                      // read flag
@@ -165,6 +165,14 @@ void command_handler(char* tokens[]) {
         token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
         --row;
         --meta_c;
+    }
+
+    if (strcmp(token_array[row - 2][0], ">") == 0) {
+        o_redirect = true;  // only one position at eol ... cmd > file ()
+    }
+
+    if (strcmp(token_array[1][0], "<") == 0) {
+        i_redirect = true;
     }
 
     // initialize pipes - DO NOT DO THIS OUTSIDE THE WHILE LOOP
@@ -185,12 +193,12 @@ void command_handler(char* tokens[]) {
     while (token_array[i][0] != NULL) {  // loop over rows of token_array of form AMAMA---AMAMA - just the A=arguments
 
         // print all tokens
-        while (token_array[i][k] != NULL) {
-            printf("\"%s\"  ", token_array[i][k]);
-            ++k;
-        }
-        printf("\n-----\n");
-        k = 0;
+        // while (token_array[i][k] != NULL) {
+        //     printf("\"%s\"  ", token_array[i][k]);
+        //     ++k;
+        // }
+        // printf("\n-----\n");
+        // k = 0;
 
         pipe(fd);
         if ((pid = fork()) == -1) {
@@ -198,18 +206,36 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* Child */
-            dup2(fdd, 0);
-            if (token_array[i + 2][0] != NULL)
-                dup2(fd[1], 1);
-            close(fd[0]);
-            execvp(token_array[i][0], token_array[i]);
-            exit(1);
+            if (i_redirect && i == 0) {  // first command in line
+                printf("Running input redirection\n");
+
+                filefd = open(token_array[i + 2][0], rflags);  // assuming only one filename
+                dup2(filefd, STDIN_FILENO);
+
+                if (execvp(token_array[i][0], token_array[i]) < 0)
+                    perror("ERROR: ");
+
+                close(filefd);
+                exit(1);
+            } else {
+                dup2(fdd, 0);
+                if (token_array[i + 2][0] != NULL)
+                    dup2(fd[1], 1);
+                close(fd[0]);
+                execvp(token_array[i][0], token_array[i]);
+                exit(1);
+            }
+
         } else {
             /* Parent */
-            wait(NULL);  // termination of any child proc
+            if (!bg) {
+                wait(NULL);  // termination of any child proc
+            } else {
+                signal(SIGCHLD, child_handler);
+            }
             close(fd[1]);
             fdd = fd[0];
-            i += 2;
+            i += 2;  // go to next command after pipe
         }
 
         // if ((pid = fork()) == -1) {
