@@ -9,8 +9,6 @@
 #define STD_ERROR 2
 
 void prompt(void);
-// bool chcmp(char ch, char* list, int n);
-// bool strsearch(char* str, char* list, int n);
 void nanny(int signum);
 void command_handler(char* tokens[]);
 
