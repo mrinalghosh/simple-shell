@@ -58,8 +58,6 @@ void command_handler(char* tokens[]) {
 
     char* token_array[TOKEN_LIMIT][MAX_TOKEN];  //2D array - row = {arguments...} alternated w metachars, columns = delimited argument string
 
-    metachar* metachars = malloc(TOKEN_LIMIT * sizeof(metachar));  // array of indexes, type and fd[2] of metacharacters in order
-
     for (i = 0; i < TOKEN_LIMIT; ++i) {
         for (j = 0; j < MAX_TOKEN; ++j) {
             token_array[i][j] = NULL;
@@ -69,8 +67,6 @@ void command_handler(char* tokens[]) {
     while (tokens[tok_c] != NULL) {  // get token count and parses into 2D token_array
 
         if (strsearch(tokens[tok_c], "|<>&", 4)) {
-            metachars[meta_c].index = row + 1;       // index of metacharacter
-            metachars[meta_c].type = tokens[tok_c];  // pointer to metacharacter - string
             ++meta_c;                                // METACHARACTER COUNT
             col = 0;
 
@@ -139,7 +135,6 @@ void command_handler(char* tokens[]) {
             ++pipe_c;  // pipe count
 
     i = 0;  // row counter (even->A, odd->M)
-    j = 0;  // metacharacter counter
 
     while (token_array[i][0] != NULL) {  // loop over every A(args) row of token_array of form AMAMA---AMAMA
         pipe(fd);
@@ -157,9 +152,9 @@ void command_handler(char* tokens[]) {
                 if (dup2(filefd, STDIN_FILENO) == -1)
                     perror("dup2");
 
-                if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )
+                if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )?
                     // printf("pipe next\n");
-                    if (dup2(fd[1], STDOUT_FILENO) == -1)  // does not do anything
+                    if (dup2(fd[1], STDOUT_FILENO) == -1)  // TODO: not working with pipes at all
                         perror("dup2");
                 }
 

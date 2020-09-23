@@ -11,12 +11,6 @@
 #define WRITE 0  // pipe fd[0] corresponds to write to buffer stdin
 #define READ 1   // pipe fd[1] corresponds to read from buffer stdout
 
-typedef struct {
-    int index;
-    char* type;
-    int fd[2];
-} metachar;
-
 void type_prompt(void);
 void error(char* message);
 
