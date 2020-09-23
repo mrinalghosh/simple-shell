@@ -213,14 +213,21 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
-            if (row == 1) {
+            if (row == 1) {  // exception for single command without metacharacters
                 if (execvp(token_array[0][0], token_array[0]) < 0) {
                     perror("ERROR: ");
                 }
                 exit(0);
             }
 
-            if (strcmp(token_array[i][0], "<") == 0) { // command < file
+            if (strcmp(token_array[i][0], "<") == 0) {  // command < file
+
+                if ((j + 1 < meta_c) && (strcmp(metachars[j + 1].type, "|") == 0)) {  // NEXT metachar accessible and is a pipe
+                    // assuming [ command < file | ... ] is only valid configuration
+                    dup2(metachars[j + 1].fd[0], STDOUT_FILENO);  // dup output of command into write end of incoming pipe
+                    close(metachars[j + 1].fd[0]);
+                }
+
                 ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
                 dup2(ffd, STDIN_FILENO);
 
@@ -231,19 +238,48 @@ void command_handler(char* tokens[]) {
                 exit(0);
             }
 
-            if (strcmp(token_array[i][0], ">") == 0) { // command > file
+            if (strcmp(token_array[i][0], ">") == 0) {  // command > file
+
+                if ((strcmp(metachars[j - 1].type, "|") == 0)) {  // PREVIOUS meta_c accessible and is a pipe
+                    // assuming [ ... | command > file ] is only valid configuration
+                    dup2(metachars[j - 1].fd[1], STDIN_FILENO);  // dup input of command to read end of previous pipe
+                    close(metachars[j - 1].fd[1]);
+                }
+
                 ffd = open(token_array[i + 1][0], wflags);
                 dup2(ffd, STDOUT_FILENO);
 
                 if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-                    perror("ERROR");
+                    perror("ERROR: ");
 
                 close(ffd);
                 exit(0);
             }
-        }
 
-        ++i;
+            if (strcmp(token_array[i][0], "|") == 0) {
+                // if ((j + 1 < meta_c) && (strcmp(metachars[j + 1].type, "|") == 0)) {  // pipe after
+                //     dup2(metachars[j + 1].fd[0], STDOUT_FILENO);  // dup output of command into write end of incoming pipe
+                //     close(metachars[j + 1].fd[0]);
+                // }
+
+                // if ((strcmp(metachars[j - 1].type, "|") == 0)) {  // pipe before
+                //     dup2(metachars[j - 1].fd[1], STDIN_FILENO);  // dup input of command to read end of previous pipe
+                //     close(metachars[j - 1].fd[1]);
+                // }
+
+                if (j == 0) {  // first metacharacter is a pipe - first set of arguments <args> | ....
+                    dup2(metachars[0].fd[0], STDOUT_FILENO);
+
+                    if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                        perror("ERROR: ");
+
+                    close(metachars[0].fd[0]);
+                    exit(0);
+                }
+            }
+        }
+        ++j;  // continue statement guarantees metacharacters only increment here
+        ++i;  // increment to next row
     }
 
     return;
