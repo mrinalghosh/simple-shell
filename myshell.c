@@ -227,18 +227,21 @@ void command_handler(char* tokens[]) {
                 close(filefd);
                 close(fd[0]);
                 exit(1);
-            } else if (o_redirect && i == tok_c - 3) {  // i = command (> file) which may or may not have a pipe before - ampersand removed from before
+            } else if (o_redirect && i == tok_c - 3) {  // i = [command] (> file) which may or may not have a pipe before - ampersand removed
                 printf("Running output redirection\n");
 
-                filefd = open(token_array[i + 2][0], wflags);
-                dup2(filefd, STDOUT_FILENO);
+                if (filefd = open(token_array[i + 2][0], wflags) == -1)
+                    perror("open");
+
+                if (dup2(filefd, STDOUT_FILENO))
+                    perror("dup");
 
                 if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {
                     printf("pipe before\n");
                     dup2(fd[0], STDIN_FILENO);
                 }
 
-                if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
+                if (execvp(token_array[i][0], token_array[i]) == -1)
                     perror("execvp");
 
                 close(filefd);
