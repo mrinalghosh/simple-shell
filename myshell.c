@@ -303,6 +303,7 @@ void command_handler(char* tokens[]) {
                         exit(0);
                     }
                 }
+                exit(0);
             }
             printf("SKIPPED THROUGH CHILD\n");
             exit(0);
