@@ -267,18 +267,19 @@ void command_handler(char* tokens[]) {
                 // }
 
                 printf("fd: %d %d\n", metachars[0].fd[0], metachars[0].fd[1]);
+                printf("metachar - %s , index: %d\n", metachars[0].type, metachars[0].index);
                 if (j == 0) {  // first metacharacter is a pipe - first set of arguments <args> | <args>
                     if (dup2(metachars[0].fd[0], STDOUT_FILENO) == -1)
                         perror("ERROR: ");
 
-                    if (dup2(metachars[0].fd[1], STDIN_FILENO) == -1)
-                        perror("ERROR: ");
+                    // if (dup2(metachars[0].fd[1], STDIN_FILENO) == -1)
+                    //     perror("ERROR: ");
 
                     if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
                         perror("ERROR: ");
 
-                    if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
-                        perror("ERROR: ");
+                    // if (execvp(token_array[i + 1][0], token_array[i + 1]) < 0)
+                    //     perror("ERROR: ");
 
                     close(metachars[0].fd[0]);
                     close(metachars[0].fd[1]);
