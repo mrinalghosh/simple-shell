@@ -61,7 +61,7 @@ void prompt(void) {
 }
 
 void error_message(char* message) {
-    printf("ERROR: %s", message);
+    perror("ERROR: %s", message);
     return;
 }
 
@@ -69,7 +69,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
     pid_t pid[2];
 
     if (pipe(fd) == -1) {
-        perror("ERROR: ");
+        perror("pipe");
         exit(1);
     }
 
@@ -79,7 +79,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
         close(fd[0]);          // TODO: WHY DO WE close both sides of pipe in child
         close(fd[1]);
         execvp(args1[0], args1);
-        perror("ERROR: ");
+        perror("execvp");
         exit(1);
     }
 
@@ -89,7 +89,7 @@ void pipe_handler(char* args1[], char* args2[], int fd[]) {
         close(fd[0]);
         close(fd[1]);
         execvp(args2[0], args2);
-        perror("ERROR: ");
+        perror("execvp");
         exit(1);
     }
 
@@ -159,7 +159,7 @@ void command_handler(char* tokens[]) {
     int rflags = O_RDONLY;                      // read flag
     mode_t mode = S_IRUSR | S_IWUSR;            // user permissions flags
 
-    // background task
+    // background tasks
     if (row > 1 && strcmp(token_array[row - 1][0], "&") == 0) {  // must have at least 2 rows (A&)
         bg = true;
         token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
@@ -221,12 +221,12 @@ void command_handler(char* tokens[]) {
                 }
 
                 if (execvp(token_array[i][0], token_array[i]) < 0)
-                    perror("ERROR: ");
+                    perror("execvp");
 
                 close(filefd);
                 close(fd[0]);
                 exit(1);
-            } else if (o_redirect && i == tok_c - 3) {  // i = command (> file) which may or may not have a pipe before
+            } else if (o_redirect && i == tok_c - 2) {  // i = command (> file) which may or may not have a pipe before - ampersand removed from before
                 printf("Running output redirection\n");
 
                 filefd = open(token_array[i + 2][0], wflags);
@@ -238,7 +238,7 @@ void command_handler(char* tokens[]) {
                 }
 
                 if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
-                    perror("ERROR: ");
+                    perror("execvp");
 
                 close(filefd);
                 close(fd[1]);
@@ -262,7 +262,7 @@ void command_handler(char* tokens[]) {
             }
             close(fd[1]);
             tfd = fd[0];  // TODO: what does this line do???
-            i += 2;       // go to next command after pipe
+            i += 2;
         }
 
         // if ((pid = fork()) == -1) {
