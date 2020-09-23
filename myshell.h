@@ -8,6 +8,8 @@
 #define STD_INPUT 0
 #define STD_OUTPUT 1
 #define STD_ERROR 2
+#define WRITE 0  // pipe fd[0] corresponds to write to buffer stdin
+#define READ 1   // pipe fd[1] corresponds to read from buffer stdout
 
 typedef struct {
     int index;

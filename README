@@ -1,5 +1,5 @@
 SOURCES:
-<Lectures, OH with Camden, man page...>
+<Lectures, OH with Daniel, Camden, MAN PAGE>
 
     Tokenizing:
     https://stackoverflow.com/questions/23456374/why-do-we-use-null-in-strtok
@@ -33,11 +33,13 @@ SOURCES:
     https://tldp.org/LDP/lpg/node11.html
     https://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html
     https://linuxhint.com/pipe_system_call_c/#:~:text=The%20pipe()%20system%20function,inter%2Dprocess%20communication%20in%20Linux.
+    https://stackoverflow.com/questions/33884291/pipes-dup2-and-exec
+    https://www.quora.com/How-does-wait-null-work-in-C
 
     Signal Handling:
     https://www.geeksforgeeks.org/signals-c-language/
     https://www.gnu.org/software/libc/manual/html_node/Sigaction-Function-Example.html#:~:text=Here%20is%20an%20equivalent%20example,to%20specify%20the%20new%20action.
-    
+
     Misc:
     https://cboard.cprogramming.com/c-programming/169955-if-strcmp-str1-str2.html
     https://www.tutorialspoint.com/cprogramming/c_break_statement.htm

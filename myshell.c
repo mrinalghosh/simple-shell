@@ -150,10 +150,10 @@ void command_handler(char* tokens[]) {
     //                  the resulting token_array is of the form amama....amamama (&) where a = args
     //                  command { <, > } filename
 
-    bool bg = false;               // background
-    int ffd, status, pipe_c, bfd;  // file fd, status, pipe count, temp fd
-    int pfd[2];                    // pipe file descriptors
-    pid_t pid;                     // only one pid/fork at a time
+    bool bg = false;                        // background
+    int filefd, status, pipe_c, tmpfd = 0;  // file fd, status, pipe count, temp fd=0 initially for stdin
+    int fd[2];                              // pipe file descriptors
+    pid_t pid;                              // only one pid/fork at a time
 
     int wflags = O_WRONLY | O_CREAT | O_TRUNC;  // write flags
     int rflags = O_RDONLY;                      // read flag
@@ -167,7 +167,7 @@ void command_handler(char* tokens[]) {
         --meta_c;
     }
 
-    // initialize pipes
+    // initialize pipes - DO NOT DO THIS OUTSIDE THE WHILE LOOP
     pipe_c = 0;
     for (i = 0; i < meta_c; ++i) {
         if (strcmp(metachars[i].type, "|") == 0) {
@@ -189,10 +189,31 @@ void command_handler(char* tokens[]) {
             printf("\"%s\"  ", token_array[i][k]);
             ++k;
         }
-        printf("\n-----");
+        printf("\n-----\n");
         k = 0;
 
-        
+        pipe(fd);
+        if ((pid = fork()) == -1) {
+            perror("fork");
+            exit(1);
+        } else if (pid == 0) {
+            /* Child */
+            dup2(tmpfd, STD_INPUT);
+            if (token[i + 1][0] != NULL)
+                dup2(fd, STD_OUTPUT);
+            close(fd[WRITE]);
+            execvp(token_array[i][0], token_array[i]);
+            exit(1);
+        } else {
+            /* Parent */
+            wait(NULL);  // termination of any child proc
+            close(fd[READ]);
+            tmpfd = fd[WRITE];
+            i += 2;
+        }
+
+        i += 2;  // increment to two rows down (args->(meta)->args...)
+
         // if ((pid = fork()) == -1) {
         //     perror("ERROR: ");
         //     exit(1);
@@ -225,13 +246,13 @@ void command_handler(char* tokens[]) {
 
         //         // printf("Running input redirection\n");
         //         ++j;                                        // increment metacharacter array
-        //         ffd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
-        //         dup2(ffd, STDIN_FILENO);
+        //         filefd = open(token_array[i + 1][0], rflags);  // assuming only one file can be redirected
+        //         dup2(filefd, STDIN_FILENO);
 
         //         if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
         //             perror("ERROR: ");
 
-        //         close(ffd);
+        //         close(filefd);
         //         exit(0);
         //     }
 
@@ -239,13 +260,13 @@ void command_handler(char* tokens[]) {
 
         //         // printf("Running output redirection\n");
         //         ++j;  // increment metacharacter array
-        //         ffd = open(token_array[i + 1][0], wflags);
-        //         dup2(ffd, STDOUT_FILENO);
+        //         filefd = open(token_array[i + 1][0], wflags);
+        //         dup2(filefd, STDOUT_FILENO);
 
         //         if (execvp(token_array[i - 1][0], token_array[i - 1]) < 0)
         //             perror("ERROR: ");
 
-        //         close(ffd);
+        //         close(filefd);
         //         exit(0);
         //     }
 
@@ -290,7 +311,6 @@ void command_handler(char* tokens[]) {
         //     exit(0);
         // }
         // printf("Read tokens starting with: \"%s\"", token_array[i][0]);
-        i += 2;  // increment to two rows down (args->(meta)->args...)
     }
     return;
 }
