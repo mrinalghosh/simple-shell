@@ -151,7 +151,7 @@ void command_handler(char* tokens[]) {
             if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
                 // printf("Running input redirection\n");
 
-                if (filefd = open(token_array[i + 2][0], rflags, mode) == -1)
+                if ((filefd = open(token_array[i + 2][0], rflags, mode)) == -1)
                     perror("open");  // assuming only one filename
 
                 if (dup2(filefd, STDIN_FILENO) == -1)
