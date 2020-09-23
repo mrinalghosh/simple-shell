@@ -184,8 +184,10 @@ void command_handler(char* tokens[]) {
 
         while (token_array[i][k] != NULL) {
             printf("\"%s\"  ", token_array[i][k]);
+            ++k;
         }
         printf("\n");
+        k = 0;
 
         if ((pid = fork()) == -1) {
             perror("ERROR: ");
