@@ -207,10 +207,14 @@ void command_handler(char* tokens[]) {
         } else if (pid == 0) {
             /* Child */
             if (i_redirect && i == 0) {  // first command in line
-                printf("Running input redirection\n");
+                // printf("Running input redirection\n");
 
                 filefd = open(token_array[i + 2][0], rflags);  // assuming only one filename
                 dup2(filefd, STDIN_FILENO);
+
+                if (pipe_c > 0) {  // at least one pipe that will be immediately after command < file | ...
+                    dup2(fd[1], STDOUT_FILENO);
+                }
 
                 if (execvp(token_array[i][0], token_array[i]) < 0)
                     perror("ERROR: ");
