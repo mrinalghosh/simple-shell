@@ -156,9 +156,9 @@ void command_handler(char* tokens[]) {
     int fd[2];                                                // pipe file descriptors
     pid_t pid;                                                // only one pid/fork at a time
 
-    int wflags = O_WRONLY | O_CREAT | O_TRUNC;  // write flags
-    int rflags = O_RDONLY;                      // read flag
-    mode_t mode = S_IRUSR | S_IWUSR;            // user permissions flags
+    int wflags = O_WRONLY | O_CREAT | O_TRUNC;            // write flags
+    int rflags = O_RDONLY;                                // read flag
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;  // user permissions flags
 
     // background tasks
     if (row > 1 && strcmp(token_array[row - 1][0], "&") == 0) {  // must have at least 2 rows (A&)
@@ -210,15 +210,16 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* Child */
-            if (i_redirect && i == 0) {  // must be first command in line
+            if (i_redirect && i == 0) {  // i = [command] (< file) must be first command
                 printf("Running input redirection\n");
 
-                filefd = open(token_array[i + 2][0], rflags);  // assuming only one filename
+                filefd = open(token_array[i + 2][0], rflags, mode);  // assuming only one filename
                 dup2(filefd, STDIN_FILENO);
 
                 if (token_array[i + 3][0] != NULL && strcmp(token_array[i + 3][0], "|") == 0) {  // next mc is a pipe after ( command < file | ... )
-                    printf("pipe up next\n");
-                    dup2(fd[1], STDOUT_FILENO);
+                    printf("pipe next\n");
+                    if (dup2(fd[1], STDOUT_FILENO) == -1)
+                        perror("dup2");
                 }
 
                 if (execvp(token_array[i][0], token_array[i]) < 0)
@@ -234,9 +235,9 @@ void command_handler(char* tokens[]) {
                     perror("open");
 
                 if (dup2(filefd, STDOUT_FILENO))
-                    perror("dup");
+                    perror("dup2");
 
-                if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {
+                if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {  // look for pipe before
                     printf("pipe before\n");
                     dup2(fd[0], STDIN_FILENO);
                 }
@@ -260,12 +261,12 @@ void command_handler(char* tokens[]) {
         } else {
             /* Parent */
             if (!bg) {
-                wait(NULL);  // termination of any child proc
+                waitpid(pid, &status, 0);
             } else {
                 signal(SIGCHLD, child_handler);
             }
             close(fd[1]);
-            tfd = fd[0];  // TODO: what does this line do???
+            tfd = fd[0];  // TODO: what does this line do??? - from quora
             i += 2;
         }
 
