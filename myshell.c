@@ -186,7 +186,7 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid > 0) {
             /* ---Parent--- */
-            printf("henlo from papa\n");
+            // printf("henlo from papa\n");
             if (!bg) {
                 pid = waitpid(pid, &status, 0);
             } else {
@@ -195,7 +195,7 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
-            printf("i am baby from i:%d j:%d\n", i, j);
+            // printf("i am baby from i:%d j:%d\n", i, j);
 
             if (row == 1) {  // exception for single command without metacharacters
                 printf("Running single command\n");
@@ -276,10 +276,10 @@ void command_handler(char* tokens[]) {
                 exit(0);
             }
 
-            printf("Tokens starting with %s run through loop", token_array[i][0]);
+            // printf("Tokens starting with %s run through loop", token_array[i][0]);
             exit(0);
         }
-        printf("Read tokens starting with: \"%s\"", token_array[i][0]);
+        // printf("Read tokens starting with: \"%s\"", token_array[i][0]);
         ++i;  // increment to next row (args->meta->args...)
     }
     return;
