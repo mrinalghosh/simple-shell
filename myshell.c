@@ -201,7 +201,7 @@ void command_handler(char* tokens[]) {
         // printf("\n-----\n");
         // k = 0;
 
-        printf("pipe_c: %d, row_c: %d\n", pipe_c, row);  // print number of pipes
+        printf("pipe_c: %d, row_c: %d\n", pipe_c, row);  // print number of pipes and rows
 
         pipe(fd);
         if ((pid = fork()) == -1) {
@@ -209,7 +209,7 @@ void command_handler(char* tokens[]) {
             exit(1);
         } else if (pid == 0) {
             /* Child */
-            if (i_redirect && i == 0) {  // first command in line
+            if (i_redirect && i == 0) {  // must be first command in line
                 printf("Running input redirection\n");
 
                 filefd = open(token_array[i + 2][0], rflags);  // assuming only one filename
@@ -229,7 +229,7 @@ void command_handler(char* tokens[]) {
             } else if (o_redirect && i == tok_c - 3) {  // i = command (> file) which may or may not have a pipe before
                 printf("Running output redirection\n");
 
-                filefd = open(token_array[i + 1][0], wflags);
+                filefd = open(token_array[i + 2][0], wflags);
                 dup2(filefd, STDOUT_FILENO);
 
                 if (i > 0 && strcmp(token_array[i - 1][0], "|") == 0) {
