@@ -144,17 +144,6 @@ void command_handler(char* tokens[]) {
     }
     ++row;  // row index -> row count
 
-    /* ####---- SINGLE-METACHARACTER EXECUTION----#### */
-
-    // while (token_array[i][0] != NULL) {
-
-    //     /* METACHARACTER HANDLING */
-    //     if (strcmp(token_array[i][0], "|") == 0) {
-    //         pipe_handler(token_array[i - 1], token_array[i + 1], metachars[i].fd);
-    //     }
-    //     ++i;
-    // }
-
     /* ####----MULTI-METACHARACTER EXECUTION----#### */
 
     // ASSUMPTIONS:     metacharacters can only be in the valid form (<) (||...||) (>) (&)
@@ -191,20 +180,6 @@ void command_handler(char* tokens[]) {
     j = 0;  // metacharacter counter
 
     while (token_array[i][0] != NULL) {  // loop over rows of token_array and act at every metacharacter
-        printf("ROW NUMBER: %d\n", i);
-
-        // if (!strsearch(token_array[i][0], "|<>", 3) && row != 1) {  // not a row w/ metacharacter and not a single line command
-        //     ++i;
-        //     printf("NOT A METACHARACTER AND ROW ~= 1\n");
-        //     continue; // SKIPPING EVERY SINGLE THING BESIDE METACHARACTERS - I WANT TO EXECUTE IN THE LOOP
-        // }
-
-        // if (strsearch(token_array[i][0], "|", 3)) {
-        //     ++j;  // skip to next metacharacter
-        //     ++i;  // is a pipe skip to next row
-        //     printf("SKIPPING PIPE CHARACTER\n");
-        //     continue;
-        // }
 
         if ((pid = fork()) == -1) {
             perror("ERROR: ");
@@ -220,8 +195,7 @@ void command_handler(char* tokens[]) {
 
         } else {
             /* ---Child--- */
-            printf("j: %d, pipe_passed: %d\n", j, pipe_passed);
-            printf("i am baby from %d\n", i);
+            printf("i am baby from i:%d j:%d\n", i, j);
 
             if (row == 1) {  // exception for single command without metacharacters
                 printf("Running single command\n");
@@ -302,16 +276,13 @@ void command_handler(char* tokens[]) {
                 exit(0);
             }
 
-            printf("Tokens starting with %s not used ")
+            printf("Tokens starting with %s run through loop", token_array[i][0]);
+            exit(0);
         }
-        exit(0);
+        printf("Read tokens starting with: \"%s\"", token_array[i][0]);
+        ++i;  // increment to next row (args->meta->args...)
     }
-
-    printf("Read tokens starting with: \"%s\"", token_array[i][0]);
-    ++i;  // increment to next row (args->meta->args...)
-}
-
-return;
+    return;
 }
 
 int main(int argc, char** argv) {
