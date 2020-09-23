@@ -286,6 +286,7 @@ void command_handler(char* tokens[]) {
 
                 // exit(0);
                 pipe_handler(token_array[i], token_array[i + 2], metachars[0].fd);
+                exit(0);
             }
 
             // TODO: DO | cmd |
