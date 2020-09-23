@@ -160,7 +160,7 @@ void command_handler(char* tokens[]) {
     mode_t mode = S_IRUSR | S_IWUSR;            // user permissions flags
 
     // background task
-    if (row > 1 strcmp(token_array[row - 1][0], "&") == 0) {
+    if (row > 1 && strcmp(token_array[row - 1][0], "&") == 0) {
         bg = true;
         token_array[row - 1][0] = NULL;  // remove "&" from last row of token_array - now of form AMA....MAMA
         --row;
